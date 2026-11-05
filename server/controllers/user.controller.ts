@@ -291,7 +291,7 @@ export const updateAccessToken = catchAsyncError(
       const refresh_token = req.cookies.refresh_token as string;
       const decoded = jwt.verify(
         refresh_token,
-        process.env.REFRESH_TOKEN as string
+        process.env.JWT_SECRET as string
       ) as JwtPayload;
 
       const message = "Could not refresh token.";
@@ -308,7 +308,7 @@ export const updateAccessToken = catchAsyncError(
 
       const accessToken = jwt.sign(
         { id: user._id },
-        process.env.ACCESS_TOKEN as string,
+        process.env.JWT_SECRET as string,
         {
           expiresIn: "5m",
         }
@@ -316,7 +316,7 @@ export const updateAccessToken = catchAsyncError(
 
       const refreshToken = jwt.sign(
         { id: user._id },
-        process.env.REFRESH_TOKEN as string,
+        process.env.JWT_SECRET as string,
         {
           expiresIn: "3d",
         }
