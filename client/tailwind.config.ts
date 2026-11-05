@@ -20,6 +20,7 @@ export default {
         Poppins: ["var(--font-Poppins)"],
         archivo: ["var(--font-archivo)", "sans-serif"],
         orbitron: ["var(--font-orbitron)", "sans-serif"],
+        "monte-carlo": ["var(--font-monte-carlo)", "cursive"],
       },
       screens: {
         "800px": "800px",

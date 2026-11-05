@@ -1,7 +1,6 @@
 require("dotenv").config();
 import { Response } from "express";
 import { IUser } from "../models/user.model";
-import { redis } from "./redis";
 
 interface ITokenOptions {
   expires: Date;
@@ -37,9 +36,6 @@ export const sendToken = async (
   const refreshToken = user.SignRefreshToken();
 
   const userData = user.toObject();
-
-  // upload session to redis
-  await redis.set(user._id.toString(), JSON.stringify(userData), "EX", 604800); // expire in 7 days
 
   // parse environment variables to integrate with fallback values
   const accessTokenExpire = parseInt(process.env.ACCESS_TOKEN_EXPIRE || "5", 10);

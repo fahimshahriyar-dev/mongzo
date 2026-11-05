@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { catchAsyncError } from "./catchAsyncError";
 import ErrorHandler from "../utils/errorHandler";
 import jwt from "jsonwebtoken";
-import { redis } from "../utils/redis";
+import userModel from "../models/user.model";
 
 // define a type for the JWT payload
 interface JwtPayload {
@@ -29,13 +29,13 @@ export const isAuthenticated = catchAsyncError(
       return next(new ErrorHandler("Access token is not valid.", 400));
     }
 
-    const user = await redis.get(decoded.id);
+    const user = await userModel.findById(decoded.id);
 
     if (!user) {
       return next(new ErrorHandler("Please login to access this resource.", 400));
     }
 
-    req.user = JSON.parse(user);
+    req.user = user;
 
     next();
   }

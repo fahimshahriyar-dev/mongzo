@@ -6,9 +6,10 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import toast from "react-hot-toast";
 import { IoEye, IoEyeOff } from "react-icons/io5";
-import { useRegisterMutation } from "@/redux/features/auth/authApi";
+import { FaShieldAlt } from "react-icons/fa";
+import { useRegisterMutation, useActivationMutation } from "@/redux/features/auth/authApi";
 
-const schema = Yup.object().shape({
+const signupSchema = Yup.object().shape({
   name: Yup.string().required("Please enter your name."),
   email: Yup.string().email("Invalid email").required("Please enter your email."),
   password: Yup.string()
@@ -18,129 +19,235 @@ const schema = Yup.object().shape({
 
 const SignUp = () => {
   const [showPass, setShowPass] = useState(false);
+  const [activationStep, setActivationStep] = useState(false);
+  const [activationToken, setActivationToken] = useState("");
+  const [verifyCode, setVerifyCode] = useState(["", "", "", ""]);
   const router = useRouter();
-  const [register, { isSuccess, error }] = useRegisterMutation();
+
+  const [register, { isSuccess: isRegSuccess, data: regData, error: regError, isLoading: isRegLoading }] = useRegisterMutation();
+  const [activation, { isSuccess: isActSuccess, error: actError, isLoading: isActLoading }] = useActivationMutation();
 
   const formik = useFormik({
     initialValues: { name: "", email: "", password: "" },
-    validationSchema: schema,
+    validationSchema: signupSchema,
     onSubmit: async (values) => {
       await register(values);
     },
   });
 
   useEffect(() => {
-    if (isSuccess) {
-      toast.success("Account created successfully!");
+    if (isRegSuccess) {
+      toast.success(regData?.message || "Verification code sent to your email!");
+      setActivationToken(regData?.activationToken);
+      setActivationStep(true);
+    }
+    if (regError) {
+      const errorData = regError as any;
+      toast.error(errorData?.data?.message || "Failed to register.");
+    }
+  }, [isRegSuccess, regData, regError]);
+
+  useEffect(() => {
+    if (isActSuccess) {
+      toast.success("Account activated successfully!");
       router.push("/");
     }
-    if (error) {
-      const errorData = error as any;
-      toast.error(errorData?.data?.message || "Something went wrong.");
+    if (actError) {
+      const errorData = actError as any;
+      toast.error(errorData?.data?.message || "Invalid or expired code.");
     }
-  }, [isSuccess, error, router]);
+  }, [isActSuccess, actError, router]);
+
+  const handleCodeChange = (index: number, val: string) => {
+    if (val.length > 1) val = val[val.length - 1];
+    const newCode = [...verifyCode];
+    newCode[index] = val;
+    setVerifyCode(newCode);
+
+    // Auto-focus next input
+    if (val && index < 3) {
+      const nextInput = document.getElementById(`digit-${index + 1}`);
+      nextInput?.focus();
+    }
+  };
+
+  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !verifyCode[index] && index > 0) {
+      const prevInput = document.getElementById(`digit-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
+
+  const handleVerifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = verifyCode.join("");
+    if (code.length < 4) {
+      toast.error("Please enter the complete 4-digit code.");
+      return;
+    }
+    await activation({
+      activation_token: activationToken,
+      activation_code: code,
+    });
+  };
 
   const { errors, touched, values, handleChange, handleSubmit } = formik;
 
   return (
-    <div className="min-h-screen flex-center bg-mongzo-mist px-4 py-10">
-      <div className="w-full max-w-[450px] bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-        <Link href="/" className="block text-center text-2xl font-Poppins font-[600] text-mongzo-dark">
-          Mongzo<span className="text-mongzo-green">.</span>
+    <div className="min-h-screen flex items-center justify-center bg-[#f7f8fa] px-4 py-10">
+      <div className="w-full max-w-[460px] bg-white rounded-3xl border border-neutral-200/80 shadow-xl p-8 sm:p-10 transition-all">
+        <Link href="/" className="block text-center text-3xl font-orbitron font-bold text-neutral-900 tracking-wider">
+          Mongzo<span className="text-blue-600">.</span>
         </Link>
-        <h1 className="title mt-4 text-mongzo-dark">Join Mongzo</h1>
 
-        <form onSubmit={handleSubmit}>
-          {/* name */}
-          <div className="w-full mt-8">
-            <label className="label text-mongzo-dark" htmlFor="name">
-              Enter your name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={values.name}
-              onChange={handleChange}
-              id="name"
-              placeholder="Mr. X"
-              className={`input border border-gray-300 rounded-md px-3 mt-3 text-mongzo-dark placeholder:text-gray-400 ${
-                errors.name && touched.name ? "border-red-500" : ""
-              }`}
-            />
-            {errors.name && touched.name && (
-              <span className="text-red-500 text-[14px] pt-2 block">{errors.name}</span>
-            )}
+        {!activationStep ? (
+          <>
+            <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 text-center mt-3">
+              Create an account
+            </h1>
+            <p className="text-xs text-neutral-500 text-center mt-1">
+              Join Mongzo and start exploring the world
+            </p>
+
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+              {/* Name */}
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700" htmlFor="name">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={values.name}
+                  onChange={handleChange}
+                  id="name"
+                  placeholder="Mr. John Doe"
+                  className={`w-full mt-1.5 px-3.5 py-2.5 rounded-xl border bg-neutral-50/50 text-sm outline-none transition-all focus:bg-white focus:ring-2 focus:ring-blue-500/20 ${
+                    errors.name && touched.name ? "border-red-500" : "border-neutral-300 focus:border-blue-500"
+                  }`}
+                />
+                {errors.name && touched.name && (
+                  <span className="text-red-500 text-xs mt-1 block">{errors.name}</span>
+                )}
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700" htmlFor="email">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={values.email}
+                  onChange={handleChange}
+                  id="email"
+                  placeholder="you@gmail.com"
+                  className={`w-full mt-1.5 px-3.5 py-2.5 rounded-xl border bg-neutral-50/50 text-sm outline-none transition-all focus:bg-white focus:ring-2 focus:ring-blue-500/20 ${
+                    errors.email && touched.email ? "border-red-500" : "border-neutral-300 focus:border-blue-500"
+                  }`}
+                />
+                {errors.email && touched.email && (
+                  <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>
+                )}
+              </div>
+
+              {/* Password */}
+              <div className="relative">
+                <label className="block text-xs font-semibold text-neutral-700" htmlFor="password">
+                  Password
+                </label>
+                <div className="relative mt-1.5">
+                  <input
+                    type={showPass ? "text" : "password"}
+                    name="password"
+                    value={values.password}
+                    onChange={handleChange}
+                    id="password"
+                    placeholder="At least 8 characters"
+                    className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border bg-neutral-50/50 text-sm outline-none transition-all focus:bg-white focus:ring-2 focus:ring-blue-500/20 ${
+                      errors.password && touched.password ? "border-red-500" : "border-neutral-300 focus:border-blue-500"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                    aria-label="Toggle password visibility"
+                  >
+                    {showPass ? <IoEye size={18} /> : <IoEyeOff size={18} />}
+                  </button>
+                </div>
+                {errors.password && touched.password && (
+                  <span className="text-red-500 text-xs mt-1 block">{errors.password}</span>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isRegLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 disabled:opacity-50 mt-2"
+              >
+                {isRegLoading ? "Sending verification email..." : "Sign up"}
+              </button>
+
+              <p className="text-center text-xs text-neutral-500 pt-3">
+                Already have an account?{" "}
+                <Link href="/signin" className="text-blue-600 font-bold hover:underline">
+                  Sign in
+                </Link>
+              </p>
+            </form>
+          </>
+        ) : (
+          /* Activation Verification Step */
+          <div className="mt-4">
+            <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center mx-auto mb-3">
+              <FaShieldAlt className="text-xl" />
+            </div>
+            <h2 className="text-xl font-bold text-neutral-900 text-center">
+              Verify your email
+            </h2>
+            <p className="text-xs text-neutral-500 text-center mt-1 px-4">
+              We have sent a 4-digit verification code to <span className="font-semibold text-neutral-800">{values.email}</span>. Please enter it below:
+            </p>
+
+            <form onSubmit={handleVerifySubmit} className="mt-8 space-y-6">
+              <div className="flex justify-center gap-3">
+                {verifyCode.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    id={`digit-${idx}`}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleCodeChange(idx, e.target.value)}
+                    onKeyDown={(e) => handleCodeKeyDown(idx, e)}
+                    className="w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-neutral-300 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all bg-neutral-50/50 focus:bg-white"
+                  />
+                ))}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isActLoading}
+                className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 disabled:opacity-50"
+              >
+                {isActLoading ? "Verifying..." : "Verify & Activate Account"}
+              </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setActivationStep(false)}
+                  className="text-xs text-neutral-500 hover:text-neutral-800 underline"
+                >
+                  Change email or details
+                </button>
+              </div>
+            </form>
           </div>
-
-          {/* email */}
-          <div className="w-full mt-5">
-            <label className="label text-mongzo-dark" htmlFor="email">
-              Enter your email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={values.email}
-              onChange={handleChange}
-              id="email"
-              placeholder="you@gmail.com"
-              className={`input border border-gray-300 rounded-md px-3 mt-3 text-mongzo-dark placeholder:text-gray-400 ${
-                errors.email && touched.email ? "border-red-500" : ""
-              }`}
-            />
-            {errors.email && touched.email && (
-              <span className="text-red-500 text-[14px] pt-2 block">{errors.email}</span>
-            )}
-          </div>
-
-          {/* password */}
-          <div className="w-full mt-5 mb-1 relative">
-            <label className="label text-mongzo-dark" htmlFor="password">
-              Enter your password
-            </label>
-            <input
-              type={showPass ? "text" : "password"}
-              name="password"
-              value={values.password}
-              onChange={handleChange}
-              id="password"
-              placeholder="P@$$w0Rd!"
-              className={`input border border-gray-300 rounded-md px-3 mt-3 text-mongzo-dark placeholder:text-gray-400 ${
-                errors.password && touched.password ? "border-red-500" : ""
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPass(!showPass)}
-              className="absolute bottom-3 right-3 text-gray-500"
-              aria-label="Toggle password visibility"
-            >
-              {showPass ? <IoEye /> : <IoEyeOff />}
-            </button>
-            {errors.password && touched.password && (
-              <span className="text-red-500 text-[14px] pt-2 block">{errors.password}</span>
-            )}
-          </div>
-
-          <input
-            type="submit"
-            value="Sign up"
-            className="button bg-mongzo-green hover:bg-mongzo-greenDark text-mongzo-dark font-[600] mt-8"
-          />
-
-          <h5 className="text-center pt-6 font-Poppins text-[14px] text-gray-600">
-            {"Already have an account? "}
-            <Link href="/signin" className="text-mongzo-greenDark font-[600] hover:underline">
-              Sign in
-            </Link>
-          </h5>
-
-          <h5 className="text-center pt-3 font-Poppins text-[14px]">
-            <Link href="/" className="text-gray-500 hover:text-mongzo-dark transition-all">
-              Back to home
-            </Link>
-          </h5>
-        </form>
+        )}
       </div>
     </div>
   );

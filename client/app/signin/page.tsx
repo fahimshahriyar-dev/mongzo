@@ -18,7 +18,7 @@ const schema = Yup.object().shape({
 const SignIn = () => {
   const [showPass, setShowPass] = useState(false);
   const router = useRouter();
-  const [logIn, { isSuccess, error }] = useLogInMutation();
+  const [logIn, { isSuccess, error, isLoading }] = useLogInMutation();
 
   const formik = useFormik({
     initialValues: { email: "", password: "" },
@@ -35,25 +35,30 @@ const SignIn = () => {
     }
     if (error) {
       const errorData = error as any;
-      toast.error(errorData?.data?.message || "Something went wrong.");
+      toast.error(errorData?.data?.message || "Invalid email or password.");
     }
   }, [isSuccess, error, router]);
 
   const { errors, touched, values, handleChange, handleSubmit } = formik;
 
   return (
-    <div className="min-h-screen flex-center bg-mongzo-mist px-4 py-10">
-      <div className="w-full max-w-[450px] bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-        <Link href="/" className="block text-center text-2xl font-Poppins font-[600] text-mongzo-dark">
-          Mongzo<span className="text-mongzo-green">.</span>
+    <div className="min-h-screen flex items-center justify-center bg-[#f7f8fa] px-4 py-10">
+      <div className="w-full max-w-[440px] bg-white rounded-3xl border border-neutral-200/80 shadow-xl p-8 sm:p-10 transition-all">
+        <Link href="/" className="block text-center text-3xl font-orbitron font-bold text-neutral-900 tracking-wider">
+          Mongzo<span className="text-blue-600">.</span>
         </Link>
-        <h1 className="title mt-4 text-mongzo-dark">Sign in to Mongzo</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 text-center mt-3">
+          Sign in to Mongzo
+        </h1>
+        <p className="text-xs text-neutral-500 text-center mt-1">
+          Welcome back! Please enter your details
+        </p>
 
-        <form onSubmit={handleSubmit}>
-          {/* email */}
-          <div className="w-full mt-8">
-            <label className="label text-mongzo-dark" htmlFor="email">
-              Enter your email
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700" htmlFor="email">
+              Email Address
             </label>
             <input
               type="email"
@@ -62,62 +67,65 @@ const SignIn = () => {
               onChange={handleChange}
               id="email"
               placeholder="you@gmail.com"
-              className={`input border border-gray-300 rounded-md px-3 mt-3 text-mongzo-dark placeholder:text-gray-400 ${
-                errors.email && touched.email ? "border-red-500" : ""
+              className={`w-full mt-1.5 px-3.5 py-2.5 rounded-xl border bg-neutral-50/50 text-sm outline-none transition-all focus:bg-white focus:ring-2 focus:ring-blue-500/20 ${
+                errors.email && touched.email ? "border-red-500" : "border-neutral-300 focus:border-blue-500"
               }`}
             />
             {errors.email && touched.email && (
-              <span className="text-red-500 text-[14px] pt-2 block">{errors.email}</span>
+              <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>
             )}
           </div>
 
-          {/* password */}
-          <div className="w-full mt-5 mb-1 relative">
-            <label className="label text-mongzo-dark" htmlFor="password">
-              Enter your password
-            </label>
-            <input
-              type={showPass ? "text" : "password"}
-              name="password"
-              value={values.password}
-              onChange={handleChange}
-              id="password"
-              placeholder="P@$$w0Rd!"
-              className={`input border border-gray-300 rounded-md px-3 mt-3 text-mongzo-dark placeholder:text-gray-400 ${
-                errors.password && touched.password ? "border-red-500" : ""
-              }`}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPass(!showPass)}
-              className="absolute bottom-3 right-3 text-gray-500"
-              aria-label="Toggle password visibility"
-            >
-              {showPass ? <IoEye /> : <IoEyeOff />}
-            </button>
+          {/* Password */}
+          <div className="relative">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-neutral-700" htmlFor="password">
+                Password
+              </label>
+              <Link href="/forgot-password" className="text-xs text-blue-600 hover:underline font-semibold">
+                Forgot password?
+              </Link>
+            </div>
+            <div className="relative mt-1.5">
+              <input
+                type={showPass ? "text" : "password"}
+                name="password"
+                value={values.password}
+                onChange={handleChange}
+                id="password"
+                placeholder="Enter your password"
+                className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border bg-neutral-50/50 text-sm outline-none transition-all focus:bg-white focus:ring-2 focus:ring-blue-500/20 ${
+                  errors.password && touched.password ? "border-red-500" : "border-neutral-300 focus:border-blue-500"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                aria-label="Toggle password visibility"
+              >
+                {showPass ? <IoEye size={18} /> : <IoEyeOff size={18} />}
+              </button>
+            </div>
             {errors.password && touched.password && (
-              <span className="text-red-500 text-[14px] pt-2 block">{errors.password}</span>
+              <span className="text-red-500 text-xs mt-1 block">{errors.password}</span>
             )}
           </div>
 
-          <input
+          <button
             type="submit"
-            value="Sign in"
-            className="button bg-mongzo-green hover:bg-mongzo-greenDark text-mongzo-dark font-[600] mt-8"
-          />
+            disabled={isLoading}
+            className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold text-sm py-3 rounded-xl transition-all shadow-md shadow-blue-500/20 disabled:opacity-50 mt-2"
+          >
+            {isLoading ? "Signing in..." : "Sign in"}
+          </button>
 
-          <h5 className="text-center pt-6 font-Poppins text-[14px] text-gray-600">
-            {"Don't have an account? "}
-            <Link href="/signup" className="text-mongzo-greenDark font-[600] hover:underline">
+          <p className="text-center text-xs text-neutral-500 pt-3">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="text-blue-600 font-bold hover:underline">
               Sign up
             </Link>
-          </h5>
-
-          <h5 className="text-center pt-3 font-Poppins text-[14px]">
-            <Link href="/" className="text-gray-500 hover:text-mongzo-dark transition-all">
-              Back to home
-            </Link>
-          </h5>
+          </p>
         </form>
       </div>
     </div>

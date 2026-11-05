@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Archivo_Black, Orbitron } from "next/font/google";
+import { Poppins, Archivo_Black, Orbitron, MonteCarlo } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { Providers } from "./provider";
 import "./globals.css";
@@ -22,6 +22,12 @@ const orbitron = Orbitron({
   variable: "--font-orbitron",
 });
 
+const monteCarlo = MonteCarlo({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-monte-carlo",
+});
+
 export const metadata: Metadata = {
   title: "Mongzo - Modern Full-Stack Starter",
   description:
@@ -37,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${poppins.variable} ${archivoBlack.variable} ${orbitron.variable} font-Poppins antialiased`}
+        className={`${poppins.variable} ${archivoBlack.variable} ${orbitron.variable} ${monteCarlo.variable} font-Poppins antialiased`}
       >
         <Providers>
           {children}
