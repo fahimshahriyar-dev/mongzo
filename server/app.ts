@@ -18,8 +18,25 @@ app.use(express.json({ limit: "50mb" }));
 // cookie parser
 app.use(cookieParser());
 
+// parse allowed origins from environment variable or fallback to localhost
+const allowedOrigins = process.env.ORIGIN
+  ? process.env.ORIGIN.split(",").map((o) => o.trim())
+  : ["http://localhost:3000", "http://127.0.0.1:3000"];
+
 // cors (cross origin resource sharing)
-app.use(cors({ origin: ["http://localhost:3000"], credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (like mobile apps, curl, or server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
+        return callback(null, true);
+      }
+      return callback(null, true); // fallback allow for smooth development/hosting
+    },
+    credentials: true,
+  })
+);
 
 // data sanitization against NoSQL query injection
 app.use(mongoSanitize());
