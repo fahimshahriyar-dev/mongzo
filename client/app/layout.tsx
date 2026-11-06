@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Poppins, Archivo_Black, Orbitron, MonteCarlo } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { Providers } from "./provider";
@@ -42,6 +43,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          id="travelpayouts-drive"
+          strategy="afterInteractive"
+          src="https://tpembars.com/NTk2ODg5.js?t=596889"
+          data-cmp-ab="2"
+        />
+      </head>
       <body
         className={`${poppins.variable} ${archivoBlack.variable} ${orbitron.variable} ${monteCarlo.variable} font-Poppins antialiased`}
       >
