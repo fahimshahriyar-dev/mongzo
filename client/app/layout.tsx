@@ -44,11 +44,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script
-          id="travelpayouts-drive"
-          strategy="afterInteractive"
-          src="https://tpembars.com/NTk2ODg5.js?t=596889"
-          data-cmp-ab="2"
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function () {
+      var script = document.createElement("script");
+      script.async = 1;
+      script.setAttribute("data-cmp-ab","2");
+      script.src = 'https://tpembars.com/NTk2ODg5.js?t=596889';
+      document.head.appendChild(script);
+  })();`,
+          }}
         />
       </head>
       <body
