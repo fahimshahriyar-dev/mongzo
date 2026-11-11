@@ -29,7 +29,6 @@ const RevealLines = ({ lines }: { lines: string[] }) => (
 const Hero = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const centerBrandRef = useRef<HTMLDivElement | null>(null);
   const topLeftRef = useRef<HTMLDivElement | null>(null);
   const topRightRef = useRef<HTMLDivElement | null>(null);
   const bottomLeftRef = useRef<HTMLDivElement | null>(null);
@@ -149,31 +148,12 @@ const Hero = () => {
     window.addEventListener("resize", resize);
 
     const playhead = { frame: 0 };
-    // Frames finish after ~4 viewport heights of scrolling, which is exactly
-    // where the 500vh section ends (500vh - 100vh sticky viewport = 4 screens).
-    // Once the page can't scroll further, Home.tsx slides the Booking panel up.
-    const tween = gsap.to(playhead, {
-      frame: FRAME_COUNT - 1,
-      ease: "none",
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: () => "+=" + window.innerHeight * 4,
-        scrub: 0.8,
-        invalidateOnRefresh: true,
-      },
-      onUpdate: () => {
-        const frame = Math.round(playhead.frame);
-        if (frame !== currentFrame) {
-          currentFrame = frame;
-          draw(frame);
-        }
-      },
-    });
 
-    // MASTER OVERLAY TIMELINE (0 to 100% of section scroll)
-    // The empty tween fixes the timeline duration to 1 so every
-    // position below maps directly to scroll progress (0 = top, 1 = bottom).
+    // MASTER TIMELINE (0 to 100% of section scroll)
+    // The frame sequence and the text overlays share one ScrollTrigger, so
+    // they start and progress together as soon as the user scrolls.
+    // The frame tween fixes the timeline duration to 1, so every position
+    // below maps directly to scroll progress (0 = top, 1 = bottom).
     const masterTl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
@@ -182,34 +162,38 @@ const Hero = () => {
         scrub: 0.8,
       },
     });
-    masterTl.to({}, { duration: 1 }, 0);
 
-    // ==========================================
-    // STAGE 1 (0% -> 12%): Hero elements fly out
-    // ==========================================
-    if (centerBrandRef.current) {
-      masterTl.to(
-        centerBrandRef.current,
-        {
-          y: () => -(window.innerHeight * 0.5 - 40),
-          scale: 0.88,
-          opacity: 1,
-          ease: "power2.out",
-          duration: 0.12,
+    masterTl.to(
+      playhead,
+      {
+        frame: FRAME_COUNT - 1,
+        ease: "none",
+        duration: 1,
+        onUpdate: () => {
+          const frame = Math.round(playhead.frame);
+          if (frame !== currentFrame) {
+            currentFrame = frame;
+            draw(frame);
+          }
         },
-        0
-      );
-    }
+      },
+      0
+    );
 
+    // ==========================================
+    // STAGE 1 (0% -> 32%): Hero elements recede into corners
+    // ==========================================
+    // Each hero block drifts diagonally into its own corner and fades away.
     if (topLeftRef.current) {
       masterTl.to(
         topLeftRef.current,
         {
-          x: "-120vw",
-          scale: 1.25,
+          x: "-5vw",
+          y: "-10vh",
+          scale: 0.6,
           opacity: 0,
           ease: "power2.inOut",
-          duration: 0.12,
+          duration: 0.32,
         },
         0
       );
@@ -219,11 +203,12 @@ const Hero = () => {
       masterTl.to(
         topRightRef.current,
         {
-          x: "120vw",
-          scale: 1.25,
+          x: "5vw",
+          y: "28vh",
+          scale: 0.6,
           opacity: 0,
           ease: "power2.inOut",
-          duration: 0.12,
+          duration: 0.32,
         },
         0
       );
@@ -233,11 +218,12 @@ const Hero = () => {
       masterTl.to(
         bottomLeftRef.current,
         {
-          x: "-120vw",
-          scale: 1.2,
+          x: "-5vw",
+          y: "6vh",
+          scale: 0.6,
           opacity: 0,
           ease: "power2.inOut",
-          duration: 0.12,
+          duration: 0.32,
         },
         0
       );
@@ -247,11 +233,12 @@ const Hero = () => {
       masterTl.to(
         bottomRightRef.current,
         {
-          x: "120vw",
-          scale: 1.15,
+          x: "5vw",
+          y: "6vh",
+          scale: 0.6,
           opacity: 0,
           ease: "power2.inOut",
-          duration: 0.12,
+          duration: 0.32,
         },
         0
       );
@@ -266,7 +253,7 @@ const Hero = () => {
       const bottomRow = stage2Ref.current.querySelector(".stage2-bottom-row");
 
       // Container becomes active
-      masterTl.set(stage2Ref.current, { opacity: 1 }, 0.24);
+      masterTl.set(stage2Ref.current, { opacity: 1 }, 0.32);
 
       // Words emerge from bottom to top, word by word
       masterTl.fromTo(
@@ -281,7 +268,7 @@ const Hero = () => {
           ease: "power3.out",
           clearProps: "filter",
         },
-        0.24
+        0.32
       );
 
       // Bottom features row slides up slightly after words start
@@ -290,7 +277,7 @@ const Hero = () => {
           bottomRow,
           { y: 40, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.18, ease: "power2.out" },
-          0.38
+          0.46
         );
       }
 
@@ -298,14 +285,12 @@ const Hero = () => {
       masterTl.to(
         stage2Ref.current,
         { y: -60, opacity: 0, duration: 0.12, ease: "power2.in" },
-        0.62
+        0.7
       );
     }
 
     return () => {
       introTl.kill();
-      tween.scrollTrigger?.kill();
-      tween.kill();
       masterTl.scrollTrigger?.kill();
       masterTl.kill();
       window.removeEventListener("resize", resize);
@@ -324,18 +309,8 @@ const Hero = () => {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/30" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(20,15,12,0.45)_90%)]" />
 
-        {/* Center Airplane Window Branding: Mongzo (animates up to navbar center) */}
-        <div
-          ref={centerBrandRef}
-          className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none origin-center"
-        >
-          <span className="font-orbitron text-xs sm:text-sm md:text-[15px] tracking-[0.25em] text-white/90 font-medium uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]">
-            Mongzo
-          </span>
-        </div>
-
         {/* ================= STAGE 1: INITIAL HERO OVERLAY ================= */}
-        <div className="absolute inset-0 z-10 pointer-events-none px-6 md:px-12 lg:px-16 xl:px-20">
+        <div className="container-page absolute inset-0 z-10 pointer-events-none">
           {/* Top-Left Title: "book your dream flight" */}
           <div
             ref={topLeftRef}
@@ -349,7 +324,7 @@ const Hero = () => {
           {/* Lower-Right Title: "All bookings, one place" */}
           <div
             ref={topRightRef}
-            className="absolute top-[57%] md:top-[58%] right-6 md:right-12 lg:right-16 xl:right-20 text-right max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-xl origin-top-right will-change-transform"
+            className="absolute top-[57%] md:top-[58%] right-6 md:right-12 lg:right-16 xl:right-20 text-right max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-xl origin-bottom-right will-change-transform"
           >
             <h2 className="font-orbitron text-[34px] sm:text-[46px] md:text-[56px] lg:text-[68px] xl:text-[76px] font-bold text-white leading-[0.94] tracking-tight drop-shadow-lg">
               <RevealLines lines={["All bookings,", "one place"]} />
@@ -390,11 +365,11 @@ const Hero = () => {
         {/* ================= STAGE 2: CLOUDS & TRAVEL AGENCY STATEMENT ================= */}
         <div
           ref={stage2Ref}
-          className="absolute inset-0 z-20 flex flex-col justify-between px-6 md:px-14 lg:px-20 pt-28 pb-12 opacity-0 pointer-events-none select-none"
+          className="container-page absolute inset-0 z-20 flex flex-col justify-between pt-16 pb-6 md:pt-20 md:pb-8 opacity-0 pointer-events-none select-none"
         >
           {/* Main Large Statement */}
-          <div className="max-w-5xl mt-6 md:mt-12">
-            <h2 className="font-monte-carlo text-5xl sm:text-7xl md:text-8xl lg:text-[6.2rem] font-normal text-white leading-[1.16] tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.7)] overflow-hidden">
+          <div className="max-w-[1044px] mt-[100px]">
+            <h2 className="font-monte-carlo text-4xl sm:text-5xl md:text-[4.2rem] lg:text-[5rem] xl:text-[5.4rem] font-normal text-white leading-[1.08] tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.7)]">
               {[
                 "Mongzo is a bespoke luxury travel agency.",
                 "From private escapes to",
@@ -402,7 +377,7 @@ const Hero = () => {
                 "every journey with care, comfort and",
                 "style."
               ].map((line, li) => (
-                <span key={li} className="block overflow-hidden py-1">
+                <span key={li} className="block py-0.5">
                   {line.split(" ").map((w, wi) => (
                     <span
                       key={wi}

@@ -7,11 +7,13 @@ import Footer from "../components/Footer";
 
 const SLIDE_DURATION = 1.8;
 const SLIDE_EASE = "power3.inOut";
+const NAVBAR_HEIGHT = 80;
 
 const Home = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const isOpenRef = useRef(false);
   const isAnimatingRef = useRef(false);
+  const navCoveredRef = useRef(false);
 
   useEffect(() => {
     let touchStartY = 0;
@@ -31,27 +33,24 @@ const Home = () => {
       isAnimatingRef.current = true;
       if (open) panel.scrollTop = 0;
 
-      // When CLOSING: notify Navbar immediately so it hides right away
-      // When OPENING: only notify AFTER animation finishes (booking fully visible)
-      if (!open) {
-        window.dispatchEvent(
-          new CustomEvent("mongzo-booking-open", { detail: { open: false } })
-        );
-      }
-
       gsap.to(panel, {
         y: open ? "-100%" : "0%",
         duration: SLIDE_DURATION,
         ease: SLIDE_EASE,
+        onUpdate: () => {
+          // Switch the navbar the instant the booking panel reaches it,
+          // and back again once the panel has slid below it.
+          const covered = panel.getBoundingClientRect().top <= NAVBAR_HEIGHT;
+          if (covered !== navCoveredRef.current) {
+            navCoveredRef.current = covered;
+            window.dispatchEvent(
+              new CustomEvent("mongzo-booking-open", { detail: { open: covered } })
+            );
+          }
+        },
         onComplete: () => {
           isAnimatingRef.current = false;
           isOpenRef.current = open;
-          // Only fire open:true when booking panel has fully slid into view
-          if (open) {
-            window.dispatchEvent(
-              new CustomEvent("mongzo-booking-open", { detail: { open: true } })
-            );
-          }
         },
       });
     };

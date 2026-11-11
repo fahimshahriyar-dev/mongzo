@@ -6,7 +6,7 @@ import Footer from "../client_dashboard/components/Footer";
 export default function BookingPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Navbar theme="light" />
+      <Navbar />
       <main className="flex-1">
         <Suspense fallback={<div className="h-screen w-full bg-white flex items-center justify-center">Loading...</div>}>
           <Booking />

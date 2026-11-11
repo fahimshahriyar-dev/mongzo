@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -81,11 +82,7 @@ const CURRENCIES: CurrencyItem[] = [
   { name: "Bangladeshi taka", code: "BDT", symbol: "৳", country: "Bangladesh" },
 ];
 
-interface NavbarProps {
-  theme?: "light" | "dark" | "auto";
-}
-
-const Navbar = ({ theme }: NavbarProps) => {
+const Navbar = () => {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
   const { user } = useSelector((state: any) => state.auth);
@@ -103,10 +100,11 @@ const Navbar = ({ theme }: NavbarProps) => {
     country: "United States",
   });
 
-  // On the home page: Navbar switches to light/solid ONLY after Booking panel
-  // has fully slid into view. On all other pages: always light.
+  // Tracks whether the home Booking panel is open so the brand can close it.
   const [bookingOpen, setBookingOpen] = useState(false);
-  const pastHero = theme === "light" || !isHomePage || bookingOpen;
+  // On the hero, keep the navbar transparent; once the white Booking panel
+  // slides up (or on any other page) switch to the solid light design.
+  const transparentNav = isHomePage && !bookingOpen;
 
   useEffect(() => {
     if (!isHomePage) return;
@@ -146,39 +144,48 @@ const Navbar = ({ theme }: NavbarProps) => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          pastHero
-            ? "bg-white/95 backdrop-blur-md border-b border-neutral-200/90 shadow-sm"
-            : "bg-transparent"
+        className={`fixed top-0 left-0 right-0 z-50 ${
+          transparentNav
+            ? "bg-transparent"
+            : "bg-white/95 backdrop-blur-md border-b border-neutral-200/90 shadow-sm"
         }`}
       >
-        <div className="w-full px-8 md:px-16 lg:px-24 xl:px-28 h-20 flex items-center justify-between">
-          {/* Left Navigation Links & Brand on PastHero */}
-          <div className="flex items-center gap-8 lg:gap-12">
-            {pastHero && (
-              <Link
-                href="/"
-                onClick={(e) => {
-                  if (isHomePage && bookingOpen) {
-                    e.preventDefault();
-                    window.dispatchEvent(new CustomEvent("mongzo-close-booking"));
-                  }
-                }}
-                className="font-orbitron text-base sm:text-lg font-bold tracking-[0.2em] text-neutral-900 uppercase transition-opacity duration-300"
-              >
-                Mongzo
-              </Link>
-            )}
+        <div className="container-page h-20 flex items-end justify-between pb-4">
+          {/* Left Navigation Links & Brand */}
+          <div className="flex items-end gap-8 lg:gap-12">
+            <Link
+              href="/"
+              onClick={(e) => {
+                if (isHomePage && bookingOpen) {
+                  e.preventDefault();
+                  window.dispatchEvent(new CustomEvent("mongzo-close-booking"));
+                }
+              }}
+              aria-label="Mongzo home"
+            >
+              <Image
+                src={
+                  transparentNav
+                    ? "/assets/images/mongzo_logo_white.png"
+                    : "/assets/images/mongzo_logo_black.png"
+                }
+                alt="Mongzo"
+                width={2172}
+                height={724}
+                priority
+                className="h-[30px] sm:h-[34px] w-auto"
+              />
+            </Link>
 
             <nav className="hidden md:flex items-center gap-7 lg:gap-10">
               {navLinks.map((link) =>
                 link.children ? (
                   <div key={link.label} className="relative group">
                     <button
-                      className={`flex items-center gap-1 text-xs lg:text-[13px] tracking-wide transition-colors duration-200 font-medium ${
-                        pastHero
-                          ? "text-neutral-700 hover:text-neutral-950"
-                          : "text-white/90 hover:text-white"
+                      className={`flex items-center gap-1 text-sm lg:text-base tracking-wide font-medium ${
+                        transparentNav
+                          ? "text-white/90 hover:text-white"
+                          : "text-neutral-700 hover:text-neutral-950"
                       }`}
                     >
                       {link.label}
@@ -190,9 +197,9 @@ const Navbar = ({ theme }: NavbarProps) => {
                     <div className="absolute left-0 top-full pt-3 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200">
                       <div
                         className={`min-w-[170px] rounded-xl p-2 shadow-xl flex flex-col border ${
-                          pastHero
-                            ? "bg-white border-neutral-200"
-                            : "bg-neutral-950/95 backdrop-blur-md border-white/10"
+                          transparentNav
+                            ? "bg-neutral-950/95 backdrop-blur-md border-white/10"
+                            : "bg-white border-neutral-200"
                         }`}
                       >
                         {link.children.map((child: any) => (
@@ -209,10 +216,10 @@ const Navbar = ({ theme }: NavbarProps) => {
                                 );
                               }
                             }}
-                            className={`px-3 py-2 rounded-lg text-xs lg:text-[13px] transition-colors ${
-                              pastHero
-                                ? "text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100"
-                                : "text-white/80 hover:text-white hover:bg-white/10"
+                            className={`px-3 py-2 rounded-lg text-sm lg:text-base transition-colors ${
+                              transparentNav
+                                ? "text-white/80 hover:text-white hover:bg-white/10"
+                                : "text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100"
                             }`}
                           >
                             {child.label}
@@ -225,10 +232,10 @@ const Navbar = ({ theme }: NavbarProps) => {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className={`text-xs lg:text-[13px] tracking-wide transition-colors duration-200 font-medium ${
-                      pastHero
-                        ? "text-neutral-700 hover:text-neutral-950"
-                        : "text-white/90 hover:text-white"
+                    className={`text-sm lg:text-base tracking-wide font-medium ${
+                      transparentNav
+                        ? "text-white/90 hover:text-white"
+                        : "text-neutral-700 hover:text-neutral-950"
                     }`}
                   >
                     {link.label}
@@ -238,51 +245,41 @@ const Navbar = ({ theme }: NavbarProps) => {
             </nav>
           </div>
 
-          {/* Mobile Brand */}
-          <Link
-            href="/"
-            className={`md:hidden font-orbitron text-sm tracking-[0.2em] uppercase transition-colors ${
-              pastHero ? "text-neutral-900 font-bold" : "text-white"
-            }`}
-          >
-            Mongzo
-          </Link>
-
           {/* Right Locale & Auth Controls */}
           <div
-            className={`hidden md:flex items-center gap-5 lg:gap-7 text-xs lg:text-[13px] tracking-wide ${
-              pastHero ? "text-neutral-700" : "text-white/90"
+            className={`hidden md:flex items-end gap-5 lg:gap-7 text-sm lg:text-base tracking-wide ${
+              transparentNav ? "text-white/90" : "text-neutral-700"
             }`}
           >
             {/* Currency Button (Clicking opens Choose a Currency modal) */}
             <button
               type="button"
               onClick={() => setOpenCurrencyModal(true)}
-              className={`flex items-center gap-1.5 transition-colors duration-200 font-medium px-2.5 py-1.5 rounded-lg hover:bg-black/5 ${
-                pastHero ? "hover:text-neutral-950" : "hover:text-white hover:bg-white/10"
+              className={`flex items-center gap-1.5 font-medium px-2.5 py-1.5 rounded-lg hover:bg-black/5 ${
+                transparentNav ? "hover:text-white" : "hover:text-neutral-950"
               }`}
             >
               <span className="font-semibold">{selectedCurrency.code}</span>
-              <span className={pastHero ? "text-neutral-300" : "text-white/40"}>•</span>
+              <span className={transparentNav ? "text-white/40" : "text-neutral-300"}>•</span>
               <span>{selectedCurrency.country}</span>
             </button>
 
             <div
               className={`flex items-center gap-3 pl-5 border-l ${
-                pastHero ? "border-neutral-200" : "border-white/20"
+                transparentNav ? "border-white/20" : "border-neutral-200"
               }`}
             >
               {user ? (
                 <>
-                  <span className={`font-medium ${pastHero ? "text-neutral-800" : "text-white/80"}`}>
+                  <span className={`font-medium ${transparentNav ? "text-white/80" : "text-neutral-800"}`}>
                     Hi, {user.name}
                   </span>
                   <button
                     onClick={handleSignOut}
-                    className={`px-3.5 py-1 rounded-full border transition-all text-xs ${
-                      pastHero
-                        ? "border-neutral-300 text-neutral-800 hover:bg-neutral-100"
-                        : "border-white/30 text-white hover:bg-white hover:text-neutral-900"
+                    className={`px-3.5 py-1 rounded-full border text-sm ${
+                      transparentNav
+                        ? "border-white/30 text-white hover:bg-white hover:text-neutral-900"
+                        : "border-neutral-300 text-neutral-800 hover:bg-neutral-100"
                     }`}
                   >
                     Logout
@@ -292,15 +289,17 @@ const Navbar = ({ theme }: NavbarProps) => {
                 <>
                   <Link
                     href="/signin"
-                    className={`transition-colors ${
-                      pastHero ? "text-neutral-700 hover:text-neutral-950" : "text-white/80 hover:text-white"
+                    className={`${
+                      transparentNav
+                        ? "text-white/80 hover:text-white"
+                        : "text-neutral-700 hover:text-neutral-950"
                     }`}
                   >
                     Sign in
                   </Link>
                   <Link
                     href="/signup"
-                    className="px-3.5 py-1 rounded-full font-medium transition-all text-xs bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-500/20"
+                    className="px-3.5 py-1 rounded-full font-medium text-sm bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-500/20"
                   >
                     Sign up
                   </Link>
@@ -309,27 +308,29 @@ const Navbar = ({ theme }: NavbarProps) => {
             </div>
           </div>
 
-          {/* Mobile Hamburger Button — only visible after hero section */}
-          {pastHero && (
-            <button
-              className="md:hidden text-neutral-800 hover:text-neutral-950 p-1 focus:outline-none"
-              onClick={() => setOpenSidebar(!openSidebar)}
-              aria-label="Toggle navigation menu"
-            >
-              {openSidebar ? <IoMdClose size={26} /> : <HiOutlineBars3BottomRight size={26} />}
-            </button>
-          )}
+          {/* Mobile Hamburger Button */}
+          <button
+            className={`md:hidden p-1 focus:outline-none ${
+              transparentNav
+                ? "text-white hover:text-white/80"
+                : "text-neutral-800 hover:text-neutral-950"
+            }`}
+            onClick={() => setOpenSidebar(!openSidebar)}
+            aria-label="Toggle navigation menu"
+          >
+            {openSidebar ? <IoMdClose size={26} /> : <HiOutlineBars3BottomRight size={26} />}
+          </button>
         </div>
 
         {/* Mobile Drawer Menu */}
-        {pastHero && openSidebar && (
+        {openSidebar && (
           <div className="md:hidden bg-white/95 backdrop-blur-md border-b border-neutral-200 px-6 py-6 flex flex-col gap-4 text-neutral-900 shadow-lg">
             <nav className="flex flex-col gap-3.5">
               {navLinks.map((link) =>
                 link.children ? (
                   <div key={link.label} className="flex flex-col gap-2">
                     <button
-                      className="flex items-center justify-between text-sm font-medium text-neutral-800"
+                      className="flex items-center justify-between text-base font-medium text-neutral-800"
                       onClick={() => setOpenTransport(!openTransport)}
                     >
                       {link.label}
@@ -346,7 +347,7 @@ const Navbar = ({ theme }: NavbarProps) => {
                           <Link
                             key={child.label}
                             href={child.href}
-                            className="text-sm text-neutral-600 hover:text-neutral-900"
+                            className="text-base text-neutral-600 hover:text-neutral-900"
                             onClick={(e) => {
                               setOpenSidebar(false);
                               if (child.tab && isHomePage) {
@@ -369,7 +370,7 @@ const Navbar = ({ theme }: NavbarProps) => {
                   <Link
                     key={link.label}
                     href={link.href}
-                    className="text-sm font-medium text-neutral-800 hover:text-neutral-950"
+                    className="text-base font-medium text-neutral-800 hover:text-neutral-950"
                     onClick={() => setOpenSidebar(false)}
                   >
                     {link.label}
@@ -384,23 +385,23 @@ const Navbar = ({ theme }: NavbarProps) => {
                 setOpenSidebar(false);
                 setOpenCurrencyModal(true);
               }}
-              className="pt-3 border-t border-neutral-200 flex items-center justify-between text-sm text-neutral-700 hover:text-neutral-950 text-left"
+              className="pt-3 border-t border-neutral-200 flex items-center justify-between text-base text-neutral-700 hover:text-neutral-950 text-left"
             >
               <div className="flex items-center gap-1.5">
                 <span className="font-semibold">{selectedCurrency.code}</span>
                 <span className="text-neutral-400">•</span>
                 <span>{selectedCurrency.country}</span>
               </div>
-              <span className="text-xs text-blue-600 font-semibold">Change</span>
+              <span className="text-sm text-blue-600 font-semibold">Change</span>
             </button>
 
             <div className="pt-3 border-t border-neutral-200 flex items-center gap-3">
               {user ? (
                 <>
-                  <span className="text-xs text-neutral-800">Hi, {user.name}</span>
+                  <span className="text-sm text-neutral-800">Hi, {user.name}</span>
                   <button
                     onClick={handleSignOut}
-                    className="w-full py-1.5 rounded-full border border-neutral-300 text-center text-xs text-neutral-800 hover:bg-neutral-100"
+                    className="w-full py-1.5 rounded-full border border-neutral-300 text-center text-sm text-neutral-800 hover:bg-neutral-100"
                   >
                     Logout
                   </button>
@@ -409,14 +410,14 @@ const Navbar = ({ theme }: NavbarProps) => {
                 <>
                   <Link
                     href="/signin"
-                    className="w-1/2 py-2 rounded-full border border-neutral-300 text-center text-xs text-neutral-800 hover:bg-neutral-100"
+                    className="w-1/2 py-2 rounded-full border border-neutral-300 text-center text-sm text-neutral-800 hover:bg-neutral-100"
                     onClick={() => setOpenSidebar(false)}
                   >
                     Sign in
                   </Link>
                   <Link
                     href="/signup"
-                    className="w-1/2 py-2 rounded-full bg-blue-600 text-center text-xs font-semibold text-white hover:bg-blue-700 shadow-md shadow-blue-500/20"
+                    className="w-1/2 py-2 rounded-full bg-blue-600 text-center text-sm font-semibold text-white hover:bg-blue-700 shadow-md shadow-blue-500/20"
                     onClick={() => setOpenSidebar(false)}
                   >
                     Sign up

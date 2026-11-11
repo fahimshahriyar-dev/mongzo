@@ -497,7 +497,7 @@ const Booking = () => {
 
   return (
     <section className="relative z-10 w-full bg-white pt-24 pb-8">
-      <div className="mx-auto w-full max-w-[1500px] p-4 sm:p-6 md:p-8 lg:p-10 text-neutral-900">
+      <div className="container-page py-4 sm:py-6 md:py-8 lg:py-10 text-neutral-900">
             {/* Top Search Widget Header Tabs */}
             <div className="flex flex-col gap-4 pb-5 border-b border-neutral-200/80">
               {/* Category Navigation (Hotels, Apartments, Flights, Cars) with Sliding Active Pill */}

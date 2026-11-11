@@ -34,6 +34,10 @@ export const metadata: Metadata = {
   description:
     "Mongzo is a modern full-stack project built with Next.js, Tailwind CSS, Node.js, MongoDB and Redis. Sign up to get started.",
   keywords: "Mongzo, Next.js, Tailwind CSS, Node.js, MongoDB, Redis",
+  icons: {
+    icon: "/assets/images/mongzo_logo.png",
+    apple: "/assets/images/mongzo_logo.png",
+  },
 };
 
 export default function RootLayout({

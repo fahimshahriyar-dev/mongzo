@@ -69,7 +69,7 @@ const Footer = () => {
 
   return (
     <footer className="w-full bg-[#f8f6f0] text-neutral-800 pt-16 pb-12 border-t border-[#ebe6dc]">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="container-page">
         {/* Top 5-Column Navigation Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-10 pb-12">
           {/* Top destinations */}
