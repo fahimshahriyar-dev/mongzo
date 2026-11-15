@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 const FRAME_COUNT = 300;
 
 const frameSrc = (index: number) =>
-  `/assets/scroll_animation/ezgif-frame-${String(index + 1).padStart(3, "0")}.jpg`;
+  `/assets/scroll_animation/ezgif-frame-${String(index + 1).padStart(3, "0")}.webp`;
 
 // Splits each line into words so GSAP can reveal them one by one
 const RevealLines = ({ lines }: { lines: string[] }) => (
