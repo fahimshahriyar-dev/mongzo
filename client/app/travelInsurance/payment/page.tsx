@@ -7,25 +7,30 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import {
-  SiVisa,
   SiMastercard,
-  SiAmericanexpress,
   SiPaypal,
-  SiStripe,
 } from "react-icons/si";
 import Navbar from "../../client_dashboard/components/Navbar";
 import Footer from "../../client_dashboard/components/Footer";
+
+const TARIFF_INFO: Record<string, { name: string; coverage: string; basePrice: number }> = {
+  econom: { name: "Econom", coverage: "35 000 USD", basePrice: 60 },
+  standard: { name: "Standard", coverage: "250 000 USD", basePrice: 113 },
+  million: { name: "Million", coverage: "1 000 000 USD", basePrice: 162 },
+};
 
 function TravelInsurancePaymentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const plan = searchParams?.get("plan") || "econom";
-  const lastName = searchParams?.get("lastName") || "Mugdho";
-  const firstName = searchParams?.get("firstName") || "Fahim";
-  const dob = searchParams?.get("dob") || "12.12.2006";
-  const email = searchParams?.get("email") || "fahimshahryarmugdho@gmail.com";
-  const total = searchParams?.get("total") || "14";
+  const currentTariff = TARIFF_INFO[plan.toLowerCase()] || TARIFF_INFO.econom;
+
+  const lastName = searchParams?.get("lastName") || "";
+  const firstName = searchParams?.get("firstName") || "";
+  const dob = searchParams?.get("dob") || "";
+  const email = searchParams?.get("email") || "";
+  const total = searchParams?.get("total") || currentTariff.basePrice.toString();
   const promo = searchParams?.get("promo") || "SUN3";
 
   const skiing = searchParams?.get("skiing") || "no";
@@ -52,7 +57,7 @@ function TravelInsurancePaymentContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-neutral-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FFFFFF] text-neutral-800 flex flex-col font-sans">
       <Navbar />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
@@ -60,7 +65,7 @@ function TravelInsurancePaymentContent() {
           {/* ================= LEFT COLUMN ================= */}
           <div className="lg:col-span-8 space-y-6">
             {/* Top Payment Card */}
-            <div className="bg-white rounded-2xl border border-neutral-200/80 p-6 sm:p-8 shadow-sm">
+            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/60 p-6 sm:p-8 shadow-sm">
               {/* Back & Title */}
               <div className="flex items-center gap-3 mb-6">
                 <button
@@ -78,10 +83,10 @@ function TravelInsurancePaymentContent() {
               {/* Payment Option 1: Card */}
               <div
                 onClick={() => setPaymentMethod("card")}
-                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all mb-4 ${
+                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all mb-4 bg-white ${
                   paymentMethod === "card"
-                    ? "border-[#8b5cf6]/40 bg-white shadow-sm ring-1 ring-[#8b5cf6]/30"
-                    : "border-neutral-200 hover:border-neutral-300 bg-white"
+                    ? "border-[#8b5cf6] shadow-sm ring-1 ring-[#8b5cf6]"
+                    : "border-neutral-200/90 hover:border-neutral-300"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -115,10 +120,10 @@ function TravelInsurancePaymentContent() {
               {/* Payment Option 2: PayPal */}
               <div
                 onClick={() => setPaymentMethod("paypal")}
-                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all mb-8 ${
+                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all mb-8 bg-white ${
                   paymentMethod === "paypal"
-                    ? "border-[#8b5cf6]/40 bg-white shadow-sm ring-1 ring-[#8b5cf6]/30"
-                    : "border-neutral-200 hover:border-neutral-300 bg-white"
+                    ? "border-[#8b5cf6] shadow-sm ring-1 ring-[#8b5cf6]"
+                    : "border-neutral-200/90 hover:border-neutral-300"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -168,7 +173,7 @@ function TravelInsurancePaymentContent() {
             </div>
 
             {/* Bottom Guarantee & Stripe Trust Card */}
-            <div className="bg-white rounded-2xl border border-neutral-200/80 p-6 shadow-sm">
+            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/60 p-6 shadow-sm">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
                 {/* Left: 3-day refund */}
                 <div className="flex items-start gap-3">
@@ -201,7 +206,7 @@ function TravelInsurancePaymentContent() {
 
           {/* ================= RIGHT COLUMN: SUMMARY SIDEBAR ================= */}
           <div className="lg:col-span-4 sticky top-24">
-            <div className="bg-white rounded-2xl border border-sky-100 shadow-sm p-5 text-xs space-y-3">
+            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/70 shadow-sm p-5 text-xs space-y-3">
               {/* Tariff */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Tariff</span>
@@ -247,22 +252,26 @@ function TravelInsurancePaymentContent() {
               </div>
 
               {/* Traveler name & DOB */}
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-neutral-700">
-                  {lastName} {firstName}
-                </span>
-                <span className="text-neutral-400">{dob}</span>
-              </div>
+              {(lastName || firstName) && (
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-neutral-700">
+                    {lastName} {firstName}
+                  </span>
+                  <span className="text-neutral-400">{dob}</span>
+                </div>
+              )}
 
               {/* Email */}
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-400">Email</span>
-                <span className="font-medium text-neutral-700 max-w-[170px] truncate">
-                  {email}
-                </span>
-              </div>
+              {email && (
+                <div className="flex items-center justify-between">
+                  <span className="text-neutral-400">Email</span>
+                  <span className="font-medium text-neutral-700 max-w-[170px] truncate">
+                    {email}
+                  </span>
+                </div>
+              )}
 
-              <div className="border-t border-neutral-100 my-2" />
+              <div className="border-t border-neutral-200/60 my-2" />
 
               {/* Skiing */}
               <div className="flex items-center justify-between">
@@ -347,7 +356,7 @@ function TravelInsurancePaymentContent() {
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                   placeholder="PROMO"
-                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-200 rounded-lg focus:outline-none focus:border-[#8b5cf6] uppercase"
+                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-300 rounded-lg focus:outline-none focus:border-[#8b5cf6] uppercase bg-white"
                 />
                 <button
                   type="button"

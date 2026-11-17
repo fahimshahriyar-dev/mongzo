@@ -23,9 +23,9 @@ interface Traveler {
 }
 
 const TARIFF_INFO: Record<string, { name: string; coverage: string; basePrice: number }> = {
-  econom: { name: "Econom", coverage: "35 000 USD", basePrice: 14 },
-  standard: { name: "Standard", coverage: "250 000 USD", basePrice: 28 },
-  million: { name: "Million", coverage: "1 000 000 USD", basePrice: 42 },
+  econom: { name: "Econom", coverage: "35 000 USD", basePrice: 60 },
+  standard: { name: "Standard", coverage: "250 000 USD", basePrice: 113 },
+  million: { name: "Million", coverage: "1 000 000 USD", basePrice: 162 },
 };
 
 function TravelInsuranceContent() {
@@ -34,24 +34,24 @@ function TravelInsuranceContent() {
   const planKey = (searchParams?.get("plan") || "econom").toLowerCase();
   const currentTariff = TARIFF_INFO[planKey] || TARIFF_INFO.econom;
 
-  // Travelers state
+  // Travelers state: Empty by default, Purchaser unselected
   const [travelers, setTravelers] = useState<Traveler[]>([
     {
       id: "1",
-      lastName: "MUGDHO",
-      firstName: "FAHIM",
-      dob: "12.12.2006",
-      isPurchaser: true,
+      lastName: "",
+      firstName: "",
+      dob: "",
+      isPurchaser: false,
     },
   ]);
 
-  // Purchaser state
+  // Purchaser state: Empty by default
   const [purchaser, setPurchaser] = useState({
-    lastName: "MUGDHO",
-    firstName: "FAHIM",
-    dob: "12.12.2006",
-    phone: "+ 1 (484) 585-0216",
-    email: "fahimshahryarmugdho@gmail.com",
+    lastName: "",
+    firstName: "",
+    dob: "",
+    phone: "",
+    email: "",
   });
 
   // Useful options state
@@ -87,24 +87,43 @@ function TravelInsuranceContent() {
     setTravelers((prev) => prev.filter((t) => t.id !== id));
   };
 
+  // Toggle or select purchaser from a traveler
+  const handleTogglePurchaser = (travelerId: string) => {
+    setTravelers((prev) => {
+      const target = prev.find((t) => t.id === travelerId);
+      const willBePurchaser = !target?.isPurchaser;
+
+      const nextTravelers = prev.map((t) => ({
+        ...t,
+        isPurchaser: t.id === travelerId ? willBePurchaser : false,
+      }));
+
+      if (willBePurchaser && target) {
+        setPurchaser((p) => ({
+          ...p,
+          lastName: target.lastName,
+          firstName: target.firstName,
+          dob: target.dob,
+        }));
+      }
+
+      return nextTravelers;
+    });
+  };
+
   const updateTraveler = (id: string, field: keyof Traveler, value: any) => {
     setTravelers((prev) =>
       prev.map((t) => {
         if (t.id === id) {
           const updated = { ...t, [field]: value };
-          // If setting purchaser, sync with purchaser state
-          if (field === "isPurchaser" && value === true) {
+          // If this traveler is selected as purchaser, auto-sync fields to the purchaser box
+          if (updated.isPurchaser) {
             setPurchaser((p) => ({
               ...p,
-              lastName: updated.lastName || p.lastName,
-              firstName: updated.firstName || p.firstName,
-              dob: updated.dob || p.dob,
+              [field]: value,
             }));
           }
           return updated;
-        }
-        if (field === "isPurchaser" && value === true) {
-          return { ...t, isPurchaser: false };
         }
         return t;
       })
@@ -116,7 +135,7 @@ function TravelInsuranceContent() {
     setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Pricing calculation
+  // Pricing calculation based on selected package price
   const optionsTotal =
     (options.skiing ? 13 : 0) +
     (options.surfing ? 13 : 0) +
@@ -156,7 +175,7 @@ function TravelInsuranceContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-neutral-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FFFFFF] text-neutral-800 flex flex-col font-sans">
       <Navbar />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
@@ -164,7 +183,7 @@ function TravelInsuranceContent() {
           {/* ================= LEFT COLUMN: FORMS ================= */}
           <div className="lg:col-span-8 space-y-6">
             {/* CARD 1: Travelers (insured) */}
-            <div className="bg-white rounded-2xl border border-neutral-200/80 p-6 sm:p-7 shadow-sm">
+            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/60 p-6 sm:p-7 shadow-sm">
               <h2 className="text-2xl font-light text-neutral-800 tracking-tight">
                 Travelers (insured)
               </h2>
@@ -257,8 +276,11 @@ function TravelInsuranceContent() {
                     <div className="sm:col-span-1 flex items-center justify-center">
                       <button
                         type="button"
-                        onClick={() => updateTraveler(traveler.id, "isPurchaser", true)}
-                        className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all border-[#8b5cf6]"
+                        onClick={() => handleTogglePurchaser(traveler.id)}
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all bg-white ${
+                          traveler.isPurchaser ? "border-[#8b5cf6]" : "border-neutral-300 hover:border-neutral-400"
+                        }`}
+                        title="Mark as purchaser"
                       >
                         {traveler.isPurchaser && (
                           <span className="w-2.5 h-2.5 rounded-full bg-[#8b5cf6]" />
@@ -286,7 +308,7 @@ function TravelInsuranceContent() {
             </div>
 
             {/* CARD 2: Purchaser (policyholder) */}
-            <div className="bg-white rounded-2xl border border-neutral-200/80 p-6 sm:p-7 shadow-sm">
+            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/60 p-6 sm:p-7 shadow-sm">
               <h2 className="text-2xl font-light text-neutral-800 tracking-tight">
                 Purchaser (policyholder)
               </h2>
@@ -344,7 +366,7 @@ function TravelInsuranceContent() {
               </div>
 
               {/* Row 2: Phone & Email inside soft background box */}
-              <div className="bg-[#f0f4f8] rounded-xl p-3 sm:p-4">
+              <div className="bg-white rounded-xl p-3 sm:p-4 border border-neutral-200/60">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-[11px] text-neutral-500 block mb-1 font-normal">
@@ -357,7 +379,7 @@ function TravelInsuranceContent() {
                         setPurchaser((p) => ({ ...p, phone: e.target.value }))
                       }
                       placeholder="+ 1 (484) 585-0216"
-                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-200/80 rounded-lg bg-white focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all"
+                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-200 rounded-lg bg-neutral-50/50 focus:bg-white focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all"
                     />
                   </div>
 
@@ -372,7 +394,7 @@ function TravelInsuranceContent() {
                         setPurchaser((p) => ({ ...p, email: e.target.value }))
                       }
                       placeholder="fahimshahryarmugdho@gmail.com"
-                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-200/80 rounded-lg bg-white focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all"
+                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-200 rounded-lg bg-neutral-50/50 focus:bg-white focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all"
                     />
                   </div>
                 </div>
@@ -380,7 +402,7 @@ function TravelInsuranceContent() {
             </div>
 
             {/* CARD 3: Useful options (Image 2) */}
-            <div className="bg-white rounded-2xl border border-neutral-200/80 p-6 sm:p-7 shadow-sm">
+            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/60 p-6 sm:p-7 shadow-sm">
               <h2 className="text-2xl font-light text-neutral-800 tracking-tight">
                 Useful options
               </h2>
@@ -397,7 +419,7 @@ function TravelInsuranceContent() {
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.skiing
                       ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
-                      : "bg-[#f4f8fa] hover:bg-[#ebf3f7] border-transparent"
+                      : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
                   <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
@@ -422,7 +444,7 @@ function TravelInsuranceContent() {
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.surfing
                       ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
-                      : "bg-[#f4f8fa] hover:bg-[#ebf3f7] border-transparent"
+                      : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
                   <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
@@ -446,7 +468,7 @@ function TravelInsuranceContent() {
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.diving
                       ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
-                      : "bg-[#f4f8fa] hover:bg-[#ebf3f7] border-transparent"
+                      : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
                   <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
@@ -471,7 +493,7 @@ function TravelInsuranceContent() {
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.luggage
                       ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
-                      : "bg-[#f4f8fa] hover:bg-[#ebf3f7] border-transparent"
+                      : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
                   <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
@@ -496,7 +518,7 @@ function TravelInsuranceContent() {
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.liability
                       ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
-                      : "bg-[#f4f8fa] hover:bg-[#ebf3f7] border-transparent"
+                      : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
                   <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
@@ -538,7 +560,7 @@ function TravelInsuranceContent() {
 
           {/* ================= RIGHT COLUMN: SUMMARY SIDEBAR ================= */}
           <div className="lg:col-span-4 sticky top-24">
-            <div className="bg-white rounded-2xl border border-sky-100 shadow-sm p-5 text-xs space-y-3">
+            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/70 shadow-sm p-5 text-xs space-y-3">
               {/* Tariff */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Tariff</span>
@@ -660,7 +682,7 @@ function TravelInsuranceContent() {
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                   placeholder="PROMO"
-                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-200 rounded-lg focus:outline-none focus:border-[#8b5cf6] uppercase"
+                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-300 rounded-lg focus:outline-none focus:border-[#8b5cf6] uppercase bg-white"
                 />
                 <button
                   type="button"
