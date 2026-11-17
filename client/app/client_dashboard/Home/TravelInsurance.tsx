@@ -227,6 +227,8 @@ export const TravelInsurance = () => {
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewFading, setReviewFading] = useState(false);
 
+  const DEDUCTIBLE_OPTIONS = ["$50", "No"];
+
   // Auto-slide reviews every 3.5 seconds with fade transition
   useEffect(() => {
     const timer = setInterval(() => {
@@ -472,10 +474,6 @@ export const TravelInsurance = () => {
 
                     {/* Column 2: Econom Value */}
                     <td className="relative px-5 py-5 border-l border-r border-[#bae6fd] text-center align-top bg-[#f0f9ff]">
-                      {/* Border top on the 1st price option */}
-                      {idx === 0 && (
-                        <div className="absolute top-0 left-5 right-5 border-t border-neutral-200/70" />
-                      )}
                       <div className="flex items-center justify-center pt-0.5 min-h-[24px]">
                         {row.type === "deductible" ? (
                           <div className="relative">
@@ -488,13 +486,13 @@ export const TravelInsurance = () => {
                               <FaChevronDown className={`text-[9px] text-neutral-400 transition-transform duration-200 ${openDeductible === "econom" ? "rotate-180" : ""}`} />
                             </button>
                             {openDeductible === "econom" && (
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-md z-10 overflow-hidden min-w-[70px]">
-                                {["$50", "No"].map((opt) => (
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg z-20 min-w-[72px] overflow-hidden">
+                                {DEDUCTIBLE_OPTIONS.map((opt) => (
                                   <button
                                     key={opt}
                                     type="button"
                                     onClick={() => { setDeductibleEconom(opt); setOpenDeductible(null); }}
-                                    className={`w-full text-xs font-semibold px-3 py-1.5 text-left hover:bg-sky-50 transition-colors ${deductibleEconom === opt ? "text-[#0284c7]" : "text-neutral-700"}`}
+                                    className={`w-full px-4 py-2 text-xs font-semibold text-left hover:bg-neutral-50 transition-colors ${deductibleEconom === opt ? "text-[#0284c7]" : "text-neutral-700"}`}
                                   >
                                     {opt}
                                   </button>
@@ -519,16 +517,12 @@ export const TravelInsurance = () => {
                         )}
                       </div>
 
-                      {/* Inset Bottom Border: Does NOT touch left & right borders */}
+                      {/* Inset Bottom Border */}
                       <div className="absolute bottom-0 left-5 right-5 border-b border-neutral-200/70" />
                     </td>
 
                     {/* Column 3: Standard Value */}
                     <td className="relative px-5 py-5 border-l border-r border-[#bfdbfe] text-center align-top bg-[#eff6ff]">
-                      {/* Border top on the 1st price option */}
-                      {idx === 0 && (
-                        <div className="absolute top-0 left-5 right-5 border-t border-neutral-200/70" />
-                      )}
                       <div className="flex items-center justify-center pt-0.5 min-h-[24px]">
                         {row.type === "deductible" ? (
                           <div className="relative">
@@ -541,13 +535,13 @@ export const TravelInsurance = () => {
                               <FaChevronDown className={`text-[9px] text-neutral-400 transition-transform duration-200 ${openDeductible === "standard" ? "rotate-180" : ""}`} />
                             </button>
                             {openDeductible === "standard" && (
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-md z-10 overflow-hidden min-w-[70px]">
-                                {["$50", "No"].map((opt) => (
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg z-20 min-w-[72px] overflow-hidden">
+                                {DEDUCTIBLE_OPTIONS.map((opt) => (
                                   <button
                                     key={opt}
                                     type="button"
                                     onClick={() => { setDeductibleStandard(opt); setOpenDeductible(null); }}
-                                    className={`w-full text-xs font-semibold px-3 py-1.5 text-left hover:bg-blue-50 transition-colors ${deductibleStandard === opt ? "text-[#2563eb]" : "text-neutral-700"}`}
+                                    className={`w-full px-4 py-2 text-xs font-semibold text-left hover:bg-neutral-50 transition-colors ${deductibleStandard === opt ? "text-[#2563eb]" : "text-neutral-700"}`}
                                   >
                                     {opt}
                                   </button>
@@ -572,16 +566,12 @@ export const TravelInsurance = () => {
                         )}
                       </div>
 
-                      {/* Inset Bottom Border: Does NOT touch left & right borders */}
+                      {/* Inset Bottom Border */}
                       <div className="absolute bottom-0 left-5 right-5 border-b border-neutral-200/70" />
                     </td>
 
                     {/* Column 4: Million Value */}
                     <td className="relative px-5 py-5 border-l border-r border-[#c7d2fe] text-center align-top bg-[#eef2ff]">
-                      {/* Border top on the 1st price option */}
-                      {idx === 0 && (
-                        <div className="absolute top-0 left-5 right-5 border-t border-neutral-200/70" />
-                      )}
                       <div className="flex items-center justify-center pt-0.5 min-h-[24px]">
                         {row.type === "deductible" ? (
                           <div className="relative">
@@ -594,13 +584,13 @@ export const TravelInsurance = () => {
                               <FaChevronDown className={`text-[9px] text-neutral-400 transition-transform duration-200 ${openDeductible === "million" ? "rotate-180" : ""}`} />
                             </button>
                             {openDeductible === "million" && (
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-md z-10 overflow-hidden min-w-[70px]">
-                                {["$50", "No"].map((opt) => (
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg z-20 min-w-[72px] overflow-hidden">
+                                {DEDUCTIBLE_OPTIONS.map((opt) => (
                                   <button
                                     key={opt}
                                     type="button"
                                     onClick={() => { setDeductibleMillion(opt); setOpenDeductible(null); }}
-                                    className={`w-full text-xs font-semibold px-3 py-1.5 text-left hover:bg-indigo-50 transition-colors ${deductibleMillion === opt ? "text-[#4338ca]" : "text-neutral-700"}`}
+                                    className={`w-full px-4 py-2 text-xs font-semibold text-left hover:bg-neutral-50 transition-colors ${deductibleMillion === opt ? "text-[#4338ca]" : "text-neutral-700"}`}
                                   >
                                     {opt}
                                   </button>
@@ -625,7 +615,7 @@ export const TravelInsurance = () => {
                         )}
                       </div>
 
-                      {/* Inset Bottom Border: Does NOT touch left & right borders */}
+                      {/* Inset Bottom Border */}
                       <div className="absolute bottom-0 left-5 right-5 border-b border-neutral-200/70" />
                     </td>
                   </tr>
@@ -634,12 +624,7 @@ export const TravelInsurance = () => {
 
               {/* Bottom Sticky Card Price & CTA Footer Row */}
               <tr>
-                <td colSpan={4} className="pt-0 pb-0">
-                  <div className="border-t border-neutral-200/80 w-full mb-4" />
-                </td>
-              </tr>
-              <tr>
-                <td className="pb-2" />
+                <td className="pt-6 pb-2" />
                 {/* Econom Footer */}
                 <td className="px-4 pt-6 pb-5 rounded-b-2xl text-center border border-t-0 bg-[#f0f9ff] border-[#bae6fd]">
                   <div className="text-2xl font-extrabold text-[#0284c7] mb-3">
@@ -685,11 +670,10 @@ export const TravelInsurance = () => {
             </tbody>
           </table>
 
-          {/* Visa compliance note aligned to the right */}
-          <div className="mt-5 flex justify-end">
-            <p className="text-[11px] text-neutral-400 text-right max-w-xl">
-              All insurance programs comply with the visa requirements of the
-              Schengen countries, Great Britain, Canada, Australia etc.
+          {/* Visa compliance note — full width, right-aligned to match right box border */}
+          <div className="mt-4 w-full flex justify-end pr-[14px]">
+            <p className="text-[11px] text-neutral-400 text-right whitespace-nowrap">
+              All insurance programs comply with the visa requirements of the Schengen countries, Great Britain, Canada, Australia etc.
             </p>
           </div>
         </div>
