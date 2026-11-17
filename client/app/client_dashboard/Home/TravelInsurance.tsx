@@ -208,7 +208,7 @@ export const TravelInsurance = () => {
               <tr>
                 {/* Reviews Header Box */}
                 <th className="pb-0 text-left font-normal align-top">
-                  <div className="h-[210px] bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col justify-between">
+                  <div className="h-[260px] bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-xs font-bold text-neutral-800">Reviews</span>
@@ -241,7 +241,7 @@ export const TravelInsurance = () => {
                 </th>
 
                 {/* Plan 1 Header: Econom (Sky Blue Shade) — border+bg on th itself, no inner div wrapper */}
-                <th className="pb-0 font-normal align-top rounded-t-2xl border border-b-0 bg-[#f0f9ff] border-[#bae6fd] px-5 pt-5 text-center">
+                <th className="pb-6 font-normal align-top rounded-t-2xl border border-b-0 bg-[#f0f9ff] border-[#bae6fd] px-5 pt-7 text-center min-h-[260px]">
                   <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Econom</h3>
                   {/* Price with discount: cutted price on top, discounted price below */}
                   <div className="flex flex-col items-center justify-center mb-2.5">
@@ -262,7 +262,7 @@ export const TravelInsurance = () => {
                 </th>
 
                 {/* Plan 2 Header: Standard (Royal Blue Shade) */}
-                <th className="pb-0 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eff6ff] border-[#bfdbfe] px-5 pt-5 text-center">
+                <th className="pb-6 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eff6ff] border-[#bfdbfe] px-5 pt-7 text-center min-h-[260px]">
                   <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Standard</h3>
                   {/* Price with discount */}
                   <div className="flex flex-col items-center justify-center mb-2.5">
@@ -283,7 +283,7 @@ export const TravelInsurance = () => {
                 </th>
 
                 {/* Plan 3 Header: Million (Indigo / Deep Blue Shade) */}
-                <th className="pb-0 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eef2ff] border-[#c7d2fe] px-5 pt-5 text-center">
+                <th className="pb-6 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eef2ff] border-[#c7d2fe] px-5 pt-7 text-center min-h-[260px]">
                   <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Million</h3>
                   {/* Price with discount */}
                   <div className="flex flex-col items-center justify-center mb-2.5">
