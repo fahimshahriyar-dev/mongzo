@@ -225,19 +225,14 @@ export const TravelInsurance = () => {
   const [openDeductible, setOpenDeductible] = useState<"econom" | "standard" | "million" | null>(null);
   const [addons, setAddons] = useState<Record<string, boolean>>({});
   const [reviewIndex, setReviewIndex] = useState(0);
-  const [reviewFading, setReviewFading] = useState(false);
 
   const DEDUCTIBLE_OPTIONS = ["$50", "No"];
 
-  // Auto-slide reviews every 3.5 seconds with fade transition
+  // Auto-slide reviews horizontally every 4 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setReviewFading(true);
-      setTimeout(() => {
-        setReviewIndex((prev) => (prev + 1) % REVIEWS.length);
-        setReviewFading(false);
-      }, 300);
-    }, 3500);
+      setReviewIndex((prev) => (prev + 1) % REVIEWS.length);
+    }, 4000);
     return () => clearInterval(timer);
   }, []);
 
@@ -286,27 +281,31 @@ export const TravelInsurance = () => {
                       </div>
                     </div>
 
-                    {/* Sliding review card */}
-                    <div className="border-t border-neutral-200/80 pt-3 flex-1 overflow-hidden">
+                    {/* Sliding review card track (Horizontal right-to-left slide) */}
+                    <div className="border-t border-neutral-200/80 pt-3 flex-1 overflow-hidden w-full relative">
                       <div
-                        className="transition-all duration-300 ease-in-out"
-                        style={{ opacity: reviewFading ? 0 : 1, transform: reviewFading ? "translateY(6px)" : "translateY(0)" }}
+                        className="flex transition-transform duration-500 ease-in-out w-full"
+                        style={{ transform: `translateX(-${reviewIndex * 100}%)` }}
                       >
-                        {/* Date + Name */}
-                        <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-1">
-                          <span>{REVIEWS[reviewIndex].date}</span>
-                          <span className="font-semibold text-neutral-700">{REVIEWS[reviewIndex].name}</span>
-                        </div>
-                        {/* Stars */}
-                        <div className="flex text-amber-400 text-[10px] gap-0.5 mb-2">
-                          {Array.from({ length: REVIEWS[reviewIndex].stars }).map((_, i) => (
-                            <FaStar key={i} />
-                          ))}
-                        </div>
-                        {/* Review text */}
-                        <p className="text-[11px] text-neutral-600 leading-relaxed line-clamp-3">
-                          {REVIEWS[reviewIndex].text}
-                        </p>
+                        {REVIEWS.map((review, i) => (
+                          <div key={i} className="w-full flex-shrink-0 min-w-full">
+                            {/* Date + Name */}
+                            <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-1">
+                              <span>{review.date}</span>
+                              <span className="font-semibold text-neutral-700">{review.name}</span>
+                            </div>
+                            {/* Stars */}
+                            <div className="flex text-amber-400 text-[10px] gap-0.5 mb-2">
+                              {Array.from({ length: review.stars }).map((_, si) => (
+                                <FaStar key={si} />
+                              ))}
+                            </div>
+                            {/* Review text */}
+                            <p className="text-[11px] text-neutral-600 leading-relaxed line-clamp-3">
+                              {review.text}
+                            </p>
+                          </div>
+                        ))}
                       </div>
                     </div>
 
@@ -316,7 +315,7 @@ export const TravelInsurance = () => {
                         <button
                           key={i}
                           type="button"
-                          onClick={() => { setReviewFading(true); setTimeout(() => { setReviewIndex(i); setReviewFading(false); }, 300); }}
+                          onClick={() => setReviewIndex(i)}
                           className={`rounded-full transition-all duration-300 ${
                             i === reviewIndex
                               ? "w-4 h-1.5 bg-[#0284c7]"

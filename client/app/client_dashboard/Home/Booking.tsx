@@ -503,7 +503,7 @@ const Booking = () => {
     <section className="relative z-10 w-full bg-white pt-24 pb-8">
       <div className="container-page py-4 sm:py-6 md:py-8 lg:py-10 text-neutral-900">
             {/* Top Search Widget Header Tabs */}
-            <div className="flex flex-col gap-4 pb-5 border-b border-neutral-200/80">
+            <div className={`flex flex-col gap-4 pb-5 ${activeTab === "insurance" ? "" : "border-b border-neutral-200/80"}`}>
               {/* Category Navigation (Hotels, Flights, Cars, E-Sim, Travel Insurance) with Sliding Active Pill */}
               <div className="flex justify-center pb-2 w-full overflow-x-auto">
                 <div className="relative inline-flex items-center shrink-0 bg-sky-500/10 backdrop-blur-md p-1.5 rounded-full border border-sky-300/30 shadow-inner">
