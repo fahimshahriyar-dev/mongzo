@@ -222,6 +222,7 @@ export const TravelInsurance = () => {
   const [deductibleEconom, setDeductibleEconom] = useState("$50");
   const [deductibleStandard, setDeductibleStandard] = useState("$50");
   const [deductibleMillion, setDeductibleMillion] = useState("no");
+  const [openDeductible, setOpenDeductible] = useState<"econom" | "standard" | "million" | null>(null);
   const [addons, setAddons] = useState<Record<string, boolean>>({});
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewFading, setReviewFading] = useState(false);
@@ -477,9 +478,29 @@ export const TravelInsurance = () => {
                       )}
                       <div className="flex items-center justify-center pt-0.5 min-h-[24px]">
                         {row.type === "deductible" ? (
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-neutral-200 rounded-lg text-xs font-bold text-neutral-800 shadow-sm cursor-pointer hover:border-neutral-300">
-                            <span>{deductibleEconom}</span>
-                            <FaChevronDown className="text-[9px] text-neutral-400" />
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() => setOpenDeductible(openDeductible === "econom" ? null : "econom")}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-neutral-200 rounded-lg text-xs font-bold text-neutral-800 shadow-sm hover:border-neutral-300"
+                            >
+                              <span>{deductibleEconom}</span>
+                              <FaChevronDown className={`text-[9px] text-neutral-400 transition-transform duration-200 ${openDeductible === "econom" ? "rotate-180" : ""}`} />
+                            </button>
+                            {openDeductible === "econom" && (
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-md z-10 overflow-hidden min-w-[70px]">
+                                {["$50", "No"].map((opt) => (
+                                  <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => { setDeductibleEconom(opt); setOpenDeductible(null); }}
+                                    className={`w-full text-xs font-semibold px-3 py-1.5 text-left hover:bg-sky-50 transition-colors ${deductibleEconom === opt ? "text-[#0284c7]" : "text-neutral-700"}`}
+                                  >
+                                    {opt}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ) : row.type === "checkbox" ? (
                           <label className="flex items-center gap-2 cursor-pointer select-none text-[13px] sm:text-sm font-bold text-neutral-800">
@@ -510,9 +531,29 @@ export const TravelInsurance = () => {
                       )}
                       <div className="flex items-center justify-center pt-0.5 min-h-[24px]">
                         {row.type === "deductible" ? (
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-neutral-200 rounded-lg text-xs font-bold text-neutral-800 shadow-sm cursor-pointer hover:border-neutral-300">
-                            <span>{deductibleStandard}</span>
-                            <FaChevronDown className="text-[9px] text-neutral-400" />
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() => setOpenDeductible(openDeductible === "standard" ? null : "standard")}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-neutral-200 rounded-lg text-xs font-bold text-neutral-800 shadow-sm hover:border-neutral-300"
+                            >
+                              <span>{deductibleStandard}</span>
+                              <FaChevronDown className={`text-[9px] text-neutral-400 transition-transform duration-200 ${openDeductible === "standard" ? "rotate-180" : ""}`} />
+                            </button>
+                            {openDeductible === "standard" && (
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-md z-10 overflow-hidden min-w-[70px]">
+                                {["$50", "No"].map((opt) => (
+                                  <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => { setDeductibleStandard(opt); setOpenDeductible(null); }}
+                                    className={`w-full text-xs font-semibold px-3 py-1.5 text-left hover:bg-blue-50 transition-colors ${deductibleStandard === opt ? "text-[#2563eb]" : "text-neutral-700"}`}
+                                  >
+                                    {opt}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ) : row.type === "checkbox" ? (
                           <label className="flex items-center gap-2 cursor-pointer select-none text-[13px] sm:text-sm font-bold text-neutral-800">
@@ -543,9 +584,29 @@ export const TravelInsurance = () => {
                       )}
                       <div className="flex items-center justify-center pt-0.5 min-h-[24px]">
                         {row.type === "deductible" ? (
-                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-neutral-200 rounded-lg text-xs font-bold text-neutral-800 shadow-sm cursor-pointer hover:border-neutral-300">
-                            <span>{deductibleMillion}</span>
-                            <FaChevronDown className="text-[9px] text-neutral-400" />
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() => setOpenDeductible(openDeductible === "million" ? null : "million")}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-neutral-200 rounded-lg text-xs font-bold text-neutral-800 shadow-sm hover:border-neutral-300"
+                            >
+                              <span>{deductibleMillion}</span>
+                              <FaChevronDown className={`text-[9px] text-neutral-400 transition-transform duration-200 ${openDeductible === "million" ? "rotate-180" : ""}`} />
+                            </button>
+                            {openDeductible === "million" && (
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white border border-neutral-200 rounded-lg shadow-md z-10 overflow-hidden min-w-[70px]">
+                                {["$50", "No"].map((opt) => (
+                                  <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => { setDeductibleMillion(opt); setOpenDeductible(null); }}
+                                    className={`w-full text-xs font-semibold px-3 py-1.5 text-left hover:bg-indigo-50 transition-colors ${deductibleMillion === opt ? "text-[#4338ca]" : "text-neutral-700"}`}
+                                  >
+                                    {opt}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ) : row.type === "checkbox" ? (
                           <label className="flex items-center gap-2 cursor-pointer select-none text-[13px] sm:text-sm font-bold text-neutral-800">
@@ -573,7 +634,12 @@ export const TravelInsurance = () => {
 
               {/* Bottom Sticky Card Price & CTA Footer Row */}
               <tr>
-                <td className="pt-6 pb-2" />
+                <td colSpan={4} className="pt-0 pb-0">
+                  <div className="border-t border-neutral-200/80 w-full mb-4" />
+                </td>
+              </tr>
+              <tr>
+                <td className="pb-2" />
                 {/* Econom Footer */}
                 <td className="px-4 pt-6 pb-5 rounded-b-2xl text-center border border-t-0 bg-[#f0f9ff] border-[#bae6fd]">
                   <div className="text-2xl font-extrabold text-[#0284c7] mb-3">
