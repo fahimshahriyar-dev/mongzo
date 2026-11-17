@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   FaChevronDown,
   FaChevronUp,
@@ -218,6 +219,7 @@ const COVERAGE_DATA: CoverageRow[] = [
 ];
 
 export const TravelInsurance = () => {
+  const router = useRouter();
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [deductibleEconom, setDeductibleEconom] = useState("$50");
   const [deductibleStandard, setDeductibleStandard] = useState("$50");
@@ -245,8 +247,7 @@ export const TravelInsurance = () => {
   };
 
   const handleSelectPlan = (plan: "econom" | "standard" | "million") => {
-    // Route can be plugged in here in the future:
-    // router.push(`/booking/insurance/checkout?plan=${plan}`);
+    router.push(`/travelInsurance?plan=${plan}`);
   };
 
   return (
