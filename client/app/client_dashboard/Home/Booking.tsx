@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FaPlane, FaHotel, FaCar, FaPlus, FaMinus, FaChevronDown, FaMapMarkerAlt, FaExchangeAlt, FaBaby } from "react-icons/fa";
-import { MdApartment, MdClose } from "react-icons/md";
+import { FaPlane, FaHotel, FaCar, FaSimCard, FaShieldAlt, FaPlus, FaMinus, FaChevronDown, FaMapMarkerAlt, FaExchangeAlt, FaBaby } from "react-icons/fa";
+import { MdClose } from "react-icons/md";
 import { IoSparklesOutline } from "react-icons/io5";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FiCheck, FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import { LuUser } from "react-icons/lu";
+import TravelInsurance from "./TravelInsurance";
 
 const POPULAR_CITIES = [
   "Makkah", "Cox's Bazar", "Al Madinah", "Kolkata",
@@ -61,10 +62,13 @@ const FLIGHT_POPULAR_CITIES = [
 
 const TABS = [
   { id: "hotels" as const, label: "Hotels", icon: FaHotel },
-  { id: "apartments" as const, label: "Apartments", icon: MdApartment },
   { id: "flights" as const, label: "Flights", icon: FaPlane },
   { id: "cars" as const, label: "Cars", icon: FaCar },
+  { id: "esim" as const, label: "E-Sim", icon: FaSimCard },
+  { id: "insurance" as const, label: "Travel Insurance", icon: FaShieldAlt },
 ];
+
+const TAB_IDS = ["hotels", "flights", "cars", "esim", "insurance"];
 
 const destinations = [
   {
@@ -145,14 +149,14 @@ const Booking = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<"hotels" | "apartments" | "flights" | "cars">("hotels");
+  const [activeTab, setActiveTab] = useState<"hotels" | "flights" | "cars" | "esim" | "insurance">("hotels");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const sliderRef = useRef<HTMLDivElement | null>(null);
 
   // Sync activeTab from URL search params or custom events
   useEffect(() => {
     const tabParam = searchParams?.get("tab");
-    if (tabParam && ["hotels", "apartments", "flights", "cars"].includes(tabParam)) {
+    if (tabParam && TAB_IDS.includes(tabParam)) {
       setActiveTab(tabParam as any);
     }
   }, [searchParams]);
@@ -160,7 +164,7 @@ const Booking = () => {
   useEffect(() => {
     const handleSetTab = (e: any) => {
       const tab = e?.detail?.tab;
-      if (tab && ["hotels", "apartments", "flights", "cars"].includes(tab)) {
+      if (tab && TAB_IDS.includes(tab)) {
         setActiveTab(tab);
       }
     };
@@ -500,9 +504,9 @@ const Booking = () => {
       <div className="container-page py-4 sm:py-6 md:py-8 lg:py-10 text-neutral-900">
             {/* Top Search Widget Header Tabs */}
             <div className="flex flex-col gap-4 pb-5 border-b border-neutral-200/80">
-              {/* Category Navigation (Hotels, Apartments, Flights, Cars) with Sliding Active Pill */}
-              <div className="flex justify-center pb-2">
-                <div className="relative inline-flex items-center bg-sky-500/10 backdrop-blur-md p-1.5 rounded-full border border-sky-300/30 shadow-inner">
+              {/* Category Navigation (Hotels, Flights, Cars, E-Sim, Travel Insurance) with Sliding Active Pill */}
+              <div className="flex justify-center pb-2 w-full overflow-x-auto">
+                <div className="relative inline-flex items-center shrink-0 bg-sky-500/10 backdrop-blur-md p-1.5 rounded-full border border-sky-300/30 shadow-inner">
                   {/* Sliding active pill indicator */}
                   <div
                     ref={sliderRef}
@@ -521,7 +525,7 @@ const Booking = () => {
                           tabRefs.current[idx] = el;
                         }}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`relative z-10 flex items-center gap-2 px-5 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-colors duration-200 select-none ${
+                        className={`relative z-10 flex items-center gap-2 px-4 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors duration-200 select-none ${
                           isActive
                             ? "text-blue-600 font-bold"
                             : "text-neutral-600 hover:text-neutral-900"
@@ -535,8 +539,8 @@ const Booking = () => {
                 </div>
               </div>
 
-              {/* Top Filter Content: Switches between Hotels/Apartments, Flights, and Cars */}
-              {activeTab === "hotels" || activeTab === "apartments" ? (
+              {/* Top Filter Content: Switches between Hotels, Flights, and Cars */}
+              {activeTab === "hotels" ? (
                 <div
                   ref={filterWrapperRef}
                   className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-6 transition-all"
@@ -1822,7 +1826,7 @@ const Booking = () => {
                     </div>
                   </div>
                 </div>
-              ) : (
+              ) : activeTab === "cars" ? (
                 /* Cars Search Box */
                 <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-5 transition-all">
                   {/* Top Checkbox: Drop off car at a different location */}
@@ -2058,11 +2062,11 @@ const Booking = () => {
                     </div>
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
 
-            {/* ============ HOTELS / APARTMENTS: Property Cards ============ */}
-            {(activeTab === "hotels" || activeTab === "apartments") && (
+            {/* ============ HOTELS: Property Cards ============ */}
+            {activeTab === "hotels" && (
               <div className="mt-8 space-y-8">
                 {/* Section 1 — Top Unique Properties */}
                 <div>
@@ -2232,6 +2236,13 @@ const Booking = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* ============ TRAVEL INSURANCE ============ */}
+            {activeTab === "insurance" && (
+              <div className="mt-6">
+                <TravelInsurance />
               </div>
             )}
       </div>
