@@ -51,6 +51,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `(function () {
+      if (typeof window !== "undefined" && window.location.hostname === "localhost") return;
       var script = document.createElement("script");
       script.async = 1;
       script.setAttribute("data-cmp-ab","2");

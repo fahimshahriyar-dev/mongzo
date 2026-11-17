@@ -85,14 +85,14 @@ function TravelInsurancePaymentContent() {
                 onClick={() => setPaymentMethod("card")}
                 className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all mb-4 bg-white ${
                   paymentMethod === "card"
-                    ? "border-[#8b5cf6] shadow-sm ring-1 ring-[#8b5cf6]"
+                    ? "border-[#2563eb] shadow-sm ring-1 ring-[#2563eb]"
                     : "border-neutral-200/90 hover:border-neutral-300"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center border-[#8b5cf6]">
+                  <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center border-[#2563eb]">
                     {paymentMethod === "card" && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#8b5cf6]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]" />
                     )}
                   </div>
                   <span className="text-sm font-semibold text-neutral-800">
@@ -122,14 +122,14 @@ function TravelInsurancePaymentContent() {
                 onClick={() => setPaymentMethod("paypal")}
                 className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all mb-8 bg-white ${
                   paymentMethod === "paypal"
-                    ? "border-[#8b5cf6] shadow-sm ring-1 ring-[#8b5cf6]"
+                    ? "border-[#2563eb] shadow-sm ring-1 ring-[#2563eb]"
                     : "border-neutral-200/90 hover:border-neutral-300"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center border-neutral-300">
                     {paymentMethod === "paypal" && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#8b5cf6]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]" />
                     )}
                   </div>
                   <span className="text-sm font-semibold text-neutral-800">
@@ -150,21 +150,21 @@ function TravelInsurancePaymentContent() {
                 <button
                   type="button"
                   onClick={handleGoToPayment}
-                  className="px-16 py-3.5 rounded-full bg-[#ffcc00] hover:bg-[#e6b800] text-neutral-900 font-bold text-sm tracking-wide transition-all active:scale-95 shadow-md shadow-amber-300/40 mb-4"
+                  className="px-16 py-3.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-sm tracking-wide transition-all active:scale-95 shadow-md shadow-blue-500/25 mb-4"
                 >
                   Go to payment
                 </button>
                 <p className="text-[11px] text-neutral-400 text-center max-w-md">
                   I have read and agree with{" "}
-                  <span className="text-[#8b5cf6] hover:underline cursor-pointer">
+                  <span className="text-[#2563eb] hover:underline cursor-pointer">
                     Terms of Use
                   </span>
                   ,{" "}
-                  <span className="text-[#8b5cf6] hover:underline cursor-pointer">
+                  <span className="text-[#2563eb] hover:underline cursor-pointer">
                     Privacy Policy
                   </span>{" "}
                   and{" "}
-                  <span className="text-[#8b5cf6] hover:underline cursor-pointer">
+                  <span className="text-[#2563eb] hover:underline cursor-pointer">
                     Insurance terms
                   </span>
                   .
@@ -211,7 +211,7 @@ function TravelInsurancePaymentContent() {
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Tariff</span>
                 <div className="flex items-center gap-1">
-                  <span className="font-semibold text-[#8b5cf6]">
+                  <span className="font-semibold text-[#2563eb]">
                     {tariffLabels[plan] || tariffLabels.econom}
                   </span>
                   <FaInfoCircle className="text-[10px] text-neutral-300" />
@@ -279,7 +279,7 @@ function TravelInsurancePaymentContent() {
                   <span className="max-w-[170px] truncate">Mountain skiing and snowboarding</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${skiing === "yes" ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${skiing === "yes" ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {skiing}
                 </span>
               </div>
@@ -287,7 +287,7 @@ function TravelInsurancePaymentContent() {
               {/* Surfing */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Surfing and windsurfing</span>
-                <span className={`font-semibold ${surfing === "yes" ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${surfing === "yes" ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {surfing}
                 </span>
               </div>
@@ -298,7 +298,7 @@ function TravelInsurancePaymentContent() {
                   <span className="max-w-[170px] truncate">Diving with an instructor</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${diving === "yes" ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${diving === "yes" ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {diving}
                 </span>
               </div>
@@ -309,7 +309,7 @@ function TravelInsurancePaymentContent() {
                   <span>Luggage</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${luggage === "yes" ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${luggage === "yes" ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {luggage}
                 </span>
               </div>
@@ -320,7 +320,7 @@ function TravelInsurancePaymentContent() {
                   <span>Personal liability</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${liability === "yes" ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${liability === "yes" ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {liability}
                 </span>
               </div>
@@ -340,10 +340,10 @@ function TravelInsurancePaymentContent() {
               <div className="flex items-end justify-between pt-1">
                 <span className="text-neutral-500 font-medium pb-1">Total</span>
                 <div className="text-right">
-                  <div className="text-3xl font-extrabold text-[#8b5cf6] leading-none">
+                  <div className="text-3xl font-extrabold text-[#2563eb] leading-none">
                     ${total}
                   </div>
-                  <span className="text-[11px] text-[#8b5cf6] border-b border-dotted border-[#8b5cf6] cursor-pointer">
+                  <span className="text-[11px] text-[#2563eb] border-b border-dotted border-[#2563eb] cursor-pointer">
                     Promo
                   </span>
                 </div>
@@ -356,11 +356,11 @@ function TravelInsurancePaymentContent() {
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                   placeholder="PROMO"
-                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-300 rounded-lg focus:outline-none focus:border-[#8b5cf6] uppercase bg-white"
+                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] uppercase bg-white"
                 />
                 <button
                   type="button"
-                  className="px-4 py-2 bg-[#ffcc00] hover:bg-[#e6b800] text-neutral-900 font-bold text-xs rounded-lg uppercase tracking-wider transition-all"
+                  className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-xs rounded-lg uppercase tracking-wider transition-all"
                 >
                   OK
                 </button>

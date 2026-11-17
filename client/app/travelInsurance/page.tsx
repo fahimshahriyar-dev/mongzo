@@ -192,100 +192,106 @@ function TravelInsuranceContent() {
               </p>
               <div className="border-b border-neutral-200/70 mb-5" />
 
-              {/* Labels header */}
-              <div className="hidden sm:grid grid-cols-12 gap-3 mb-2 text-xs text-neutral-400 font-normal px-1">
-                <div className="col-span-1" />
-                <div className="col-span-4">Last name</div>
-                <div className="col-span-4">First name</div>
-                <div className="col-span-2">Date of birth</div>
-                <div className="col-span-1 text-center">Purchaser</div>
+              {/* Labels header: precisely aligned over inputs */}
+              <div className="hidden sm:flex items-center gap-2 mb-2 text-xs text-neutral-400 font-normal px-1">
+                <div className="w-10 shrink-0 text-center" />
+                <div className="grid grid-cols-11 gap-3 flex-1">
+                  <div className="col-span-4 pl-1">Last name</div>
+                  <div className="col-span-4 pl-1">First name</div>
+                  <div className="col-span-2 pl-1">Date of birth</div>
+                  <div className="col-span-1 text-center">Purchaser</div>
+                </div>
               </div>
 
-              {/* Travelers rows */}
+              {/* Travelers rows: input field starts right beside the number */}
               <div className="space-y-3">
                 {travelers.map((traveler, index) => (
                   <div
                     key={traveler.id}
-                    className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
+                    className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
                   >
-                    {/* Index number */}
-                    <div className="sm:col-span-1 flex items-center justify-between sm:justify-start">
-                      <span className="text-sm font-bold text-[#8b5cf6]">
+                    {/* Number + Delete icon (for traveler 2+) */}
+                    <div className="w-10 shrink-0 flex items-center justify-center gap-1 pt-1 sm:pt-0">
+                      <span className="text-sm font-bold text-[#2563eb]">
                         {index + 1}
                       </span>
-                      {travelers.length > 1 && (
+                      {index >= 1 && (
                         <button
                           type="button"
                           onClick={() => removeTraveler(traveler.id)}
-                          className="sm:hidden text-red-400 hover:text-red-600 text-xs p-1"
+                          className="text-neutral-400 hover:text-red-500 transition-colors p-1"
+                          title="Delete traveler"
                         >
-                          <FaTrash />
+                          <FaTrash className="text-[11px]" />
                         </button>
                       )}
                     </div>
 
-                    {/* Last name */}
-                    <div className="sm:col-span-4">
-                      <label className="sm:hidden text-[11px] text-neutral-400 block mb-1">
-                        Last name
-                      </label>
-                      <input
-                        type="text"
-                        value={traveler.lastName}
-                        onChange={(e) =>
-                          updateTraveler(traveler.id, "lastName", e.target.value.toUpperCase())
-                        }
-                        placeholder="MUGDHO"
-                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-200 rounded-lg focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all bg-white"
-                      />
-                    </div>
+                    {/* Inputs grid right beside the number */}
+                    <div className="grid grid-cols-1 sm:grid-cols-11 gap-3 flex-1 items-center">
+                      {/* Last name */}
+                      <div className="sm:col-span-4">
+                        <label className="sm:hidden text-[11px] text-neutral-400 block mb-1">
+                          Last name
+                        </label>
+                        <input
+                          type="text"
+                          value={traveler.lastName}
+                          onChange={(e) =>
+                            updateTraveler(traveler.id, "lastName", e.target.value.toUpperCase())
+                          }
+                          placeholder="MUGDHO"
+                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
+                        />
+                      </div>
 
-                    {/* First name */}
-                    <div className="sm:col-span-4">
-                      <label className="sm:hidden text-[11px] text-neutral-400 block mb-1">
-                        First name
-                      </label>
-                      <input
-                        type="text"
-                        value={traveler.firstName}
-                        onChange={(e) =>
-                          updateTraveler(traveler.id, "firstName", e.target.value.toUpperCase())
-                        }
-                        placeholder="FAHIM"
-                        className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-200 rounded-lg focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all bg-white"
-                      />
-                    </div>
+                      {/* First name */}
+                      <div className="sm:col-span-4">
+                        <label className="sm:hidden text-[11px] text-neutral-400 block mb-1">
+                          First name
+                        </label>
+                        <input
+                          type="text"
+                          value={traveler.firstName}
+                          onChange={(e) =>
+                            updateTraveler(traveler.id, "firstName", e.target.value.toUpperCase())
+                          }
+                          placeholder="FAHIM"
+                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
+                        />
+                      </div>
 
-                    {/* Date of birth */}
-                    <div className="sm:col-span-2">
-                      <label className="sm:hidden text-[11px] text-neutral-400 block mb-1">
-                        Date of birth
-                      </label>
-                      <input
-                        type="text"
-                        value={traveler.dob}
-                        onChange={(e) =>
-                          updateTraveler(traveler.id, "dob", e.target.value)
-                        }
-                        placeholder="12.12.2006"
-                        className="w-full px-3 py-2.5 text-xs sm:text-sm font-medium border border-neutral-200 rounded-lg focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all bg-white text-center"
-                      />
-                    </div>
+                      {/* Date of birth */}
+                      <div className="sm:col-span-2">
+                        <label className="sm:hidden text-[11px] text-neutral-400 block mb-1">
+                          Date of birth
+                        </label>
+                        <input
+                          type="text"
+                          value={traveler.dob}
+                          onChange={(e) =>
+                            updateTraveler(traveler.id, "dob", e.target.value)
+                          }
+                          placeholder="12.12.2006"
+                          className="w-full px-3 py-2.5 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white text-center"
+                        />
+                      </div>
 
-                    {/* Purchaser Radio */}
-                    <div className="sm:col-span-1 flex items-center justify-center">
-                      <button
-                        type="button"
-                        onClick={() => handleTogglePurchaser(traveler.id)}
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all bg-white ${
-                          traveler.isPurchaser ? "border-[#8b5cf6]" : "border-neutral-300 hover:border-neutral-400"
-                        }`}
-                        title="Mark as purchaser"
-                      >
-                        {traveler.isPurchaser && (
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#8b5cf6]" />
-                        )}
-                      </button>
+                      {/* Purchaser Radio */}
+                      <div className="sm:col-span-1 flex items-center justify-center pt-1 sm:pt-0">
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePurchaser(traveler.id)}
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all bg-white ${
+                            traveler.isPurchaser ? "border-[#2563eb]" : "border-neutral-300 hover:border-neutral-400"
+                          }`}
+                          title="Mark as purchaser"
+                        >
+                          {traveler.isPurchaser && (
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -296,7 +302,7 @@ function TravelInsuranceContent() {
                 <button
                   type="button"
                   onClick={addTraveler}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#f6effd] hover:bg-[#ede3fb] text-[#8b5cf6] text-xs font-semibold tracking-wide transition-all self-start whitespace-nowrap active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#eff6ff] hover:bg-[#dbeafe] text-[#2563eb] text-xs font-semibold tracking-wide transition-all self-start whitespace-nowrap active:scale-95"
                 >
                   <FaPlus className="text-[10px]" />
                   <span>Add a traveler</span>
@@ -330,7 +336,7 @@ function TravelInsuranceContent() {
                       setPurchaser((p) => ({ ...p, lastName: e.target.value.toUpperCase() }))
                     }
                     placeholder="MUGDHO"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-200 rounded-lg focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all bg-white"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
                   />
                 </div>
 
@@ -345,7 +351,7 @@ function TravelInsuranceContent() {
                       setPurchaser((p) => ({ ...p, firstName: e.target.value.toUpperCase() }))
                     }
                     placeholder="FAHIM"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-200 rounded-lg focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all bg-white"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
                   />
                 </div>
 
@@ -360,7 +366,7 @@ function TravelInsuranceContent() {
                       setPurchaser((p) => ({ ...p, dob: e.target.value }))
                     }
                     placeholder="12.12.2006"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium border border-neutral-200 rounded-lg focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all bg-white"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
                   />
                 </div>
               </div>
@@ -379,7 +385,7 @@ function TravelInsuranceContent() {
                         setPurchaser((p) => ({ ...p, phone: e.target.value }))
                       }
                       placeholder="+ 1 (484) 585-0216"
-                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-200 rounded-lg bg-neutral-50/50 focus:bg-white focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all"
+                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg bg-neutral-50/50 focus:bg-white focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all"
                     />
                   </div>
 
@@ -394,7 +400,7 @@ function TravelInsuranceContent() {
                         setPurchaser((p) => ({ ...p, email: e.target.value }))
                       }
                       placeholder="fahimshahryarmugdho@gmail.com"
-                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-200 rounded-lg bg-neutral-50/50 focus:bg-white focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6] transition-all"
+                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg bg-neutral-50/50 focus:bg-white focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all"
                     />
                   </div>
                 </div>
@@ -418,11 +424,11 @@ function TravelInsuranceContent() {
                   onClick={() => toggleOption("skiing")}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.skiing
-                      ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
+                      ? "bg-[#eff6ff] border-[#93c5fd] shadow-sm ring-1 ring-[#93c5fd]"
                       : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
-                  <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
+                  <div className="text-2xl text-[#2563eb] shrink-0 mt-0.5">
                     <FaPersonSkiing />
                   </div>
                   <div className="flex-1">
@@ -432,7 +438,7 @@ function TravelInsuranceContent() {
                       </span>
                       <FaQuestionCircle className="text-[10px] text-neutral-300 shrink-0" />
                     </div>
-                    <span className="block mt-1.5 text-xs font-bold text-[#8b5cf6]">
+                    <span className="block mt-1.5 text-xs font-bold text-[#2563eb]">
                       +$13
                     </span>
                   </div>
@@ -443,11 +449,11 @@ function TravelInsuranceContent() {
                   onClick={() => toggleOption("surfing")}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.surfing
-                      ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
+                      ? "bg-[#eff6ff] border-[#93c5fd] shadow-sm ring-1 ring-[#93c5fd]"
                       : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
-                  <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
+                  <div className="text-2xl text-[#2563eb] shrink-0 mt-0.5">
                     <TbSurfing />
                   </div>
                   <div className="flex-1">
@@ -456,7 +462,7 @@ function TravelInsuranceContent() {
                         Surfing and windsurfing
                       </span>
                     </div>
-                    <span className="block mt-1.5 text-xs font-bold text-[#8b5cf6]">
+                    <span className="block mt-1.5 text-xs font-bold text-[#2563eb]">
                       +$13
                     </span>
                   </div>
@@ -467,11 +473,11 @@ function TravelInsuranceContent() {
                   onClick={() => toggleOption("diving")}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.diving
-                      ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
+                      ? "bg-[#eff6ff] border-[#93c5fd] shadow-sm ring-1 ring-[#93c5fd]"
                       : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
-                  <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
+                  <div className="text-2xl text-[#2563eb] shrink-0 mt-0.5">
                     <TbScubaMask />
                   </div>
                   <div className="flex-1">
@@ -481,7 +487,7 @@ function TravelInsuranceContent() {
                       </span>
                       <FaQuestionCircle className="text-[10px] text-neutral-300 shrink-0" />
                     </div>
-                    <span className="block mt-1.5 text-xs font-bold text-[#8b5cf6]">
+                    <span className="block mt-1.5 text-xs font-bold text-[#2563eb]">
                       +$13
                     </span>
                   </div>
@@ -492,11 +498,11 @@ function TravelInsuranceContent() {
                   onClick={() => toggleOption("luggage")}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.luggage
-                      ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
+                      ? "bg-[#eff6ff] border-[#93c5fd] shadow-sm ring-1 ring-[#93c5fd]"
                       : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
-                  <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
+                  <div className="text-2xl text-[#2563eb] shrink-0 mt-0.5">
                     <FaSuitcase />
                   </div>
                   <div className="flex-1">
@@ -506,7 +512,7 @@ function TravelInsuranceContent() {
                       </span>
                       <FaQuestionCircle className="text-[10px] text-neutral-300 shrink-0" />
                     </div>
-                    <span className="block mt-1.5 text-xs font-bold text-[#8b5cf6]">
+                    <span className="block mt-1.5 text-xs font-bold text-[#2563eb]">
                       +$4
                     </span>
                   </div>
@@ -517,11 +523,11 @@ function TravelInsuranceContent() {
                   onClick={() => toggleOption("liability")}
                   className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
                     options.liability
-                      ? "bg-[#f5eefb] border-[#c084fc] shadow-sm ring-1 ring-[#c084fc]"
+                      ? "bg-[#eff6ff] border-[#93c5fd] shadow-sm ring-1 ring-[#93c5fd]"
                       : "bg-white hover:bg-neutral-50 border-neutral-200/70"
                   }`}
                 >
-                  <div className="text-2xl text-[#8b5cf6] shrink-0 mt-0.5">
+                  <div className="text-2xl text-[#2563eb] shrink-0 mt-0.5">
                     <FaHome />
                   </div>
                   <div className="flex-1">
@@ -531,7 +537,7 @@ function TravelInsuranceContent() {
                       </span>
                       <FaQuestionCircle className="text-[10px] text-neutral-300 shrink-0" />
                     </div>
-                    <span className="block mt-1.5 text-xs font-bold text-[#8b5cf6]">
+                    <span className="block mt-1.5 text-xs font-bold text-[#2563eb]">
                       +$6
                     </span>
                   </div>
@@ -544,14 +550,14 @@ function TravelInsuranceContent() {
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-12 py-3.5 rounded-full bg-[#f4ecfa] hover:bg-[#ecdaf7] text-[#8b5cf6] font-semibold text-sm transition-all active:scale-95 shadow-sm"
+                className="px-12 py-3.5 rounded-full bg-[#eff6ff] hover:bg-[#dbeafe] text-[#2563eb] font-semibold text-sm transition-all active:scale-95 shadow-sm border border-blue-200/60"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-16 py-3.5 rounded-full bg-[#ffcc00] hover:bg-[#e6b800] text-neutral-900 font-bold text-sm tracking-wide transition-all active:scale-95 shadow-md shadow-amber-300/40"
+                className="px-16 py-3.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-sm tracking-wide transition-all active:scale-95 shadow-md shadow-blue-500/25"
               >
                 Next
               </button>
@@ -565,7 +571,7 @@ function TravelInsuranceContent() {
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Tariff</span>
                 <div className="flex items-center gap-1">
-                  <span className="font-semibold text-[#8b5cf6]">
+                  <span className="font-semibold text-[#2563eb]">
                     {currentTariff.name} ({currentTariff.coverage})
                   </span>
                   <FaInfoCircle className="text-[10px] text-neutral-300" />
@@ -605,7 +611,7 @@ function TravelInsuranceContent() {
                   <span className="max-w-[170px] truncate">Mountain skiing and snowboarding</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${options.skiing ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${options.skiing ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {options.skiing ? "yes" : "no"}
                 </span>
               </div>
@@ -613,7 +619,7 @@ function TravelInsuranceContent() {
               {/* Surfing */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Surfing and windsurfing</span>
-                <span className={`font-semibold ${options.surfing ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${options.surfing ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {options.surfing ? "yes" : "no"}
                 </span>
               </div>
@@ -624,7 +630,7 @@ function TravelInsuranceContent() {
                   <span className="max-w-[170px] truncate">Diving with an instructor</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${options.diving ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${options.diving ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {options.diving ? "yes" : "no"}
                 </span>
               </div>
@@ -635,7 +641,7 @@ function TravelInsuranceContent() {
                   <span>Luggage</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${options.luggage ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${options.luggage ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {options.luggage ? "yes" : "no"}
                 </span>
               </div>
@@ -646,7 +652,7 @@ function TravelInsuranceContent() {
                   <span>Personal liability</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${options.liability ? "text-[#8b5cf6]" : "text-neutral-400"}`}>
+                <span className={`font-semibold ${options.liability ? "text-[#2563eb]" : "text-neutral-400"}`}>
                   {options.liability ? "yes" : "no"}
                 </span>
               </div>
@@ -666,10 +672,10 @@ function TravelInsuranceContent() {
               <div className="flex items-end justify-between pt-1">
                 <span className="text-neutral-500 font-medium pb-1">Total</span>
                 <div className="text-right">
-                  <div className="text-3xl font-extrabold text-[#8b5cf6] leading-none">
+                  <div className="text-3xl font-extrabold text-[#2563eb] leading-none">
                     ${totalPrice}
                   </div>
-                  <span className="text-[11px] text-[#8b5cf6] border-b border-dotted border-[#8b5cf6] cursor-pointer">
+                  <span className="text-[11px] text-[#2563eb] border-b border-dotted border-[#2563eb] cursor-pointer">
                     Promo
                   </span>
                 </div>
@@ -682,12 +688,12 @@ function TravelInsuranceContent() {
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                   placeholder="PROMO"
-                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-300 rounded-lg focus:outline-none focus:border-[#8b5cf6] uppercase bg-white"
+                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] uppercase bg-white"
                 />
                 <button
                   type="button"
                   onClick={() => setPromoApplied(true)}
-                  className="px-4 py-2 bg-[#ffcc00] hover:bg-[#e6b800] text-neutral-900 font-bold text-xs rounded-lg uppercase tracking-wider transition-all"
+                  className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-xs rounded-lg uppercase tracking-wider transition-all"
                 >
                   OK
                 </button>
