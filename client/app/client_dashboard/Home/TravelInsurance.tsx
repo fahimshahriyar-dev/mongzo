@@ -268,7 +268,7 @@ export const TravelInsurance = () => {
               <tr>
                 {/* Reviews Header Box — Auto-sliding carousel */}
                 <th className="pb-0 text-left font-normal align-top">
-                  <div className="bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col h-full min-h-[320px]">
+                  <div className="bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col h-[220px]">
                     {/* Header: Rating */}
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-xs font-bold text-neutral-800">Reviews</span>
@@ -301,14 +301,14 @@ export const TravelInsurance = () => {
                           ))}
                         </div>
                         {/* Review text */}
-                        <p className="text-[11px] text-neutral-600 leading-relaxed line-clamp-4">
+                        <p className="text-[11px] text-neutral-600 leading-relaxed line-clamp-3">
                           {REVIEWS[reviewIndex].text}
                         </p>
                       </div>
                     </div>
 
                     {/* Dot indicators */}
-                    <div className="flex items-center justify-center gap-1.5 mt-3">
+                    <div className="flex items-center justify-center gap-1.5 mt-2">
                       {REVIEWS.map((_, i) => (
                         <button
                           key={i}
