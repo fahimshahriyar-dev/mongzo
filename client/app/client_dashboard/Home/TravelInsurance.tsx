@@ -1,11 +1,52 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FaChevronDown,
   FaChevronUp,
   FaStar,
+  FaStarHalfAlt,
   FaInfoCircle,
 } from "react-icons/fa";
+
+interface Review {
+  date: string;
+  name: string;
+  stars: number;
+  text: string;
+}
+
+const REVIEWS: Review[] = [
+  {
+    date: "04.10.26",
+    name: "Yury I.",
+    stars: 5,
+    text: "I was in Pattaya and had a leg injury. I called the insurance company and within 20 minutes was on my way to the hospital. They were waiting for me and treated me swiftly.",
+  },
+  {
+    date: "15.02.26",
+    name: "Natalia P.",
+    stars: 5,
+    text: "Thank you very much to the company who were involved in organizing medical assistance for me during my trip. Everything was arranged quickly and professionally.",
+  },
+  {
+    date: "12.10.26",
+    name: "Andrei S.",
+    stars: 4,
+    text: "We were on vacation in Phuket and decided to travel around the island on a motorbike. We were looking for insurance companies online and found this one. Very satisfied!",
+  },
+  {
+    date: "08.07.26",
+    name: "Maria K.",
+    stars: 5,
+    text: "Had a sudden illness abroad and the insurance covered everything — hospital, medicines, and even the return flight. Highly recommend for anyone traveling to Schengen countries.",
+  },
+  {
+    date: "21.09.26",
+    name: "Alex T.",
+    stars: 5,
+    text: "Bought the Standard plan for a 2-week trip to Europe. Flight was delayed 6 hours and I got reimbursed without any hassle. The process was seamless.",
+  },
+];
 
 interface CoverageRow {
   id: string;
@@ -182,6 +223,20 @@ export const TravelInsurance = () => {
   const [deductibleStandard, setDeductibleStandard] = useState("$50");
   const [deductibleMillion, setDeductibleMillion] = useState("no");
   const [addons, setAddons] = useState<Record<string, boolean>>({});
+  const [reviewIndex, setReviewIndex] = useState(0);
+  const [reviewFading, setReviewFading] = useState(false);
+
+  // Auto-slide reviews every 3.5 seconds with fade transition
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setReviewFading(true);
+      setTimeout(() => {
+        setReviewIndex((prev) => (prev + 1) % REVIEWS.length);
+        setReviewFading(false);
+      }, 300);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
 
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -211,57 +266,61 @@ export const TravelInsurance = () => {
 
             <thead>
               <tr>
-                {/* Reviews Header Box */}
-                <th className="pb-0 text-left font-normal align-top min-h-[280px]">
-                  <div className="bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col justify-between h-full">
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs font-bold text-neutral-800">
-                          Reviews
-                        </span>
-                        <button
-                          type="button"
-                          className="text-xs font-semibold text-[#0284c7] hover:underline"
-                        >
-                          all &gt;
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <span className="text-xs font-bold text-neutral-800">
-                          4,7
-                        </span>
-                        <div className="flex text-amber-400 text-xs gap-0.5">
-                          <FaStar />
-                          <FaStar />
-                          <FaStar />
-                          <FaStar />
-                          <FaStar />
-                        </div>
+                {/* Reviews Header Box — Auto-sliding carousel */}
+                <th className="pb-0 text-left font-normal align-top">
+                  <div className="bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col h-full min-h-[320px]">
+                    {/* Header: Rating */}
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-neutral-800">Reviews</span>
+                      <button type="button" className="text-xs font-semibold text-[#0284c7] hover:underline">
+                        all &gt;
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <span className="text-xs font-bold text-neutral-800">4,7</span>
+                      <div className="flex text-amber-400 text-xs gap-0.5">
+                        <FaStar /><FaStar /><FaStar /><FaStar /><FaStarHalfAlt />
                       </div>
                     </div>
 
-                    <div className="border-t border-neutral-200/80 pt-2.5">
-                      <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-1">
-                        <span>04.10.26</span>
-                        <span className="font-semibold text-neutral-700">
-                          Yury I.
-                        </span>
+                    {/* Sliding review card */}
+                    <div className="border-t border-neutral-200/80 pt-3 flex-1 overflow-hidden">
+                      <div
+                        className="transition-all duration-300 ease-in-out"
+                        style={{ opacity: reviewFading ? 0 : 1, transform: reviewFading ? "translateY(6px)" : "translateY(0)" }}
+                      >
+                        {/* Date + Name */}
+                        <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-1">
+                          <span>{REVIEWS[reviewIndex].date}</span>
+                          <span className="font-semibold text-neutral-700">{REVIEWS[reviewIndex].name}</span>
+                        </div>
+                        {/* Stars */}
+                        <div className="flex text-amber-400 text-[10px] gap-0.5 mb-2">
+                          {Array.from({ length: REVIEWS[reviewIndex].stars }).map((_, i) => (
+                            <FaStar key={i} />
+                          ))}
+                        </div>
+                        {/* Review text */}
+                        <p className="text-[11px] text-neutral-600 leading-relaxed line-clamp-4">
+                          {REVIEWS[reviewIndex].text}
+                        </p>
                       </div>
-                      <div className="flex text-amber-400 text-[10px] gap-0.5 mb-1.5">
-                        <FaStar />
-                        <FaStar />
-                        <FaStar />
-                        <FaStar />
-                        <FaStar />
-                      </div>
-                      <p className="text-[11px] text-neutral-600 line-clamp-3 leading-snug">
-                        I was in Pattaya and had a leg injury. I called the
-                        insurance company and within 20 minutes was on my way to
-                        the hospital...{" "}
-                        <span className="text-[#0284c7] cursor-pointer hover:underline">
-                          more
-                        </span>
-                      </p>
+                    </div>
+
+                    {/* Dot indicators */}
+                    <div className="flex items-center justify-center gap-1.5 mt-3">
+                      {REVIEWS.map((_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => { setReviewFading(true); setTimeout(() => { setReviewIndex(i); setReviewFading(false); }, 300); }}
+                          className={`rounded-full transition-all duration-300 ${
+                            i === reviewIndex
+                              ? "w-4 h-1.5 bg-[#0284c7]"
+                              : "w-1.5 h-1.5 bg-neutral-300 hover:bg-neutral-400"
+                          }`}
+                        />
+                      ))}
                     </div>
                   </div>
                 </th>
@@ -344,7 +403,9 @@ export const TravelInsurance = () => {
                   </button>
                   {/* Text after select button — each line separate */}
                   <p className="text-xs text-neutral-500 leading-snug text-center">
-                    + maximum limit<br />+ civilLiability<br />+ luggage
+                    + maximum limit
+                    <br />+ civilLiability
+                    <br />+ luggage
                   </p>
                 </th>
               </tr>
