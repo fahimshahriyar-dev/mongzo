@@ -1,6 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { FaChevronDown, FaChevronUp, FaStar, FaInfoCircle } from "react-icons/fa";
+import {
+  FaChevronDown,
+  FaChevronUp,
+  FaStar,
+  FaInfoCircle,
+} from "react-icons/fa";
 
 interface CoverageRow {
   id: string;
@@ -207,19 +212,30 @@ export const TravelInsurance = () => {
             <thead>
               <tr>
                 {/* Reviews Header Box */}
-                <th className="pb-0 text-left font-normal align-top">
+                <th className="pb-0 text-left font-normal align-top min-h-[280px]">
                   <div className="bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col justify-between h-full">
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs font-bold text-neutral-800">Reviews</span>
-                        <button type="button" className="text-xs font-semibold text-[#0284c7] hover:underline">
+                        <span className="text-xs font-bold text-neutral-800">
+                          Reviews
+                        </span>
+                        <button
+                          type="button"
+                          className="text-xs font-semibold text-[#0284c7] hover:underline"
+                        >
                           all &gt;
                         </button>
                       </div>
                       <div className="flex items-center gap-1.5 mb-2">
-                        <span className="text-xs font-bold text-neutral-800">4,7</span>
+                        <span className="text-xs font-bold text-neutral-800">
+                          4,7
+                        </span>
                         <div className="flex text-amber-400 text-xs gap-0.5">
-                          <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+                          <FaStar />
+                          <FaStar />
+                          <FaStar />
+                          <FaStar />
+                          <FaStar />
                         </div>
                       </div>
                     </div>
@@ -227,14 +243,24 @@ export const TravelInsurance = () => {
                     <div className="border-t border-neutral-200/80 pt-2.5">
                       <div className="flex items-center justify-between text-[10px] text-neutral-400 mb-1">
                         <span>04.10.26</span>
-                        <span className="font-semibold text-neutral-700">Yury I.</span>
+                        <span className="font-semibold text-neutral-700">
+                          Yury I.
+                        </span>
                       </div>
                       <div className="flex text-amber-400 text-[10px] gap-0.5 mb-1.5">
-                        <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+                        <FaStar />
+                        <FaStar />
+                        <FaStar />
+                        <FaStar />
+                        <FaStar />
                       </div>
                       <p className="text-[11px] text-neutral-600 line-clamp-3 leading-snug">
-                        I was in Pattaya and had a leg injury. I called the insurance company and within 20 minutes was on my way to the hospital...{" "}
-                        <span className="text-[#0284c7] cursor-pointer hover:underline">more</span>
+                        I was in Pattaya and had a leg injury. I called the
+                        insurance company and within 20 minutes was on my way to
+                        the hospital...{" "}
+                        <span className="text-[#0284c7] cursor-pointer hover:underline">
+                          more
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -242,11 +268,17 @@ export const TravelInsurance = () => {
 
                 {/* Plan 1 Header: Econom (Sky Blue Shade) — border+bg on th itself, no inner div wrapper */}
                 <th className="pb-5 font-normal align-top rounded-t-2xl border border-b-0 bg-[#f0f9ff] border-[#bae6fd] px-5 pt-6 text-center">
-                  <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Econom</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">
+                    Econom
+                  </h3>
                   {/* Price with discount: cutted price on top, discounted price below */}
                   <div className="flex flex-col items-center justify-center">
-                    <span className="text-xs text-[#7dd3fc] line-through font-semibold leading-tight">$62</span>
-                    <span className="text-2xl font-extrabold text-[#0284c7] leading-none mt-1">$60</span>
+                    <span className="text-xs text-[#7dd3fc] line-through font-semibold leading-tight">
+                      $62
+                    </span>
+                    <span className="text-2xl font-extrabold text-[#0284c7] leading-none mt-1">
+                      $60
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -256,18 +288,24 @@ export const TravelInsurance = () => {
                     SELECT
                   </button>
                   {/* Text after select button */}
-                  <p className="text-[11px] text-neutral-500 leading-snug text-center">
+                  <p className="text-xs text-neutral-500 leading-snug text-center">
                     Minimum insurance complying with visa requirements
                   </p>
                 </th>
 
                 {/* Plan 2 Header: Standard (Royal Blue Shade) */}
                 <th className="pb-5 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eff6ff] border-[#bfdbfe] px-5 pt-6 text-center">
-                  <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Standard</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">
+                    Standard
+                  </h3>
                   {/* Price with discount */}
                   <div className="flex flex-col items-center justify-center">
-                    <span className="text-xs text-[#93c5fd] line-through font-semibold leading-tight">$116</span>
-                    <span className="text-2xl font-extrabold text-[#2563eb] leading-none mt-1">$113</span>
+                    <span className="text-xs text-[#93c5fd] line-through font-semibold leading-tight">
+                      $116
+                    </span>
+                    <span className="text-2xl font-extrabold text-[#2563eb] leading-none mt-1">
+                      $113
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -277,18 +315,25 @@ export const TravelInsurance = () => {
                     SELECT
                   </button>
                   {/* Text after select button */}
-                  <p className="text-[11px] text-neutral-500 leading-snug text-center">
-                    + extended limit<br />+ advanced coverage
+                  <p className="text-xs text-neutral-500 leading-snug text-center">
+                    + extended limit
+                    <br />+ advanced coverage
                   </p>
                 </th>
 
                 {/* Plan 3 Header: Million (Indigo / Deep Blue Shade) */}
                 <th className="pb-5 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eef2ff] border-[#c7d2fe] px-5 pt-6 text-center">
-                  <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Million</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">
+                    Million
+                  </h3>
                   {/* Price with discount */}
                   <div className="flex flex-col items-center justify-center">
-                    <span className="text-xs text-[#a5b4fc] line-through font-semibold leading-tight">$167</span>
-                    <span className="text-2xl font-extrabold text-[#4338ca] leading-none mt-1">$162</span>
+                    <span className="text-xs text-[#a5b4fc] line-through font-semibold leading-tight">
+                      $167
+                    </span>
+                    <span className="text-2xl font-extrabold text-[#4338ca] leading-none mt-1">
+                      $162
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -298,7 +343,7 @@ export const TravelInsurance = () => {
                     SELECT
                   </button>
                   {/* Text after select button — each line separate */}
-                  <p className="text-[11px] text-neutral-500 leading-snug text-center">
+                  <p className="text-xs text-neutral-500 leading-snug text-center">
                     + maximum limit<br />+ civilLiability<br />+ luggage
                   </p>
                 </th>
@@ -339,13 +384,20 @@ export const TravelInsurance = () => {
                       {/* Smooth Slide Animation Container */}
                       <div
                         className={`grid transition-all duration-300 ease-in-out ${
-                          isExpanded ? "grid-rows-[1fr] opacity-100 mt-3" : "grid-rows-[0fr] opacity-0"
+                          isExpanded
+                            ? "grid-rows-[1fr] opacity-100 mt-3"
+                            : "grid-rows-[0fr] opacity-0"
                         }`}
                       >
                         <div className="overflow-hidden pl-5 space-y-2">
                           {row.details.map((bullet, bi) => (
-                            <div key={bi} className="flex items-start gap-2 text-xs text-neutral-500 leading-relaxed">
-                              <span className="text-neutral-400 select-none mt-0.5">•</span>
+                            <div
+                              key={bi}
+                              className="flex items-start gap-2 text-xs text-neutral-500 leading-relaxed"
+                            >
+                              <span className="text-neutral-400 select-none mt-0.5">
+                                •
+                              </span>
                               <span>{bullet}</span>
                             </div>
                           ))}
@@ -463,7 +515,9 @@ export const TravelInsurance = () => {
                 <td className="pt-6 pb-2" />
                 {/* Econom Footer */}
                 <td className="px-4 pt-6 pb-5 rounded-b-2xl text-center border border-t-0 bg-[#f0f9ff] border-[#bae6fd]">
-                  <div className="text-2xl font-extrabold text-[#0284c7] mb-3">$60</div>
+                  <div className="text-2xl font-extrabold text-[#0284c7] mb-3">
+                    $60
+                  </div>
                   <button
                     type="button"
                     onClick={() => handleSelectPlan("econom")}
@@ -475,7 +529,9 @@ export const TravelInsurance = () => {
 
                 {/* Standard Footer */}
                 <td className="px-4 pt-6 pb-5 rounded-b-2xl text-center border border-t-0 bg-[#eff6ff] border-[#bfdbfe]">
-                  <div className="text-2xl font-extrabold text-[#2563eb] mb-3">$113</div>
+                  <div className="text-2xl font-extrabold text-[#2563eb] mb-3">
+                    $113
+                  </div>
                   <button
                     type="button"
                     onClick={() => handleSelectPlan("standard")}
@@ -487,7 +543,9 @@ export const TravelInsurance = () => {
 
                 {/* Million Footer */}
                 <td className="px-4 pt-6 pb-5 rounded-b-2xl text-center border border-t-0 bg-[#eef2ff] border-[#c7d2fe]">
-                  <div className="text-2xl font-extrabold text-[#4338ca] mb-3">$162</div>
+                  <div className="text-2xl font-extrabold text-[#4338ca] mb-3">
+                    $162
+                  </div>
                   <button
                     type="button"
                     onClick={() => handleSelectPlan("million")}
@@ -503,7 +561,8 @@ export const TravelInsurance = () => {
           {/* Visa compliance note aligned to the right */}
           <div className="mt-5 flex justify-end">
             <p className="text-[11px] text-neutral-400 text-right max-w-xl">
-              All insurance programs comply with the visa requirements of the Schengen countries, Great Britain, Canada, Australia etc.
+              All insurance programs comply with the visa requirements of the
+              Schengen countries, Great Britain, Canada, Australia etc.
             </p>
           </div>
         </div>
