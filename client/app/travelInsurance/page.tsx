@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -10,7 +10,9 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { FaPersonSkiing } from "react-icons/fa6";
-import { TbSurfing, TbScubaMask } from "react-icons/tb";
+import { TbSwimming, TbScubaMask } from "react-icons/tb";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import Navbar from "../client_dashboard/components/Navbar";
 import Footer from "../client_dashboard/components/Footer";
 
@@ -67,6 +69,13 @@ function TravelInsuranceContent() {
   const [promoCode, setPromoCode] = useState("SUN3");
   const [promoApplied, setPromoApplied] = useState(true);
 
+  // Helper for Date of Birth input: only numbers and dots allowed, max 10 chars (DD.MM.YYYY)
+  const sanitizeDob = (value: string) => {
+    // Keep only digits and dots
+    const filtered = value.replace(/[^0-9.]/g, "");
+    return filtered.slice(0, 10);
+  };
+
   // Add traveler
   const addTraveler = () => {
     const nextId = (travelers.length + 1).toString();
@@ -112,15 +121,16 @@ function TravelInsuranceContent() {
   };
 
   const updateTraveler = (id: string, field: keyof Traveler, value: any) => {
+    const processedValue = field === "dob" ? sanitizeDob(value) : value;
     setTravelers((prev) =>
       prev.map((t) => {
         if (t.id === id) {
-          const updated = { ...t, [field]: value };
+          const updated = { ...t, [field]: processedValue };
           // If this traveler is selected as purchaser, auto-sync fields to the purchaser box
           if (updated.isPurchaser) {
             setPurchaser((p) => ({
               ...p,
-              [field]: value,
+              [field]: processedValue,
             }));
           }
           return updated;
@@ -194,12 +204,12 @@ function TravelInsuranceContent() {
 
               {/* Labels header: precisely aligned over inputs */}
               <div className="hidden sm:flex items-center gap-2 mb-2 text-xs text-neutral-400 font-normal px-1">
-                <div className="w-10 shrink-0 text-center" />
-                <div className="grid grid-cols-11 gap-3 flex-1">
+                <div className="w-8 shrink-0 text-center" />
+                <div className="grid grid-cols-12 gap-3 flex-1 items-center">
                   <div className="col-span-4 pl-1">Last name</div>
                   <div className="col-span-4 pl-1">First name</div>
-                  <div className="col-span-2 pl-1">Date of birth</div>
-                  <div className="col-span-1 text-center">Purchaser</div>
+                  <div className="col-span-2 pl-1 text-center">Date of birth</div>
+                  <div className="col-span-2 text-center">Purchaser</div>
                 </div>
               </div>
 
@@ -210,25 +220,15 @@ function TravelInsuranceContent() {
                     key={traveler.id}
                     className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
                   >
-                    {/* Number + Delete icon (for traveler 2+) */}
-                    <div className="w-10 shrink-0 flex items-center justify-center gap-1 pt-1 sm:pt-0">
+                    {/* Number only right beside the input field */}
+                    <div className="w-8 shrink-0 flex items-center justify-center pt-1 sm:pt-0">
                       <span className="text-sm font-bold text-[#2563eb]">
                         {index + 1}
                       </span>
-                      {index >= 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeTraveler(traveler.id)}
-                          className="text-neutral-400 hover:text-red-500 transition-colors p-1"
-                          title="Delete traveler"
-                        >
-                          <FaTrash className="text-[11px]" />
-                        </button>
-                      )}
                     </div>
 
                     {/* Inputs grid right beside the number */}
-                    <div className="grid grid-cols-1 sm:grid-cols-11 gap-3 flex-1 items-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 flex-1 items-center">
                       {/* Last name */}
                       <div className="sm:col-span-4">
                         <label className="sm:hidden text-[11px] text-neutral-400 block mb-1">
@@ -240,8 +240,8 @@ function TravelInsuranceContent() {
                           onChange={(e) =>
                             updateTraveler(traveler.id, "lastName", e.target.value.toUpperCase())
                           }
-                          placeholder="MUGDHO"
-                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
+                          placeholder="e.g. MUGDHO"
+                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
                         />
                       </div>
 
@@ -256,8 +256,8 @@ function TravelInsuranceContent() {
                           onChange={(e) =>
                             updateTraveler(traveler.id, "firstName", e.target.value.toUpperCase())
                           }
-                          placeholder="FAHIM"
-                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
+                          placeholder="e.g. FAHIM"
+                          className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
                         />
                       </div>
 
@@ -273,16 +273,16 @@ function TravelInsuranceContent() {
                             updateTraveler(traveler.id, "dob", e.target.value)
                           }
                           placeholder="12.12.2006"
-                          className="w-full px-3 py-2.5 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white text-center"
+                          className="w-full px-2.5 py-2.5 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white text-center"
                         />
                       </div>
 
-                      {/* Purchaser Radio */}
-                      <div className="sm:col-span-1 flex items-center justify-center pt-1 sm:pt-0">
+                      {/* Purchaser Radio + Delete Icon on its right */}
+                      <div className="sm:col-span-2 flex items-center justify-center gap-2 pt-1 sm:pt-0">
                         <button
                           type="button"
                           onClick={() => handleTogglePurchaser(traveler.id)}
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all bg-white ${
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all bg-white shrink-0 ${
                             traveler.isPurchaser ? "border-[#2563eb]" : "border-neutral-300 hover:border-neutral-400"
                           }`}
                           title="Mark as purchaser"
@@ -291,6 +291,20 @@ function TravelInsuranceContent() {
                             <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]" />
                           )}
                         </button>
+
+                        {/* Delete icon beside the right side of the select radio */}
+                        {index >= 1 ? (
+                          <button
+                            type="button"
+                            onClick={() => removeTraveler(traveler.id)}
+                            className="text-neutral-400 hover:text-red-500 transition-colors p-1.5 rounded-md hover:bg-neutral-200/50"
+                            title="Delete traveler"
+                          >
+                            <FaTrash className="text-xs" />
+                          </button>
+                        ) : (
+                          <div className="w-7 h-7" /> /* Spacer matching delete button */
+                        )}
                       </div>
                     </div>
                   </div>
@@ -335,8 +349,8 @@ function TravelInsuranceContent() {
                     onChange={(e) =>
                       setPurchaser((p) => ({ ...p, lastName: e.target.value.toUpperCase() }))
                     }
-                    placeholder="MUGDHO"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
+                    placeholder="e.g. MUGDHO"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
                   />
                 </div>
 
@@ -350,8 +364,8 @@ function TravelInsuranceContent() {
                     onChange={(e) =>
                       setPurchaser((p) => ({ ...p, firstName: e.target.value.toUpperCase() }))
                     }
-                    placeholder="FAHIM"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
+                    placeholder="e.g. FAHIM"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
                   />
                 </div>
 
@@ -363,10 +377,10 @@ function TravelInsuranceContent() {
                     type="text"
                     value={purchaser.dob}
                     onChange={(e) =>
-                      setPurchaser((p) => ({ ...p, dob: e.target.value }))
+                      setPurchaser((p) => ({ ...p, dob: sanitizeDob(e.target.value) }))
                     }
                     placeholder="12.12.2006"
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
                   />
                 </div>
               </div>
@@ -378,15 +392,16 @@ function TravelInsuranceContent() {
                     <label className="text-[11px] text-neutral-500 block mb-1 font-normal">
                       Phone number
                     </label>
-                    <input
-                      type="text"
-                      value={purchaser.phone}
-                      onChange={(e) =>
-                        setPurchaser((p) => ({ ...p, phone: e.target.value }))
-                      }
-                      placeholder="+ 1 (484) 585-0216"
-                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg bg-neutral-50/50 focus:bg-white focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all"
-                    />
+                    <div className="phone-input-wrapper">
+                      <PhoneInput
+                        international
+                        defaultCountry="US"
+                        value={purchaser.phone}
+                        onChange={(val) => setPurchaser((p) => ({ ...p, phone: val || "" }))}
+                        placeholder="Enter phone number"
+                        className="custom-phone-input"
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -399,8 +414,8 @@ function TravelInsuranceContent() {
                       onChange={(e) =>
                         setPurchaser((p) => ({ ...p, email: e.target.value }))
                       }
-                      placeholder="fahimshahryarmugdho@gmail.com"
-                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg bg-neutral-50/50 focus:bg-white focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all"
+                      placeholder="e.g. fahim.mongzo@gmail.com"
+                      className="w-full px-3.5 py-2 text-xs sm:text-sm font-medium border border-neutral-300 rounded-lg bg-neutral-50/50 focus:bg-white outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all"
                     />
                   </div>
                 </div>
@@ -454,7 +469,7 @@ function TravelInsuranceContent() {
                   }`}
                 >
                   <div className="text-2xl text-[#2563eb] shrink-0 mt-0.5">
-                    <TbSurfing />
+                    <TbSwimming />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-1">
@@ -688,7 +703,7 @@ function TravelInsuranceContent() {
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                   placeholder="PROMO"
-                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-300 rounded-lg focus:outline-none focus:border-[#2563eb] uppercase bg-white"
+                  className="flex-1 px-3 py-2 text-xs font-semibold border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] uppercase bg-white"
                 />
                 <button
                   type="button"
@@ -704,6 +719,50 @@ function TravelInsuranceContent() {
       </main>
 
       <Footer />
+
+      {/* Scoped styling to customize react-phone-number-input without black focus ring */}
+      <style jsx global>{`
+        .phone-input-wrapper .PhoneInput {
+          display: flex;
+          align-items: center;
+          background-color: rgb(249 250 251 / 0.5);
+          border: 1px solid #d4d4d4;
+          border-radius: 0.5rem;
+          padding: 0.35rem 0.75rem;
+          transition: all 0.15s ease-in-out;
+        }
+        .phone-input-wrapper .PhoneInput:focus-within {
+          background-color: #ffffff;
+          border-color: #2563eb;
+          box-shadow: 0 0 0 1px #2563eb;
+          outline: none;
+        }
+        .phone-input-wrapper .PhoneInputCountry {
+          margin-right: 0.6rem;
+          display: flex;
+          align-items: center;
+        }
+        .phone-input-wrapper .PhoneInputCountrySelect {
+          outline: none;
+          cursor: pointer;
+        }
+        .phone-input-wrapper .PhoneInputCountrySelect:focus {
+          outline: none;
+        }
+        .phone-input-wrapper .PhoneInputInput {
+          border: none;
+          background: transparent;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #1f2937;
+          width: 100%;
+          outline: none;
+        }
+        .phone-input-wrapper .PhoneInputInput:focus {
+          outline: none;
+          box-shadow: none;
+        }
+      `}</style>
     </div>
   );
 }
