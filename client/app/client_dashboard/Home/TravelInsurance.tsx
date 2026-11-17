@@ -208,7 +208,7 @@ export const TravelInsurance = () => {
               <tr>
                 {/* Reviews Header Box */}
                 <th className="pb-0 text-left font-normal align-top">
-                  <div className="h-[260px] bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col justify-between">
+                  <div className="bg-[#fafafa] rounded-2xl p-4 border border-neutral-200/70 flex flex-col justify-between h-full">
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-xs font-bold text-neutral-800">Reviews</span>
@@ -241,65 +241,65 @@ export const TravelInsurance = () => {
                 </th>
 
                 {/* Plan 1 Header: Econom (Sky Blue Shade) — border+bg on th itself, no inner div wrapper */}
-                <th className="pb-6 font-normal align-top rounded-t-2xl border border-b-0 bg-[#f0f9ff] border-[#bae6fd] px-5 pt-7 text-center min-h-[260px]">
+                <th className="pb-5 font-normal align-top rounded-t-2xl border border-b-0 bg-[#f0f9ff] border-[#bae6fd] px-5 pt-6 text-center">
                   <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Econom</h3>
                   {/* Price with discount: cutted price on top, discounted price below */}
-                  <div className="flex flex-col items-center justify-center mb-2.5">
+                  <div className="flex flex-col items-center justify-center">
                     <span className="text-xs text-[#7dd3fc] line-through font-semibold leading-tight">$62</span>
                     <span className="text-2xl font-extrabold text-[#0284c7] leading-none mt-1">$60</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleSelectPlan("econom")}
-                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#0284c7] hover:bg-[#0369a1] text-white transition-all active:scale-95 shadow-md shadow-sky-500/20"
+                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#0284c7] hover:bg-[#0369a1] text-white transition-all active:scale-95 shadow-md shadow-sky-500/20 my-4"
                   >
                     SELECT
                   </button>
                   {/* Text after select button */}
-                  <p className="text-[11px] text-neutral-500 leading-snug pt-3 pb-4">
+                  <p className="text-[11px] text-neutral-500 leading-snug text-center">
                     Minimum insurance complying with visa requirements
                   </p>
                 </th>
 
                 {/* Plan 2 Header: Standard (Royal Blue Shade) */}
-                <th className="pb-6 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eff6ff] border-[#bfdbfe] px-5 pt-7 text-center min-h-[260px]">
+                <th className="pb-5 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eff6ff] border-[#bfdbfe] px-5 pt-6 text-center">
                   <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Standard</h3>
                   {/* Price with discount */}
-                  <div className="flex flex-col items-center justify-center mb-2.5">
+                  <div className="flex flex-col items-center justify-center">
                     <span className="text-xs text-[#93c5fd] line-through font-semibold leading-tight">$116</span>
                     <span className="text-2xl font-extrabold text-[#2563eb] leading-none mt-1">$113</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleSelectPlan("standard")}
-                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#2563eb] hover:bg-[#1d4ed8] text-white transition-all active:scale-95 shadow-md shadow-blue-500/20"
+                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#2563eb] hover:bg-[#1d4ed8] text-white transition-all active:scale-95 shadow-md shadow-blue-500/20 my-4"
                   >
                     SELECT
                   </button>
                   {/* Text after select button */}
-                  <p className="text-[11px] text-neutral-500 leading-snug pt-3 pb-4">
+                  <p className="text-[11px] text-neutral-500 leading-snug text-center">
                     + extended limit<br />+ advanced coverage
                   </p>
                 </th>
 
                 {/* Plan 3 Header: Million (Indigo / Deep Blue Shade) */}
-                <th className="pb-6 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eef2ff] border-[#c7d2fe] px-5 pt-7 text-center min-h-[260px]">
+                <th className="pb-5 font-normal align-top rounded-t-2xl border border-b-0 bg-[#eef2ff] border-[#c7d2fe] px-5 pt-6 text-center">
                   <h3 className="text-base sm:text-lg font-bold text-neutral-900 mb-1">Million</h3>
                   {/* Price with discount */}
-                  <div className="flex flex-col items-center justify-center mb-2.5">
+                  <div className="flex flex-col items-center justify-center">
                     <span className="text-xs text-[#a5b4fc] line-through font-semibold leading-tight">$167</span>
                     <span className="text-2xl font-extrabold text-[#4338ca] leading-none mt-1">$162</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleSelectPlan("million")}
-                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#4338ca] hover:bg-[#3730a3] text-white transition-all active:scale-95 shadow-md shadow-indigo-500/20"
+                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#4338ca] hover:bg-[#3730a3] text-white transition-all active:scale-95 shadow-md shadow-indigo-500/20 my-4"
                   >
                     SELECT
                   </button>
-                  {/* Text after select button */}
-                  <p className="text-[11px] text-neutral-500 leading-snug pt-3 pb-4">
-                    + maximum limit<br />+ civilLiability + luggage
+                  {/* Text after select button — each line separate */}
+                  <p className="text-[11px] text-neutral-500 leading-snug text-center">
+                    + maximum limit<br />+ civilLiability<br />+ luggage
                   </p>
                 </th>
               </tr>
