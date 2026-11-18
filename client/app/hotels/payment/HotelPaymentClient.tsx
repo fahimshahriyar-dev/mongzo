@@ -23,7 +23,7 @@ export default function HotelPaymentClient() {
       checkOut={checkOut}
       rooms={rooms}
       adults={adults}
-      children={children}
+      childCount={children}
     />
   );
 }

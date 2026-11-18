@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Navbar from "./client_dashboard/components/Navbar";
 import Home from "./client_dashboard/Home/Home";
 
@@ -6,7 +7,9 @@ const Page = () => {
     <div className="min-h-screen flex flex-col no-scrollbar">
       <Navbar />
       <main className="flex-1">
-        <Home />
+        <Suspense fallback={null}>
+          <Home />
+        </Suspense>
       </main>
     </div>
   );

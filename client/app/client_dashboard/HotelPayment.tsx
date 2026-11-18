@@ -191,7 +191,7 @@ interface HotelPaymentProps {
   checkOut?: string;
   rooms?: number;
   adults?: number;
-  children?: number;
+  childCount?: number;
 }
 
 export default function HotelPayment({
@@ -201,7 +201,7 @@ export default function HotelPayment({
   checkOut,
   rooms = 1,
   adults = 2,
-  children = 0,
+  childCount = 0,
 }: HotelPaymentProps) {
   const router = useRouter();
 
@@ -361,7 +361,7 @@ export default function HotelPayment({
 
               <div>
                 <span className="text-xs font-bold text-neutral-800 block mb-2">
-                  Guest's favorite facilities:
+                   Guest&apos;s favorite facilities:
                 </span>
                 <div className="flex flex-wrap gap-2 text-xs text-neutral-700">
                   <span className="bg-white border border-neutral-200 rounded-lg px-3 py-1.5 flex items-center gap-1.5">
@@ -573,7 +573,7 @@ export default function HotelPayment({
               </div>
 
               <div className="border-t border-neutral-200 pt-3">
-                <h3 className="text-xs font-bold text-neutral-800 mb-2">What's Nearby</h3>
+                <h3 className="text-xs font-bold text-neutral-800 mb-2">What&apos;s Nearby</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-neutral-700">
                   <div className="flex items-center justify-between bg-white border border-neutral-200 rounded-xl p-3">
                     <span>City centre (Dhaka)</span>
