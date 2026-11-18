@@ -3,7 +3,7 @@ import Home from "./client_dashboard/Home/Home";
 
 const Page = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col no-scrollbar">
       <Navbar />
       <main className="flex-1">
         <Home />

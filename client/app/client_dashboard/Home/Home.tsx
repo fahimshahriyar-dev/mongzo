@@ -19,6 +19,19 @@ const Home = () => {
     let touchStartY = 0;
     let touchStartPanelTop = 0;
 
+    // Restore the booking panel if the page was reloaded while it was open
+    try {
+      if (sessionStorage.getItem("mongzo-booking-open") === "true") {
+        if (panelRef.current) gsap.set(panelRef.current, { y: "-100%" });
+        isOpenRef.current = true;
+        navCoveredRef.current = true;
+        document.body.style.overflow = "hidden";
+        window.dispatchEvent(
+          new CustomEvent("mongzo-booking-open", { detail: { open: true } }),
+        );
+      }
+    } catch {}
+
     // Hero is finished when the page can't scroll any further
     const isHeroAtEnd = () =>
       window.scrollY >=
@@ -28,10 +41,14 @@ const Home = () => {
 
     const slideTo = (open: boolean) => {
       const panel = panelRef.current;
-      if (!panel || isAnimatingRef.current || isOpenRef.current === open) return;
+      if (!panel || isAnimatingRef.current || isOpenRef.current === open)
+        return;
 
       isAnimatingRef.current = true;
       if (open) panel.scrollTop = 0;
+      try {
+        sessionStorage.setItem("mongzo-booking-open", String(open));
+      } catch {}
 
       gsap.to(panel, {
         y: open ? "-100%" : "0%",
@@ -44,13 +61,20 @@ const Home = () => {
           if (covered !== navCoveredRef.current) {
             navCoveredRef.current = covered;
             window.dispatchEvent(
-              new CustomEvent("mongzo-booking-open", { detail: { open: covered } })
+              new CustomEvent("mongzo-booking-open", {
+                detail: { open: covered },
+              }),
             );
           }
         },
         onComplete: () => {
           isAnimatingRef.current = false;
           isOpenRef.current = open;
+          if (open) {
+            document.body.style.overflow = "hidden";
+          } else {
+            document.body.style.overflow = "";
+          }
         },
       });
     };
@@ -59,7 +83,9 @@ const Home = () => {
       slideTo(true);
       if (e?.detail?.tab) {
         window.dispatchEvent(
-          new CustomEvent("mongzo-set-booking-tab", { detail: { tab: e.detail.tab } })
+          new CustomEvent("mongzo-set-booking-tab", {
+            detail: { tab: e.detail.tab },
+          }),
         );
       }
     };
@@ -107,7 +133,8 @@ const Home = () => {
       } else {
         // only if the swipe STARTED at the top, so normal scrolling up
         // inside Booking doesn't accidentally close it
-        if (diffY < -50 && touchStartPanelTop <= 0 && panelAtTop()) slideTo(false);
+        if (diffY < -50 && touchStartPanelTop <= 0 && panelAtTop())
+          slideTo(false);
       }
     };
 
@@ -116,6 +143,7 @@ const Home = () => {
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
+      document.body.style.overflow = "";
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchend", handleTouchEnd);
@@ -133,7 +161,7 @@ const Home = () => {
       <div
         ref={panelRef}
         id="booking-section"
-        className="fixed top-full left-0 z-40 h-screen w-full overflow-y-auto overflow-x-hidden overscroll-contain bg-white"
+        className="fixed top-full left-0 z-40 h-screen w-full overflow-y-auto overflow-x-hidden overscroll-contain bg-white no-scrollbar"
         style={{ transform: "translate3d(0px, 0px, 0px)" }}
       >
         <Booking />

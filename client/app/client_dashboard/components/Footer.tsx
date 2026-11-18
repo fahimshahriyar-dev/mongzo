@@ -1,50 +1,31 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { FaFacebookF, FaInstagram, FaXTwitter, FaYoutube, FaLinkedinIn } from "react-icons/fa6";
-import { FaApple, FaGooglePlay } from "react-icons/fa";
-
-const topDestinations = [
-  { label: "Hotels in Bangladesh", href: "#" },
-  { label: "Hotels in Cox's Bazar", href: "#" },
-  { label: "Hotels in Dhaka", href: "#" },
-  { label: "Hotels in Sylhet", href: "#" },
-  { label: "Hotels in Chattogram", href: "#" },
-  { label: "Hotels in Sajek Valley", href: "#" },
-  { label: "Hotels in Bandarban", href: "#" },
-  { label: "Hotels in Saint Martin", href: "#" },
-];
-
-const supportLinks = [
-  { label: "Your bookings", href: "#" },
-  { label: "Cancel booking", href: "#" },
-  { label: "Refund policy", href: "#" },
-  { label: "FAQs", href: "#" },
-  { label: "Contact us", href: "#" },
-  { label: "Review a property", href: "#" },
-];
+import Image from "next/image";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaXTwitter,
+  FaYoutube,
+  FaLinkedinIn,
+} from "react-icons/fa6";
+import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import CurrencyModal, { CurrencyItem } from "./CurrencyModal";
+import LanguageModal from "./LanguageModal";
 
 const companyLinks = [
-  { label: "About us", href: "#" },
-  { label: "Careers", href: "#" },
-  { label: "Press", href: "#" },
-  { label: "Travel blog", href: "#" },
-  { label: "Deals and offers", href: "#" },
-];
-
-const partnerLinks = [
-  { label: "List your property", href: "#" },
-  { label: "Partner login", href: "#" },
-  { label: "Affiliate program", href: "#" },
-  { label: "Corporate travel", href: "#" },
+  { label: "About Us", href: "/about" },
+  { label: "Our Services", href: "/booking" },
+  { label: "Flights", href: "/flights" },
+  { label: "Hotels & Stays", href: "/booking?tab=hotels" },
+  { label: "Travel Guides", href: "/travel-guides" },
 ];
 
 const legalLinks = [
   { label: "Terms and conditions", href: "#" },
   { label: "Privacy policy", href: "#" },
+  { label: "Refund policy", href: "#" },
   { label: "Cookie policy", href: "#" },
-  { label: "Accessibility", href: "#" },
-  { label: "Sitemap", href: "#" },
 ];
 
 const socialLinks = [
@@ -56,205 +37,225 @@ const socialLinks = [
 ];
 
 const Footer = () => {
-  const [email, setEmail] = useState("");
   const [language, setLanguage] = useState("English");
-  const [currency, setCurrency] = useState("BDT ৳");
+  const [openLanguageModal, setOpenLanguageModal] = useState(false);
+  const [openCurrencyModal, setOpenCurrencyModal] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyItem>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("mongzo_currency");
+        if (saved) return JSON.parse(saved);
+      } catch (err) {}
+    }
+    return {
+      name: "United States dollar",
+      code: "USD",
+      symbol: "$",
+      country: "United States",
+    };
+  });
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    alert("Thank you for subscribing!");
-    setEmail("");
+  const handleCurrencySelect = (cur: CurrencyItem) => {
+    setSelectedCurrency(cur);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("mongzo_currency", JSON.stringify(cur));
+        window.dispatchEvent(new CustomEvent("mongzo-currency-change", { detail: cur }));
+      } catch (err) {}
+    }
   };
 
+  useEffect(() => {
+    const handleGlobalCurrencyChange = (e: any) => {
+      if (e.detail) {
+        setSelectedCurrency(e.detail);
+      }
+    };
+    window.addEventListener("mongzo-currency-change", handleGlobalCurrencyChange);
+    return () => {
+      window.removeEventListener("mongzo-currency-change", handleGlobalCurrencyChange);
+    };
+  }, []);
+
   return (
-    <footer className="w-full bg-[#f8f6f0] text-neutral-800 pt-16 pb-12 border-t border-[#ebe6dc]">
+    <footer className="w-full bg-white py-10 sm:py-14">
+      {/* Floating Card Container */}
       <div className="container-page">
-        {/* Top 5-Column Navigation Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-10 pb-12">
-          {/* Top destinations */}
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900 mb-4 tracking-tight">
-              Top destinations
-            </h4>
-            <ul className="space-y-2.5">
-              {topDestinations.map((item, idx) => (
-                <li key={idx}>
-                  <Link
-                    href={item.href}
-                    className="text-xs text-neutral-700 hover:text-black hover:underline transition-colors"
+      <div className="w-full bg-[#f5f5f5] rounded-[28px] sm:rounded-[36px] border border-neutral-100 p-8 sm:p-12 lg:p-14 transition-all duration-300">
+        
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
+          
+          {/* Brand & Description (4 Cols) */}
+          <div className="lg:col-span-4 space-y-4 pr-0 lg:pr-6">
+            <Link href="/" className="inline-flex items-center gap-2">
+              <Image
+                src="/assets/images/mongzo_logo_black.png"
+                alt="Mongzo Logo"
+                width={130}
+                height={38}
+                className="h-8 sm:h-9 w-auto object-contain"
+                priority
+              />
+            </Link>
+            <p className="text-neutral-600 text-xs sm:text-sm leading-relaxed max-w-sm">
+              Mongzo is a bespoke luxury travel agency. From private escapes to
+              seamless flights and luxury stays, we craft every journey with care,
+              comfort, and unmatched style.
+            </p>
+
+            {/* Social Links */}
+            <div className="flex items-center gap-2 pt-2">
+              {socialLinks.map((social, idx) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={idx}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className="w-8 h-8 rounded-full border border-neutral-200 bg-neutral-50/80 flex items-center justify-center text-neutral-600 hover:text-blue-600 hover:border-blue-500 hover:bg-blue-50/50 transition-all text-xs"
                   >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                    <Icon />
+                  </a>
+                );
+              })}
+            </div>
           </div>
 
-          {/* 24/7 support */}
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900 mb-4 tracking-tight">
-              24/7 support
+          {/* Right Side Links */}
+          <div className="lg:col-span-8 flex flex-col sm:flex-row sm:justify-end gap-10 lg:gap-16">
+            {/* Company Links */}
+            <div>
+              <h4 className="text-[11px] sm:text-xs font-bold text-neutral-900 uppercase tracking-[0.16em] mb-4">
+                Company
+              </h4>
+              <ul className="space-y-2.5">
+                {companyLinks.map((item, idx) => (
+                  <li key={idx}>
+                    <Link
+                      href={item.href}
+                      className="text-xs sm:text-sm text-neutral-600 hover:text-black transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <h4 className="text-[11px] sm:text-xs font-bold text-neutral-900 uppercase tracking-[0.16em] mb-4">
+                Legal
+              </h4>
+              <ul className="space-y-2.5">
+                {legalLinks.map((item, idx) => (
+                  <li key={idx}>
+                    <Link
+                      href={item.href}
+                      className="text-xs sm:text-sm text-neutral-600 hover:text-black transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact Us */}
+            <div className="space-y-3 sm:max-w-xs">
+            <h4 className="text-[11px] sm:text-xs font-bold text-neutral-900 uppercase tracking-[0.16em] mb-4">
+              Contact Us
             </h4>
-            <ul className="space-y-2.5">
-              {supportLinks.map((item, idx) => (
-                <li key={idx}>
-                  <Link
-                    href={item.href}
-                    className="text-xs text-neutral-700 hover:text-black hover:underline transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+
+            {/* Email */}
+            <div className="space-y-1">
+              <a
+                href="mailto:concierge@mongzo.com"
+                className="flex items-center gap-2 text-xs sm:text-sm text-neutral-600 hover:text-blue-600 transition-colors"
+              >
+                <FaEnvelope className="text-neutral-400 text-xs shrink-0" />
+                <span>concierge@mongzo.com</span>
+              </a>
+              <a
+                href="mailto:support@mongzo.com"
+                className="flex items-center gap-2 text-xs sm:text-sm text-neutral-600 hover:text-blue-600 transition-colors"
+              >
+                <FaEnvelope className="text-neutral-400 text-xs shrink-0 opacity-0" />
+                <span>support@mongzo.com</span>
+              </a>
+            </div>
+
+            {/* Phone */}
+            <div className="space-y-1 pt-1">
+              <p className="flex items-center gap-2 text-xs sm:text-sm text-neutral-600">
+                <FaPhoneAlt className="text-neutral-400 text-xs shrink-0" />
+                <span>+880 1711-426173</span>
+              </p>
+              <p className="text-xs sm:text-sm text-neutral-600 pl-5">
+                +880 1971-426173
+              </p>
+            </div>
+
+            {/* Address */}
+            <div className="pt-2 flex items-start gap-2">
+              <FaMapMarkerAlt className="text-neutral-400 text-xs shrink-0 mt-0.5" />
+              <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+                Eastern Mansion, Room # 3/7 (3rd Floor),
+                <br />
+                67/9 Pioneer Road, Kakrail,
+                <br />
+                Dhaka-1000, Bangladesh
+              </p>
+            </div>
+            </div>
           </div>
 
-          {/* Company */}
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900 mb-4 tracking-tight">
-              Company
-            </h4>
-            <ul className="space-y-2.5">
-              {companyLinks.map((item, idx) => (
-                <li key={idx}>
-                  <Link
-                    href={item.href}
-                    className="text-xs text-neutral-700 hover:text-black hover:underline transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* For partners */}
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900 mb-4 tracking-tight">
-              For partners
-            </h4>
-            <ul className="space-y-2.5">
-              {partnerLinks.map((item, idx) => (
-                <li key={idx}>
-                  <Link
-                    href={item.href}
-                    className="text-xs text-neutral-700 hover:text-black hover:underline transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h4 className="text-sm font-semibold text-neutral-900 mb-4 tracking-tight">
-              Legal
-            </h4>
-            <ul className="space-y-2.5">
-              {legalLinks.map((item, idx) => (
-                <li key={idx}>
-                  <Link
-                    href={item.href}
-                    className="text-xs text-neutral-700 hover:text-black hover:underline transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
-        {/* Middle Bar: Newsletter Subscribe, App Store buttons, Social Icons */}
-        <div className="pt-8 pb-8 border-t border-[#e2dcd2] flex flex-col lg:flex-row items-center justify-between gap-6">
-          {/* Newsletter Input */}
-          <form onSubmit={handleSubscribe} className="flex items-center w-full sm:w-auto">
-            <input
-              type="email"
-              placeholder="Your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="px-4 py-2 text-xs sm:text-sm bg-white border border-neutral-300 rounded-l-md outline-none w-64 sm:w-72 focus:border-neutral-500 text-neutral-800 placeholder:text-neutral-400"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 shadow-sm shadow-blue-500/20 text-white text-xs sm:text-sm font-semibold px-5 py-2 rounded-r-md transition-colors"
-            >
-              Subscribe
-            </button>
-          </form>
+        {/* Bottom Bar: Copyright & Settings */}
+        <div className="mt-12 pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+          <p>© {new Date().getFullYear()} Mongzo. All Rights Reserved.</p>
 
-          {/* App download buttons */}
           <div className="flex items-center gap-3">
             <button
               type="button"
-              className="flex items-center gap-2 px-3.5 py-1.5 border border-neutral-400/80 rounded-md bg-transparent hover:bg-neutral-200/50 text-xs font-medium text-neutral-800 transition-colors"
+              onClick={() => setOpenLanguageModal(true)}
+              className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-800 transition-colors"
             >
-              <FaApple className="text-sm" />
-              <span>App Store</span>
+              <span>{language}</span>
             </button>
+
             <button
               type="button"
-              className="flex items-center gap-2 px-3.5 py-1.5 border border-neutral-400/80 rounded-md bg-transparent hover:bg-neutral-200/50 text-xs font-medium text-neutral-800 transition-colors"
+              onClick={() => setOpenCurrencyModal(true)}
+              className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-800 transition-colors"
             >
-              <FaGooglePlay className="text-xs" />
-              <span>Google Play</span>
+              <span className="font-semibold">{selectedCurrency.code}</span>
+              <span className="text-neutral-300">•</span>
+              <span>{selectedCurrency.country}</span>
             </button>
           </div>
-
-          {/* Social Icons (Circles) */}
-          <div className="flex items-center gap-2.5">
-            {socialLinks.map((social, idx) => {
-              const Icon = social.icon;
-              return (
-                <a
-                  key={idx}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="w-7 h-7 rounded-full border border-neutral-400 flex items-center justify-center text-neutral-700 hover:text-black hover:border-black transition-colors text-xs"
-                >
-                  <Icon />
-                </a>
-              );
-            })}
-          </div>
         </div>
 
-        {/* Bottom Bar: Copyright & Language / Currency Dropdowns */}
-        <div className="pt-6 border-t border-[#e2dcd2] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
-          <p>© 2026 Mongzo. All rights reserved.</p>
-
-          <div className="flex items-center gap-3">
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="bg-transparent border border-neutral-300 rounded px-2.5 py-1 text-xs text-neutral-700 outline-none cursor-pointer hover:border-neutral-400"
-            >
-              <option value="English">English</option>
-              <option value="Bengali">বাংলা</option>
-              <option value="Arabic">العربية</option>
-            </select>
-
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="bg-transparent border border-neutral-300 rounded px-2.5 py-1 text-xs text-neutral-700 outline-none cursor-pointer hover:border-neutral-400"
-            >
-              <option value="BDT ৳">BDT ৳</option>
-              <option value="USD $">USD $</option>
-              <option value="EUR €">EUR €</option>
-            </select>
-          </div>
-        </div>
       </div>
+      </div>
+      <LanguageModal
+        open={openLanguageModal}
+        onClose={() => setOpenLanguageModal(false)}
+        selected={language}
+        onSelect={(lang) => setLanguage(lang.label)}
+      />
+      <CurrencyModal
+        open={openCurrencyModal}
+        onClose={() => setOpenCurrencyModal(false)}
+        selected={selectedCurrency}
+        onSelect={handleCurrencySelect}
+      />
     </footer>
   );
 };
 
 export default Footer;
-

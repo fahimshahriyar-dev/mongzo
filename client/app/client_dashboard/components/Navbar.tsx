@@ -6,80 +6,26 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { HiOutlineBars3BottomRight, HiOutlineChevronDown } from "react-icons/hi2";
 import { IoMdClose } from "react-icons/io";
-import { FaTimes } from "react-icons/fa";
+import CurrencyModal, { CurrencyItem } from "./CurrencyModal";
 import toast from "react-hot-toast";
 import { useSignOutMutation } from "@/redux/features/auth/authApi";
 
 const navLinks = [
-  { label: "About", href: "/#about" },
+  { label: "About", href: "/about" },
   {
     label: "Transport",
     children: [
-      { label: "Hotel", href: "/booking?tab=hotels", tab: "hotels" },
-      { label: "Apartment", href: "/booking?tab=apartments", tab: "apartments" },
+      { label: "Hotel", href: "/hotels" },
       { label: "Flight", href: "/flights" },
-      { label: "Car", href: "/booking?tab=cars", tab: "cars" },
+      { label: "Car", href: "/cars" },
+      { label: "E-Sim", href: "/esim" },
+      {
+        label: "Travel Insurance",
+        href: "/travelInsurance",
+      },
     ],
   },
   { label: "Travel Guides", href: "/travel-guides" },
-];
-
-interface CurrencyItem {
-  name: string;
-  code: string;
-  symbol: string;
-  country: string;
-}
-
-const CURRENCIES: CurrencyItem[] = [
-  { name: "Peruvian sol", code: "PEN", symbol: "S/", country: "Peru" },
-  { name: "Australian dollar", code: "AUD", symbol: "$", country: "Australia" },
-  { name: "Brazilian real", code: "BRL", symbol: "R$", country: "Brazil" },
-  { name: "Bulgarian lev", code: "BGN", symbol: "лв.", country: "Bulgaria" },
-  { name: "Canadian dollar", code: "CAD", symbol: "$", country: "Canada" },
-  { name: "Chilean peso", code: "CLP", symbol: "$", country: "Chile" },
-  { name: "Chinese yuan", code: "CNY", symbol: "¥", country: "China" },
-  { name: "Colombian peso", code: "COP", symbol: "$", country: "Colombia" },
-  { name: "Costa Rican colon", code: "CRC", symbol: "₡", country: "Costa Rica" },
-  { name: "Czech koruna", code: "CZK", symbol: "Kč", country: "Czech Republic" },
-  { name: "Danish krone", code: "DKK", symbol: "kr", country: "Denmark" },
-  { name: "Egyptian pound", code: "EGP", symbol: "ج.م", country: "Egypt" },
-  { name: "Emirati dirham", code: "AED", symbol: "د.إ", country: "United Arab Emirates" },
-  { name: "Euro", code: "EUR", symbol: "€", country: "European Union" },
-  { name: "Ghanaian cedi", code: "GHS", symbol: "GH₵", country: "Ghana" },
-  { name: "Hong Kong dollar", code: "HKD", symbol: "$", country: "Hong Kong" },
-  { name: "Hungarian forint", code: "HUF", symbol: "Ft", country: "Hungary" },
-  { name: "Indian rupee", code: "INR", symbol: "₹", country: "India" },
-  { name: "Indonesian rupiah", code: "IDR", symbol: "Rp", country: "Indonesia" },
-  { name: "Israeli new shekel", code: "ILS", symbol: "₪", country: "Israel" },
-  { name: "Japanese yen", code: "JPY", symbol: "¥", country: "Japan" },
-  { name: "Kazakhstani tenge", code: "KZT", symbol: "₸", country: "Kazakhstan" },
-  { name: "Kenyan shilling", code: "KES", symbol: "KSh", country: "Kenya" },
-  { name: "Malaysian ringgit", code: "MYR", symbol: "RM", country: "Malaysia" },
-  { name: "Mexican peso", code: "MXN", symbol: "$", country: "Mexico" },
-  { name: "Moroccan dirham", code: "MAD", symbol: "MAD", country: "Morocco" },
-  { name: "New Taiwan dollar", code: "TWD", symbol: "$", country: "Taiwan" },
-  { name: "New Zealand dollar", code: "NZD", symbol: "$", country: "New Zealand" },
-  { name: "Norwegian krone", code: "NOK", symbol: "kr", country: "Norway" },
-  { name: "Philippine peso", code: "PHP", symbol: "₱", country: "Philippines" },
-  { name: "Polish zloty", code: "PLN", symbol: "zł", country: "Poland" },
-  { name: "Pound sterling", code: "GBP", symbol: "£", country: "United Kingdom" },
-  { name: "Qatari riyal", code: "QAR", symbol: "ر.ق", country: "Qatar" },
-  { name: "Romanian leu", code: "RON", symbol: "lei", country: "Romania" },
-  { name: "Saudi Arabian riyal", code: "SAR", symbol: "SR", country: "Saudi Arabia" },
-  { name: "Singapore dollar", code: "SGD", symbol: "$", country: "Singapore" },
-  { name: "South African rand", code: "ZAR", symbol: "R", country: "South Africa" },
-  { name: "South Korean won", code: "KRW", symbol: "₩", country: "South Korea" },
-  { name: "Swedish krona", code: "SEK", symbol: "kr", country: "Sweden" },
-  { name: "Swiss franc", code: "CHF", symbol: "CHF", country: "Switzerland" },
-  { name: "Thai baht", code: "THB", symbol: "฿", country: "Thailand" },
-  { name: "Turkish lira", code: "TRY", symbol: "₺", country: "Turkey" },
-  { name: "Ugandan shilling", code: "UGX", symbol: "USh", country: "Uganda" },
-  { name: "Ukrainian hryvnia", code: "UAH", symbol: "₴", country: "Ukraine" },
-  { name: "United States dollar", code: "USD", symbol: "$", country: "United States" },
-  { name: "Uruguayan peso", code: "UYU", symbol: "$U", country: "Uruguay" },
-  { name: "Vietnamese dong", code: "VND", symbol: "₫", country: "Vietnam" },
-  { name: "Bangladeshi taka", code: "BDT", symbol: "৳", country: "Bangladesh" },
 ];
 
 const Navbar = () => {
@@ -93,12 +39,42 @@ const Navbar = () => {
 
   // Currency modal state
   const [openCurrencyModal, setOpenCurrencyModal] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyItem>({
-    name: "United States dollar",
-    code: "USD",
-    symbol: "$",
-    country: "United States",
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyItem>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("mongzo_currency");
+        if (saved) return JSON.parse(saved);
+      } catch (err) {}
+    }
+    return {
+      name: "United States dollar",
+      code: "USD",
+      symbol: "$",
+      country: "United States",
+    };
   });
+
+  const handleCurrencySelect = (cur: CurrencyItem) => {
+    setSelectedCurrency(cur);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("mongzo_currency", JSON.stringify(cur));
+        window.dispatchEvent(new CustomEvent("mongzo-currency-change", { detail: cur }));
+      } catch (err) {}
+    }
+  };
+
+  useEffect(() => {
+    const handleGlobalCurrencyChange = (e: any) => {
+      if (e.detail) {
+        setSelectedCurrency(e.detail);
+      }
+    };
+    window.addEventListener("mongzo-currency-change", handleGlobalCurrencyChange);
+    return () => {
+      window.removeEventListener("mongzo-currency-change", handleGlobalCurrencyChange);
+    };
+  }, []);
 
   // Tracks whether the home Booking panel is open so the brand can close it.
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -125,18 +101,6 @@ const Navbar = () => {
     }
   }, [isSuccess, router]);
 
-  // Lock background scroll when currency modal is open
-  useEffect(() => {
-    if (openCurrencyModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [openCurrencyModal]);
-
   const handleSignOut = () => {
     signOut();
   };
@@ -150,9 +114,9 @@ const Navbar = () => {
             : "bg-white/95 backdrop-blur-md border-b border-neutral-200/90 shadow-sm"
         }`}
       >
-        <div className="container-page h-20 flex items-end justify-between pb-4">
+        <div className="container-page h-20 flex items-center justify-between py-4">
           {/* Left Navigation Links & Brand */}
-          <div className="flex items-end gap-8 lg:gap-12">
+          <div className="flex items-center gap-8 lg:gap-12">
             <Link
               href="/"
               onClick={(e) => {
@@ -177,7 +141,7 @@ const Navbar = () => {
               />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-7 lg:gap-10">
+            <nav className="hidden md:flex items-center gap-7 lg:gap-10 pt-2.5">
               {navLinks.map((link) =>
                 link.children ? (
                   <div key={link.label} className="relative group">
@@ -196,11 +160,7 @@ const Navbar = () => {
                     </button>
                     <div className="absolute left-0 top-full pt-3 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200">
                       <div
-                        className={`min-w-[170px] rounded-xl p-2 shadow-xl flex flex-col border ${
-                          transparentNav
-                            ? "bg-neutral-950/95 backdrop-blur-md border-white/10"
-                            : "bg-white border-neutral-200"
-                        }`}
+                        className="min-w-[170px] rounded-xl p-2 shadow-xl flex flex-col border bg-white border-neutral-200"
                       >
                         {link.children.map((child: any) => (
                           <Link
@@ -216,11 +176,7 @@ const Navbar = () => {
                                 );
                               }
                             }}
-                            className={`px-3 py-2 rounded-lg text-sm lg:text-base transition-colors ${
-                              transparentNav
-                                ? "text-white/80 hover:text-white hover:bg-white/10"
-                                : "text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100"
-                            }`}
+                            className="px-3 py-2 rounded-lg text-sm lg:text-base text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 transition-colors"
                           >
                             {child.label}
                           </Link>
@@ -247,7 +203,7 @@ const Navbar = () => {
 
           {/* Right Locale & Auth Controls */}
           <div
-            className={`hidden md:flex items-end gap-5 lg:gap-7 text-sm lg:text-base tracking-wide ${
+            className={`hidden md:flex items-center gap-5 lg:gap-7 pt-2.5 text-sm lg:text-base tracking-wide ${
               transparentNav ? "text-white/90" : "text-neutral-700"
             }`}
           >
@@ -255,7 +211,7 @@ const Navbar = () => {
             <button
               type="button"
               onClick={() => setOpenCurrencyModal(true)}
-              className={`flex items-center gap-1.5 font-medium px-2.5 py-1.5 rounded-lg hover:bg-black/5 ${
+              className={`flex items-center gap-1.5 font-medium ${
                 transparentNav ? "hover:text-white" : "hover:text-neutral-950"
               }`}
             >
@@ -429,68 +385,12 @@ const Navbar = () => {
         )}
       </header>
 
-      {/* ========================================================= */}
-      {/* CHOOSE A CURRENCY MODAL (Matching Provided Image)         */}
-      {/* ========================================================= */}
-      {openCurrencyModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 md:p-8">
-          {/* Frosted / Dim Backdrop */}
-          <div
-            onClick={() => setOpenCurrencyModal(false)}
-            className="absolute inset-0 bg-black/50 backdrop-blur-md transition-opacity"
-          />
-
-          {/* Modal Container */}
-          <div className="relative w-full max-w-5xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-neutral-200/90 overflow-hidden flex flex-col max-h-[88vh] z-10 animate-in fade-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-neutral-100 flex items-center justify-between">
-              <div>
-                <button
-                  type="button"
-                  onClick={() => setOpenCurrencyModal(false)}
-                  className="w-8 h-8 rounded-full text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 flex items-center justify-center transition-colors mb-2"
-                >
-                  <FaTimes className="text-sm" />
-                </button>
-                <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">
-                  Choose a currency
-                </h2>
-              </div>
-            </div>
-
-            {/* Scrollable Grid of Currencies (5 Columns like image) */}
-            <div className="px-6 sm:px-8 py-6 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
-                {CURRENCIES.map((cur) => {
-                  const isSelected = selectedCurrency.code === cur.code;
-                  return (
-                    <button
-                      key={cur.code}
-                      type="button"
-                      onClick={() => {
-                        setSelectedCurrency(cur);
-                        setOpenCurrencyModal(false);
-                      }}
-                      className={`text-left p-3.5 rounded-2xl border transition-all duration-150 flex flex-col justify-between ${
-                        isSelected
-                          ? "border-blue-600 bg-blue-50/70 shadow-sm ring-1 ring-blue-600"
-                          : "border-neutral-200/80 hover:border-blue-400/80 hover:bg-neutral-50/80 hover:shadow-sm"
-                      }`}
-                    >
-                      <span className="text-xs font-semibold text-neutral-900 leading-tight">
-                        {cur.name}
-                      </span>
-                      <span className="text-[11px] text-neutral-500 font-medium mt-1">
-                        {cur.code} - {cur.symbol}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <CurrencyModal
+        open={openCurrencyModal}
+        onClose={() => setOpenCurrencyModal(false)}
+        selected={selectedCurrency}
+        onSelect={handleCurrencySelect}
+      />
     </>
   );
 };

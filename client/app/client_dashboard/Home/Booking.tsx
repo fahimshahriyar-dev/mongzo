@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FaPlane, FaHotel, FaCar, FaSimCard, FaShieldAlt, FaPlus, FaMinus, FaChevronDown, FaMapMarkerAlt, FaExchangeAlt, FaBaby } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
 import { IoSparklesOutline } from "react-icons/io5";
@@ -8,6 +8,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FiCheck, FiChevronRight, FiChevronLeft } from "react-icons/fi";
 import { LuUser } from "react-icons/lu";
 import TravelInsurance from "./TravelInsurance";
+import ESimSection from "./ESimSection";
 
 const POPULAR_CITIES = [
   "Makkah", "Cox's Bazar", "Al Madinah", "Kolkata",
@@ -148,18 +149,48 @@ const destinations = [
 const Booking = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
-  const [activeTab, setActiveTab] = useState<"hotels" | "flights" | "cars" | "esim" | "insurance">("hotels");
+  const [activeTab, setActiveTab] = useState<"hotels" | "flights" | "cars" | "esim" | "insurance">(() => {
+    const tabParam = searchParams?.get("tab");
+    return tabParam && TAB_IDS.includes(tabParam) ? (tabParam as any) : "hotels";
+  });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const sliderRef = useRef<HTMLDivElement | null>(null);
+  const [animateSlider, setAnimateSlider] = useState(false);
+  const [sliderReady, setSliderReady] = useState(false);
 
-  // Sync activeTab from URL search params or custom events
+  // Sync activeTab from URL search params, stored tab, or custom events
   useEffect(() => {
     const tabParam = searchParams?.get("tab");
-    if (tabParam && TAB_IDS.includes(tabParam)) {
-      setActiveTab(tabParam as any);
+    let initialTab: string | null =
+      tabParam && TAB_IDS.includes(tabParam) ? tabParam : null;
+    if (!initialTab) {
+      try {
+        const stored = sessionStorage.getItem("mongzo-booking-tab");
+        if (stored && TAB_IDS.includes(stored)) initialTab = stored;
+      } catch {}
+    }
+    if (initialTab) {
+      setActiveTab(initialTab as any);
     }
   }, [searchParams]);
+
+  // Remember the last selected tab so a reload stays on it
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("mongzo-booking-tab", activeTab);
+    } catch {}
+  }, [activeTab]);
+
+  // Keep the URL in sync on the dedicated booking page so reloads preserve the tab
+  useEffect(() => {
+    if (pathname !== "/booking") return;
+    const current = searchParams?.get("tab");
+    if (current !== activeTab) {
+      router.replace(`/booking?tab=${activeTab}`, { scroll: false });
+    }
+  }, [activeTab, pathname, router, searchParams]);
 
   useEffect(() => {
     const handleSetTab = (e: any) => {
@@ -173,6 +204,23 @@ const Booking = () => {
       window.removeEventListener("mongzo-set-booking-tab", handleSetTab);
     };
   }, []);
+
+  // E-Sim Filter States
+  const ESIM_DESTINATIONS = [
+    "Global",
+    "China",
+    "Japan",
+    "Korea",
+    "South Eastern Asia",
+    "Middle East/South Asia",
+    "Europe",
+    "America",
+    "Oceania",
+    "Africa",
+  ];
+  const [esimDestination, setEsimDestination] = useState("Global");
+  const [isEsimDestOpen, setIsEsimDestOpen] = useState(false);
+  const [esimSearchQuery, setEsimSearchQuery] = useState("");
 
   // Stays & Apartments Filter States
   const [destination, setDestination] = useState("Dhaka, Bangladesh");
@@ -249,8 +297,8 @@ const Booking = () => {
   const flightPassengersLabel = `${totalFlightPassengers} passenger${totalFlightPassengers > 1 ? "s" : ""}`;
 
   // Cars Filter States (Image 2)
-  const [carDiffLocation, setCarDiffLocation] = useState(false);
   const [carLocation, setCarLocation] = useState("");
+  const [carDropOffLocation, setCarDropOffLocation] = useState("");
   const [carPickUpDate, setCarPickUpDate] = useState<Date>(new Date(2026, 10, 5));
   const [carPickUpTime, setCarPickUpTime] = useState("10:00");
   const [carDropOffDate, setCarDropOffDate] = useState<Date>(new Date(2026, 10, 10));
@@ -261,6 +309,11 @@ const Booking = () => {
   const [carCountrySearch, setCarCountrySearch] = useState("");
   const [isCarPickUpTimeOpen, setIsCarPickUpTimeOpen] = useState(false);
   const [isCarDropOffTimeOpen, setIsCarDropOffTimeOpen] = useState(false);
+  const [isCarPickUpDateOpen, setIsCarPickUpDateOpen] = useState(false);
+  const [isCarDropOffDateOpen, setIsCarDropOffDateOpen] = useState(false);
+  const [carCalendarViewDate, setCarCalendarViewDate] = useState<Date>(
+    new Date(2026, 10, 1)
+  );
 
   // Click outside listener for dropdowns
   const filterWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -295,7 +348,7 @@ const Booking = () => {
   } in ${rooms.length} Room${rooms.length > 1 ? "s" : ""}`;
 
   const formatDisplayDate = (d: Date) => {
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fr", "Sa"];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const months = [
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -486,7 +539,188 @@ const Booking = () => {
     );
   };
 
-  useEffect(() => {
+  const handleCarDateClick = (dayDate: Date, field: "pickup" | "dropoff") => {
+    if (field === "pickup") {
+      setCarPickUpDate(dayDate);
+      if (dayDate >= carDropOffDate) {
+        const next = new Date(dayDate);
+        next.setDate(next.getDate() + 1);
+        setCarDropOffDate(next);
+      }
+    } else if (dayDate > carPickUpDate) {
+      setCarDropOffDate(dayDate);
+    }
+  };
+
+  const renderCarMonthCalendar = (
+    monthOffset: number,
+    activeField: "pickup" | "dropoff"
+  ) => {
+    const targetMonthDate = new Date(
+      carCalendarViewDate.getFullYear(),
+      carCalendarViewDate.getMonth() + monthOffset,
+      1
+    );
+    const year = targetMonthDate.getFullYear();
+    const month = targetMonthDate.getMonth();
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December",
+    ];
+    const daysInMonth = getDaysInMonth(year, month);
+    const firstDay = getFirstDayOfMonth(year, month);
+    const prevMonthDays = getDaysInMonth(year, month - 1);
+
+    const cells = [];
+    for (let i = firstDay - 1; i >= 0; i--) {
+      cells.push({
+        day: prevMonthDays - i,
+        isCurrentMonth: false,
+        date: new Date(year, month - 1, prevMonthDays - i),
+      });
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      cells.push({ day: i, isCurrentMonth: true, date: new Date(year, month, i) });
+    }
+
+    return (
+      <div className="flex-1 min-w-[250px]">
+        <div className="text-center font-bold text-neutral-800 text-sm mb-3">
+          {monthNames[month]} {year}
+        </div>
+        <div className="grid grid-cols-7 gap-y-1 text-center text-xs text-neutral-400 font-medium mb-1.5">
+          <span>Su</span>
+          <span>Mo</span>
+          <span>Tu</span>
+          <span>We</span>
+          <span>Th</span>
+          <span>Fr</span>
+          <span>Sa</span>
+        </div>
+        <div className="grid grid-cols-7 gap-y-1 text-center text-xs">
+          {cells.map((cell, idx) => {
+            const isPickup =
+              cell.isCurrentMonth && isSameDay(cell.date, carPickUpDate);
+            const isDropoff =
+              cell.isCurrentMonth && isSameDay(cell.date, carDropOffDate);
+            const inRange =
+              cell.isCurrentMonth &&
+              isInRange(cell.date, carPickUpDate, carDropOffDate);
+            const isNewYearsEve =
+              cell.isCurrentMonth && month === 11 && cell.day === 31;
+
+            let bgClass = "hover:bg-neutral-100 text-neutral-700";
+            if (!cell.isCurrentMonth) {
+              bgClass = "text-neutral-300 pointer-events-none";
+            } else if (isPickup) {
+              bgClass = "bg-[#2563eb] text-white font-bold rounded-l-md shadow-sm";
+            } else if (isDropoff) {
+              bgClass = "bg-[#2563eb] text-white font-bold rounded-r-md shadow-sm";
+            } else if (inRange) {
+              bgClass = "bg-[#a3e892]/60 text-neutral-900";
+            }
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                disabled={!cell.isCurrentMonth}
+                onClick={() =>
+                  cell.isCurrentMonth && handleCarDateClick(cell.date, activeField)
+                }
+                className={`h-8 flex items-center justify-center transition-colors relative text-xs ${bgClass}`}
+              >
+                <span>{cell.day}</span>
+                {isNewYearsEve && !isPickup && !isDropoff && (
+                  <span className="text-red-500 font-semibold absolute top-1 right-1 text-[9px] leading-none">
+                    *
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCarDatePopover = (activeField: "pickup" | "dropoff") => (
+    <div onClick={(e) => e.stopPropagation()} className="absolute top-full right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 w-[95vw] max-w-[620px] animate-in fade-in zoom-in-95 duration-150">
+      {/* Active Selection Header */}
+      <div className="grid grid-cols-2 border border-[#2563eb] rounded-xl overflow-hidden mb-4">
+        <div className="p-3 border-r border-[#2563eb]/30 bg-neutral-50/50">
+          <span className="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-0.5">
+            Pick-up
+          </span>
+          <span className="block text-xs sm:text-sm font-bold text-neutral-900">
+            {formatDisplayDate(carPickUpDate)}
+          </span>
+        </div>
+        <div className="p-3 bg-white">
+          <span className="block text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-0.5">
+            Drop-off
+          </span>
+          <span className="block text-xs sm:text-sm font-bold text-neutral-900">
+            {formatDisplayDate(carDropOffDate)}
+          </span>
+        </div>
+      </div>
+
+      {/* Month Navigation & Two Months Display */}
+      <div className="relative mb-3">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <button
+            type="button"
+            onClick={() =>
+              setCarCalendarViewDate(
+                new Date(
+                  carCalendarViewDate.getFullYear(),
+                  carCalendarViewDate.getMonth() - 1,
+                  1
+                )
+              )
+            }
+            className="w-7 h-7 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors"
+          >
+            <IoIosArrowBack />
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              setCarCalendarViewDate(
+                new Date(
+                  carCalendarViewDate.getFullYear(),
+                  carCalendarViewDate.getMonth() + 1,
+                  1
+                )
+              )
+            }
+            className="w-7 h-7 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors"
+          >
+            <IoIosArrowForward />
+          </button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-6">
+          {renderCarMonthCalendar(0, activeField)}
+          {renderCarMonthCalendar(1, activeField)}
+        </div>
+      </div>
+
+      {/* Public Holidays Legend */}
+      <div className="border-t border-neutral-100 pt-3 mt-3">
+        <span className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5">
+          *Public Holidays
+        </span>
+        <div className="inline-flex items-center gap-2 bg-neutral-50 px-2.5 py-1 rounded-md text-xs">
+          <span className="text-red-500 font-bold">31 Dec</span>
+          <span className="text-neutral-600">New Year&apos;s Eve</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  useLayoutEffect(() => {
     const activeIndex = TABS.findIndex((tab) => tab.id === activeTab);
     const activeEl = tabRefs.current[activeIndex];
     const slider = sliderRef.current;
@@ -494,8 +728,9 @@ const Booking = () => {
       slider.style.left = `${activeEl.offsetLeft}px`;
       slider.style.width = `${activeEl.offsetWidth}px`;
       slider.style.height = `${activeEl.offsetHeight}px`;
+      if (!sliderReady) setSliderReady(true);
     }
-  }, [activeTab]);
+  }, [activeTab, sliderReady]);
 
 
 
@@ -510,7 +745,7 @@ const Booking = () => {
                   {/* Sliding active pill indicator */}
                   <div
                     ref={sliderRef}
-                    className="absolute top-1.5 bottom-1.5 rounded-full bg-white shadow-md transition-all duration-300 ease-out pointer-events-none"
+                    className={`absolute top-1.5 bottom-1.5 rounded-full bg-white shadow-md pointer-events-none ${sliderReady ? "opacity-100" : "opacity-0"} ${animateSlider ? "transition-all duration-300 ease-out" : ""}`}
                     style={{ left: 6, width: 0 }}
                   />
 
@@ -524,10 +759,13 @@ const Booking = () => {
                         ref={(el) => {
                           tabRefs.current[idx] = el;
                         }}
-                        onClick={() => setActiveTab(tab.id)}
+                        onClick={() => {
+                          setAnimateSlider(true);
+                          setActiveTab(tab.id);
+                        }}
                         className={`relative z-10 flex items-center gap-2 px-4 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors duration-200 select-none ${
                           isActive
-                            ? "text-blue-600 font-bold"
+                            ? `text-blue-600 font-bold ${sliderReady ? "" : "bg-white shadow-md"}`
                             : "text-neutral-600 hover:text-neutral-900"
                         }`}
                       >
@@ -949,6 +1187,19 @@ const Booking = () => {
 
                     <button
                       type="button"
+                      onClick={() => {
+                        const params = new URLSearchParams();
+                        if (destination) params.set("destination", destination);
+                        params.set("checkIn", checkInDate.toISOString());
+                        params.set("checkOut", checkOutDate.toISOString());
+                        params.set("rooms", String(rooms.length));
+                        const totalAdults = rooms.reduce((acc, r) => acc + r.adults, 0);
+                        const totalChildren = rooms.reduce((acc, r) => acc + r.children, 0);
+                        params.set("adults", String(totalAdults));
+                        params.set("children", String(totalChildren));
+                        if (freeCancellation) params.set("freeCancellation", "true");
+                        router.push(`/hotels?${params.toString()}`);
+                      }}
                       className="w-full sm:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold text-sm px-10 py-3 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
                     >
                       Search
@@ -1177,7 +1428,7 @@ const Booking = () => {
 
                               {/* Multi-city Calendar Popover */}
                               {multiCityDateIdx === fIdx && (
-                                <div className="absolute top-full right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 w-[95vw] max-w-[620px] animate-in fade-in zoom-in-95 duration-150">
+                                <div onClick={(e) => e.stopPropagation()} className="absolute top-full right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 w-[95vw] max-w-[620px] animate-in fade-in zoom-in-95 duration-150">
                                   <div className="border border-[#2563eb] rounded-xl overflow-hidden mb-4 p-3 bg-neutral-50/50">
                                     <span className="block text-xs sm:text-sm font-bold text-neutral-900">
                                       {flightRow.departDate ? formatDisplayDate(flightRow.departDate) : "Select date"}
@@ -1829,54 +2080,71 @@ const Booking = () => {
               ) : activeTab === "cars" ? (
                 /* Cars Search Box */
                 <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-5 transition-all">
-                  {/* Top Checkbox: Drop off car at a different location */}
-                  <div className="mb-4">
-                    <label className="inline-flex items-center gap-2.5 cursor-pointer select-none text-xs sm:text-sm font-medium text-neutral-800">
-                      <div
-                        onClick={() => setCarDiffLocation(!carDiffLocation)}
-                        className={`w-[18px] h-[18px] rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
-                          carDiffLocation
-                            ? "bg-[#2563eb] border-[#2563eb] text-white"
-                            : "border-neutral-300 bg-white"
-                        }`}
-                      >
-                        {carDiffLocation && <FiCheck className="text-[10px] stroke-[3]" />}
-                      </div>
-                      <span onClick={() => setCarDiffLocation(!carDiffLocation)}>
-                        Drop off car at a different location
-                      </span>
-                    </label>
-                  </div>
-
                   {/* Main Inputs Strip: single bordered row */}
                   <div className="flex flex-col lg:flex-row border border-neutral-200 rounded-xl overflow-visible mb-4">
-                    {/* Pick-up & drop-off location */}
-                    <div className="flex-1 px-4 py-2.5 border-b lg:border-b-0 lg:border-r border-neutral-200 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[#2563eb] rounded-t-xl lg:rounded-t-none lg:rounded-l-xl">
-                      <span className="block text-[11px] text-neutral-400 font-medium leading-tight mb-0.5">
-                        Pick-up &amp; drop-off location
-                      </span>
-                      <input
-                        type="text"
-                        placeholder="Search for location..."
-                        value={carLocation}
-                        onChange={(e) => setCarLocation(e.target.value)}
-                        className="w-full text-[13px] font-semibold text-neutral-900 placeholder:text-neutral-400 outline-none bg-transparent"
-                      />
+                    {/* Pick up & Drop off locations (From/To style) */}
+                    <div className="flex-1 flex items-center relative border-b lg:border-b-0 lg:border-r border-neutral-200 rounded-t-xl lg:rounded-t-none lg:rounded-l-xl">
+                      {/* Pick up */}
+                      <div className="flex-1 px-4 py-2.5 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[#2563eb] rounded-t-xl lg:rounded-t-none lg:rounded-l-xl">
+                        <span className="block text-[11px] text-neutral-400 font-medium leading-tight mb-0.5">
+                          Pick up
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="Search for location..."
+                          value={carLocation}
+                          onChange={(e) => setCarLocation(e.target.value)}
+                          className="w-full text-[13px] font-semibold text-neutral-900 placeholder:text-neutral-400 outline-none bg-transparent"
+                        />
+                      </div>
+
+                      {/* Swap Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const temp = carLocation;
+                          setCarLocation(carDropOffLocation);
+                          setCarDropOffLocation(temp);
+                        }}
+                        className="w-7 h-7 rounded-full border border-neutral-200 bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 flex items-center justify-center -mx-3.5 z-20 shrink-0 shadow-sm transition-colors"
+                      >
+                        <FaExchangeAlt className="text-[10px]" />
+                      </button>
+
+                      {/* Drop off */}
+                      <div className="flex-1 px-4 py-2.5 focus-within:ring-2 focus-within:ring-inset focus-within:ring-[#2563eb]">
+                        <span className="block text-[11px] text-neutral-400 font-medium leading-tight mb-0.5">
+                          Drop off
+                        </span>
+                        <input
+                          type="text"
+                          placeholder="Search for location..."
+                          value={carDropOffLocation}
+                          onChange={(e) => setCarDropOffLocation(e.target.value)}
+                          className="w-full text-[13px] font-semibold text-neutral-900 placeholder:text-neutral-400 outline-none bg-transparent"
+                        />
+                      </div>
                     </div>
 
                     {/* Pick-up date */}
-                    <div className="px-4 py-2.5 border-b lg:border-b-0 lg:border-r border-neutral-200 min-w-[130px] cursor-pointer">
+                    <div
+                      onClick={() => {
+                        setIsCarPickUpDateOpen(!isCarPickUpDateOpen);
+                        setIsCarDropOffDateOpen(false);
+                        setIsCarPickUpTimeOpen(false);
+                        setIsCarDropOffTimeOpen(false);
+                      }}
+                      className={`relative px-4 py-2.5 border-b lg:border-b-0 lg:border-r border-neutral-200 min-w-[130px] cursor-pointer transition-all ${
+                        isCarPickUpDateOpen ? "ring-2 ring-inset ring-[#2563eb]" : ""
+                      }`}
+                    >
                       <span className="block text-[11px] text-neutral-400 font-medium leading-tight mb-0.5">
                         Pick-up date
                       </span>
                       <span className="block text-[13px] font-bold text-neutral-800 whitespace-nowrap">
-                        {(() => {
-                          const d = carPickUpDate;
-                          const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-                          const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-                          return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
-                        })()}
+                        {formatDisplayDate(carPickUpDate)}
                       </span>
+                      {isCarPickUpDateOpen && renderCarDatePopover("pickup")}
                     </div>
 
                     {/* Pick-up time */}
@@ -1918,18 +2186,24 @@ const Booking = () => {
                     </div>
 
                     {/* Drop-off date */}
-                    <div className="px-4 py-2.5 border-b lg:border-b-0 lg:border-r border-neutral-200 min-w-[130px] cursor-pointer">
+                    <div
+                      onClick={() => {
+                        setIsCarDropOffDateOpen(!isCarDropOffDateOpen);
+                        setIsCarPickUpDateOpen(false);
+                        setIsCarPickUpTimeOpen(false);
+                        setIsCarDropOffTimeOpen(false);
+                      }}
+                      className={`relative px-4 py-2.5 border-b lg:border-b-0 lg:border-r border-neutral-200 min-w-[130px] cursor-pointer transition-all ${
+                        isCarDropOffDateOpen ? "ring-2 ring-inset ring-[#2563eb]" : ""
+                      }`}
+                    >
                       <span className="block text-[11px] text-neutral-400 font-medium leading-tight mb-0.5">
                         Drop-off date
                       </span>
                       <span className="block text-[13px] font-bold text-neutral-800 whitespace-nowrap">
-                        {(() => {
-                          const d = carDropOffDate;
-                          const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-                          const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-                          return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
-                        })()}
+                        {formatDisplayDate(carDropOffDate)}
                       </span>
+                      {isCarDropOffDateOpen && renderCarDatePopover("dropoff")}
                     </div>
 
                     {/* Drop-off time */}
@@ -2034,9 +2308,11 @@ const Booking = () => {
                                   type="button"
                                   onClick={() => {
                                     setCarResidentCountry(country);
-                                    setIsCarCountryOpen(false);
+        setIsCarCountryOpen(false);
         setIsCarPickUpTimeOpen(false);
         setIsCarDropOffTimeOpen(false);
+        setIsCarPickUpDateOpen(false);
+        setIsCarDropOffDateOpen(false);
                                     setCarCountrySearch("");
                                   }}
                                   className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[#eff6ff] ${
@@ -2055,11 +2331,153 @@ const Booking = () => {
 
                       <button
                         type="button"
+                        onClick={() => {
+                          const params = new URLSearchParams();
+                          if (carLocation) params.set("location", carLocation);
+                          params.set("pickupDate", carPickUpDate.toISOString());
+                          params.set("pickupTime", carPickUpTime);
+                          params.set("dropoffDate", carDropOffDate.toISOString());
+                          params.set("dropoffTime", carDropOffTime);
+                          params.set("country", carResidentCountry);
+                          if (carDropOffLocation && carDropOffLocation !== carLocation) {
+                            params.set("dropoffLocation", carDropOffLocation);
+                            params.set("diffLocation", "1");
+                          }
+                          router.push(`/cars?${params.toString()}`);
+                        }}
                         className="bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold text-sm px-8 py-2.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
                       >
                         Search
                       </button>
                     </div>
+                  </div>
+                </div>
+              ) : activeTab === "esim" ? (
+                /* ============ E-Sim Search Box ============ */
+                <div
+                  ref={filterWrapperRef}
+                  className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-6 transition-all"
+                >
+                  {/* Header Row: Title */}
+                  <div className="mb-5">
+                    <h2 className="text-base sm:text-lg font-medium text-neutral-800">
+                      Where do you need data connectivity?
+                    </h2>
+                  </div>
+
+                  {/* Main Inputs Bar */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-3 relative">
+                    {/* Destination Input Box */}
+                    <div className="md:col-span-12 relative">
+                      <div
+                        onClick={() => {
+                          setIsEsimDestOpen(!isEsimDestOpen);
+                        }}
+                        className={`border rounded-xl px-4 py-2.5 cursor-pointer bg-white transition-all ${
+                          isEsimDestOpen
+                            ? "border-[#2563eb] ring-1 ring-[#2563eb]"
+                            : "border-neutral-200 hover:border-neutral-300"
+                        }`}
+                      >
+                        <span className="block text-[11px] text-neutral-400 font-medium leading-tight">
+                          Destination
+                        </span>
+                        <div className="flex items-center justify-between mt-0.5">
+                          <span className="text-sm font-semibold text-neutral-900 truncate">
+                            {esimDestination || "Global"}
+                          </span>
+                          <FaChevronDown
+                            className={`text-xs text-neutral-400 transition-transform duration-200 ${
+                              isEsimDestOpen ? "rotate-180 text-blue-600" : ""
+                            }`}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Destination Dropdown Popup */}
+                      {isEsimDestOpen && (
+                        <div className="absolute top-full left-0 mt-2 w-full sm:w-[480px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150">
+                          {/* Search Input inside popover */}
+                          <div className="relative mb-4">
+                            <div className="border border-[#2563eb] rounded-xl px-3.5 py-2.5 flex items-center justify-between bg-white ring-1 ring-[#2563eb]">
+                              <div className="w-full">
+                                <label className="block text-[11px] text-neutral-400 leading-none mb-1">
+                                  Search Destination or Region
+                                </label>
+                                <input
+                                  type="text"
+                                  placeholder="Type to filter..."
+                                  value={esimSearchQuery}
+                                  onChange={(e) => setEsimSearchQuery(e.target.value)}
+                                  autoFocus
+                                  className="w-full text-sm font-bold text-neutral-900 outline-none bg-transparent"
+                                />
+                              </div>
+                              {esimSearchQuery && (
+                                <button
+                                  type="button"
+                                  onClick={() => setEsimSearchQuery("")}
+                                  className="text-neutral-400 hover:text-neutral-600 p-1"
+                                >
+                                  <MdClose className="text-base" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Destination options list */}
+                          <div className="max-h-60 overflow-y-auto space-y-1 pr-1">
+                            {ESIM_DESTINATIONS.filter((item) =>
+                              item.toLowerCase().includes(esimSearchQuery.toLowerCase())
+                            ).map((dest) => {
+                              const isSelected = esimDestination === dest;
+                              return (
+                                <button
+                                  key={dest}
+                                  type="button"
+                                  onClick={() => {
+                                    setEsimDestination(dest);
+                                    setIsEsimDestOpen(false);
+                                    setEsimSearchQuery("");
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-sm font-medium transition-colors ${
+                                    isSelected
+                                      ? "bg-[#eff6ff] text-[#2563eb] font-semibold"
+                                      : "hover:bg-neutral-50 text-neutral-700"
+                                  }`}
+                                >
+                                  <span className="flex items-center gap-2.5">
+                                    <FaMapMarkerAlt
+                                      className={`text-xs ${
+                                        isSelected ? "text-blue-600" : "text-neutral-400"
+                                      }`}
+                                    />
+                                    {dest}
+                                  </span>
+                                  {isSelected && (
+                                    <FiCheck className="text-sm text-blue-600 stroke-[3]" />
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bottom Row: Search Button */}
+                  <div className="flex justify-end mt-5 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEsimDestOpen(false);
+                        router.push(`/esim?destination=${encodeURIComponent(esimDestination || "Global")}`);
+                      }}
+                      className="w-full sm:w-auto bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold text-sm px-10 py-3 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
+                    >
+                      Show All
+                    </button>
                   </div>
                 </div>
               ) : null}
@@ -2085,7 +2503,7 @@ const Booking = () => {
                       { image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=600&q=80", type: "Villa", stars: 5, name: "Anantara Veli Maldives Resort", location: "South Male Atoll, Maldives", score: 9.5, label: "Exceptional", reviews: 1104 },
                       { image: "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=600&q=80", type: "Resort", stars: 5, name: "Six Senses Yao Noi", location: "Phang-Nga Bay, Thailand", score: 9.6, label: "Exceptional", reviews: 843 },
                       { image: "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=600&q=80", type: "Hotel", stars: 4, name: "Radisson Blu Dhaka Water Garden", location: "Dhaka, Bangladesh", score: 8.4, label: "Very Good", reviews: 2341 },
-                      { image: "https://images.unsplash.com/photo-1506059612708-99d6128a11f3?auto=format&fit=crop&w=600&q=80", type: "Ryokan", stars: 5, name: "Hoshino Resorts KAI Nikko", location: "Nikko, Japan", score: 9.3, label: "Wonderful", reviews: 419 },
+                      { image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=600&q=80", type: "Ryokan", stars: 5, name: "Hoshino Resorts KAI Nikko", location: "Nikko, Japan", score: 9.3, label: "Wonderful", reviews: 419 },
                     ].map((p, i) => (
                       <div key={i} className="group bg-white rounded-2xl border border-neutral-200 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden">
                         <div className="relative h-44 overflow-hidden">
@@ -2134,7 +2552,7 @@ const Booking = () => {
                       { image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=600&q=80", name: "Hotel Farmis Garden", location: "Sylhet, Bangladesh", score: 6.5, label: "Review score", reviews: 113, nights: 2, originalPrice: "BDT 3,471", finalPrice: "BDT 3,019", deal: null },
                       { image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=600&q=80", name: "Hotel New Royal Palace Dhanmondi", location: "Dhaka, Bangladesh", score: 6.3, label: "Review score", reviews: 28, nights: 2, originalPrice: "BDT 3,234", finalPrice: "BDT 2,426", deal: "Late Escape Deal" },
                       { image: "https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=600&q=80", name: "Ocean Paradise Hotel & Resort", location: "Cox's Bazar, Bangladesh", score: 7.2, label: "Good", reviews: 456, nights: 2, originalPrice: "BDT 8,200", finalPrice: "BDT 7,380", deal: "Early Bird" },
-                      { image: "https://images.unsplash.com/photo-1573552987-c2f7b1f42c5a?auto=format&fit=crop&w=600&q=80", name: "Sayeman Beach Resort", location: "Cox's Bazar, Bangladesh", score: 8.1, label: "Very Good", reviews: 189, nights: 2, originalPrice: "BDT 11,000", finalPrice: "BDT 9,350", deal: null },
+                      { image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80", name: "Sayeman Beach Resort", location: "Cox's Bazar, Bangladesh", score: 8.1, label: "Very Good", reviews: 189, nights: 2, originalPrice: "BDT 11,000", finalPrice: "BDT 9,350", deal: null },
                       { image: "https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?auto=format&fit=crop&w=600&q=80", name: "Pan Pacific Sonargaon Dhaka", location: "Dhaka, Bangladesh", score: 8.6, label: "Fabulous", reviews: 1872, nights: 2, originalPrice: "BDT 22,000", finalPrice: "BDT 18,700", deal: "Weekend Deal" },
                       { image: "https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb?auto=format&fit=crop&w=600&q=80", name: "LAKESHORE Hotel & Apartments", location: "Gulshan, Dhaka", score: 7.8, label: "Good", reviews: 324, nights: 2, originalPrice: "BDT 7,500", finalPrice: "BDT 6,375", deal: "Late Escape Deal" },
                     ].map((p, i) => (
@@ -2237,6 +2655,11 @@ const Booking = () => {
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* ============ E-SIM SECTION ============ */}
+            {activeTab === "esim" && (
+              <ESimSection selectedDestination={esimDestination} />
             )}
 
             {/* ============ TRAVEL INSURANCE ============ */}

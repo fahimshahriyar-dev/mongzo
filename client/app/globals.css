@@ -6,6 +6,18 @@ body {
   @apply bg-white text-mongzo-dark;
 }
 
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}
+
 @layer components {
   .container-page {
     @apply w-full mx-auto px-6 md:px-12 lg:px-16 xl:px-20;

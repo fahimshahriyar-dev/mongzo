@@ -37,6 +37,15 @@ const Hero = () => {
   // Stage 2 (Travel Agency Paragraph & Features)
   const stage2Ref = useRef<HTMLDivElement | null>(null);
 
+  // Hide the page scrollbar on the home page only.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("no-scrollbar");
+    return () => {
+      root.classList.remove("no-scrollbar");
+    };
+  }, []);
+
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
 
@@ -316,7 +325,7 @@ const Hero = () => {
             ref={topLeftRef}
             className="absolute top-[18%] md:top-[19%] left-6 md:left-12 lg:left-16 xl:left-20 max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-xl origin-top-left will-change-transform"
           >
-            <h1 className="font-orbitron text-[34px] sm:text-[46px] md:text-[56px] lg:text-[68px] xl:text-[76px] font-bold text-white leading-[0.94] tracking-tight drop-shadow-lg">
+            <h1 className="font-Poppins text-[36px] sm:text-[48px] md:text-[58px] lg:text-[70px] xl:text-[78px] font-bold text-white leading-[1.05] tracking-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
               <RevealLines lines={["Book your", "dream flight"]} />
             </h1>
           </div>
@@ -326,7 +335,7 @@ const Hero = () => {
             ref={topRightRef}
             className="absolute top-[57%] md:top-[58%] right-6 md:right-12 lg:right-16 xl:right-20 text-right max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-xl origin-bottom-right will-change-transform"
           >
-            <h2 className="font-orbitron text-[34px] sm:text-[46px] md:text-[56px] lg:text-[68px] xl:text-[76px] font-bold text-white leading-[0.94] tracking-tight drop-shadow-lg">
+            <h2 className="font-Poppins text-[36px] sm:text-[48px] md:text-[58px] lg:text-[70px] xl:text-[78px] font-bold text-white leading-[1.05] tracking-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
               <RevealLines lines={["All bookings,", "one place"]} />
             </h2>
           </div>
@@ -336,11 +345,11 @@ const Hero = () => {
             ref={bottomLeftRef}
             className="absolute bottom-8 sm:bottom-10 md:bottom-12 left-6 md:left-12 lg:left-16 xl:left-20 max-w-[220px] sm:max-w-[260px] md:max-w-[310px] text-left origin-bottom-left will-change-transform"
           >
-            <h3 className="font-orbitron text-sm sm:text-base md:text-[18px] lg:text-[21px] font-bold text-white leading-[1.25] tracking-tight mb-3">
+            <h3 className="font-Poppins text-sm sm:text-base md:text-[18px] lg:text-[20px] font-semibold text-white leading-[1.3] tracking-normal mb-3">
               Your<br />freedom to<br />enjoy life
             </h3>
             <div className="w-6 sm:w-8 h-[1px] bg-white/50 mb-3" />
-            <p className="text-white/75 text-[10px] sm:text-[11px] md:text-xs leading-[1.5] font-light">
+            <p className="font-Poppins text-white/80 text-[11px] sm:text-[12px] md:text-[13px] leading-[1.6] font-normal">
               Every flight is designed around your comfort, time, and ambitions — so you can focus on what truly matters, while we take care of everything else.
             </p>
           </div>
@@ -350,13 +359,13 @@ const Hero = () => {
             ref={bottomRightRef}
             className="absolute bottom-8 sm:bottom-10 md:bottom-12 right-6 md:right-12 lg:right-16 xl:right-20 flex flex-col items-end text-right origin-bottom-right will-change-transform"
           >
-            <div className="flex items-center gap-3 sm:gap-4 text-[9px] sm:text-[10px] md:text-[11px] tracking-[0.2em] text-white/90 uppercase font-orbitron">
+            <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px] md:text-xs tracking-[0.15em] text-white/90 uppercase font-Poppins font-medium">
               <div className="flex items-center gap-1.5 opacity-90">
-                <span className="text-[10px] animate-bounce">↓</span>
+                <span className="text-[11px] animate-bounce">↓</span>
                 <span>Scroll Down</span>
               </div>
               <span className="opacity-30">|</span>
-              <span className="text-white/60">To Start The Journey</span>
+              <span className="text-white/70">To Start The Journey</span>
             </div>
             <div className="w-56 sm:w-72 md:w-80 h-[1px] bg-white/25 mt-2.5" />
           </div>
@@ -368,37 +377,29 @@ const Hero = () => {
           className="container-page absolute inset-0 z-20 flex flex-col justify-between pt-16 pb-6 md:pt-20 md:pb-8 opacity-0 pointer-events-none select-none"
         >
           {/* Main Large Statement */}
-          <div className="max-w-[1044px] mt-[100px]">
-            <h2 className="font-monte-carlo text-4xl sm:text-5xl md:text-[4.2rem] lg:text-[5rem] xl:text-[5.4rem] font-normal text-white leading-[1.08] tracking-tight drop-shadow-[0_4px_20px_rgba(0,0,0,0.7)]">
-              {[
-                "Mongzo is a bespoke luxury travel agency.",
-                "From private escapes to",
-                "seamless flights and hotels, we craft",
-                "every journey with care, comfort and",
-                "style."
-              ].map((line, li) => (
-                <span key={li} className="block py-0.5">
-                  {line.split(" ").map((w, wi) => (
-                    <span
-                      key={wi}
-                      className="stage2-word inline-block mr-[0.22em] last:mr-0 opacity-0 translate-y-12 will-change-transform"
-                    >
-                      {w}
-                    </span>
-                  ))}
-                </span>
-              ))}
+          <div className="max-w-[1100px] mt-[80px] md:mt-[100px]">
+            <h2 className="font-Poppins text-2xl sm:text-3xl md:text-[2.6rem] lg:text-[3.2rem] xl:text-[3.6rem] font-medium text-white leading-[1.3] md:leading-[1.35] tracking-normal drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]">
+              {"Mongzo is a bespoke luxury travel agency. From private escapes to seamless flights and hotels, we craft every journey with care, comfort and style."
+                .split(" ")
+                .map((w, wi) => (
+                  <span
+                    key={wi}
+                    className="stage2-word inline-block mr-[0.25em] last:mr-0 opacity-0 translate-y-6 will-change-transform"
+                  >
+                    {w}
+                  </span>
+                ))}
             </h2>
           </div>
 
           {/* Bottom Features Row matching 2nd image */}
-          <div className="stage2-bottom-row grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-white/20 opacity-0">
+          <div className="stage2-bottom-row grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-white/20 opacity-0 font-Poppins">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center text-white text-xs">
                 🌐
               </div>
               <div>
-                <p className="font-orbitron text-[11px] sm:text-xs font-semibold text-white uppercase tracking-wider">
+                <p className="font-Poppins text-[11px] sm:text-xs font-semibold text-white tracking-wide">
                   Mongzo Travel
                 </p>
                 <p className="text-[10px] sm:text-[11px] text-white/70">
@@ -408,19 +409,19 @@ const Hero = () => {
             </div>
 
             <div>
-              <p className="font-orbitron text-[11px] sm:text-xs font-semibold text-white uppercase tracking-wider mb-1">
+              <p className="font-Poppins text-[11px] sm:text-xs font-semibold text-white tracking-wide mb-1">
                 Direct Access To World
               </p>
-              <p className="text-[10px] sm:text-[11px] text-white/70 leading-relaxed">
+              <p className="text-[10px] sm:text-[11px] text-white/70 leading-relaxed font-normal">
                 Exclusive villas, private aircraft & round-the-clock concierge.
               </p>
             </div>
 
             <div>
-              <p className="font-orbitron text-[11px] sm:text-xs font-semibold text-white uppercase tracking-wider mb-1">
+              <p className="font-Poppins text-[11px] sm:text-xs font-semibold text-white tracking-wide mb-1">
                 Your Freedom to Enjoy Life
               </p>
-              <p className="text-[10px] sm:text-[11px] text-white/70 leading-relaxed">
+              <p className="text-[10px] sm:text-[11px] text-white/70 leading-relaxed font-normal">
                 Bespoke itineraries crafted around your passions and pace.
               </p>
             </div>

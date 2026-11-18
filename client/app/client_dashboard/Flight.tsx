@@ -1,33 +1,33 @@
 "use client";
-import React, { useState, useEffect, useMemo, Suspense } from "react";
+import React, { useState, useEffect, useMemo, Suspense, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   FaPlane,
-  FaArrowRight,
   FaExchangeAlt,
   FaChevronDown,
   FaChevronUp,
   FaMoon,
   FaSun,
-  FaSearch,
-  FaTimes,
-  FaCheck,
   FaBell,
-  FaSlidersH,
-  FaExternalLinkAlt,
+  FaMapMarkerAlt,
+  FaPlus,
+  FaMinus,
+  FaBaby,
 } from "react-icons/fa";
-import { FiCheck } from "react-icons/fi";
+import { FiCheck, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { IoSparklesOutline } from "react-icons/io5";
+import { LuUser } from "react-icons/lu";
+import { MdClose } from "react-icons/md";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
-// Popular cities list for From/To popover
-const POPULAR_CITIES = [
-  "Dhaka (All)", "Jeddah (All)", "Chittagong (CGP)", "Riyadh (RUH)",
-  "Dubai (DXB)", "Doha (DOH)", "Medina (MED)", "Kuwait City (KWI)",
-  "Muscat (MCT)", "Sylhet (ZYL)", "Kuala Lumpur (KUL)", "Singapore (SIN)",
-  "Cox's Bazar (CXB)", "Bangkok (BKK)", "London (LHR)", "New York (JFK)"
+// Popular flight cities list for From/To popover
+const FLIGHT_POPULAR_CITIES = [
+  "Dhaka", "Jeddah", "Chittagong", "Riyadh",
+  "Doha", "Al Madinah", "Dubai", "Muscat",
+  "Dammam", "Kuwait City", "Sylhet", "Kuala Lumpur",
+  "Chennai", "Cairo", "Kolkata", "New Delhi",
 ];
 
 // 10 Detailed Flight Mock Data Items
@@ -70,7 +70,12 @@ export interface FlightItem {
   };
   price: number;
   seller: string;
-  badge?: "Best Value" | "Cheapest" | "Cheapest Direct" | "Fastest" | "Sponsored";
+  badge?:
+    | "Best Value"
+    | "Cheapest"
+    | "Cheapest Direct"
+    | "Fastest"
+    | "Sponsored";
   checkedBagPrice?: number;
 }
 
@@ -79,7 +84,8 @@ const DEMO_FLIGHTS: FlightItem[] = [
     id: "f1",
     isSponsored: true,
     sponsorTitle: "Over 170 destinations worldwide",
-    sponsorSubtitle: "Plan ahead and save on extra baggage, seats and more add-ons before you fly.",
+    sponsorSubtitle:
+      "Plan ahead and save on extra baggage, seats and more add-ons before you fly.",
     outbound: {
       airline: "Qatar Airways",
       airlineCode: "QR",
@@ -293,7 +299,8 @@ const DEMO_FLIGHTS: FlightItem[] = [
     id: "f7",
     isSponsored: true,
     sponsorTitle: "Over 170 destinations worldwide",
-    sponsorSubtitle: "Plan ahead and save on extra baggage, seats and more add-ons before you fly.",
+    sponsorSubtitle:
+      "Plan ahead and save on extra baggage, seats and more add-ons before you fly.",
     outbound: {
       airline: "Qatar Airways",
       airlineCode: "QR",
@@ -442,7 +449,9 @@ const FlightPageContent = () => {
   const router = useRouter();
 
   // Read URL query params
-  const initialTripType = (searchParams.get("tripType") as "oneway" | "roundtrip" | "multicity") || "roundtrip";
+  const initialTripType =
+    (searchParams.get("tripType") as "oneway" | "roundtrip" | "multicity") ||
+    "roundtrip";
   const initialOrigin = searchParams.get("origin") || "";
   const initialDestination = searchParams.get("destination") || "";
   const initialDepartDateStr = searchParams.get("departDate");
@@ -451,43 +460,86 @@ const FlightPageContent = () => {
   const initialChildren = Number(searchParams.get("children")) || 0;
   const initialInfants = Number(searchParams.get("infants")) || 0;
   const initialCabinClass = searchParams.get("cabinClass") || "Economy";
-  const initialPaymentTypes = searchParams.get("paymentTypes") || "4 Payment Types";
+  const initialPaymentTypes =
+    searchParams.get("paymentTypes") || "4 Payment Types";
   const initialDirectOnly = searchParams.get("directOnly") === "true";
 
-  // Top Search Filter Box State
-  const [tripType, setTripType] = useState<"oneway" | "roundtrip" | "multicity">(initialTripType);
-  const [origin, setOrigin] = useState(initialOrigin);
-  const [destination, setDestination] = useState(initialDestination);
-  const [departDate, setDepartDate] = useState<Date | null>(
-    initialDepartDateStr ? new Date(initialDepartDateStr) : null
+  // Flight search widget state (mirrors Booking.tsx flights tab)
+  const [flightTripType, setFlightTripType] = useState<
+    "oneway" | "roundtrip" | "multicity"
+  >(initialTripType);
+  const [flightOrigin, setFlightOrigin] = useState(initialOrigin);
+  const [flightDestination, setFlightDestination] = useState(initialDestination);
+  const [flightDepartDate, setFlightDepartDate] = useState<Date>(
+    initialDepartDateStr ? new Date(initialDepartDateStr) : new Date(2026, 10, 5),
   );
-  const [returnDate, setReturnDate] = useState<Date | null>(
-    initialReturnDateStr ? new Date(initialReturnDateStr) : null
+  const [flightReturnDate, setFlightReturnDate] = useState<Date | null>(
+    initialReturnDateStr ? new Date(initialReturnDateStr) : null,
   );
-  const [adults, setAdults] = useState(initialAdults);
-  const [children, setChildren] = useState(initialChildren);
-  const [infants, setInfants] = useState(initialInfants);
-  const [cabinClass, setCabinClass] = useState(initialCabinClass);
-  const [paymentTypes, setPaymentTypes] = useState(initialPaymentTypes);
-  const [directOnly, setDirectOnly] = useState(initialDirectOnly);
+  const [flightAdults, setFlightAdults] = useState(initialAdults);
+  const [flightChildren, setFlightChildren] = useState(initialChildren);
+  const [flightInfants, setFlightInfants] = useState(initialInfants);
+  const [flightCabinClass, setFlightCabinClass] = useState(initialCabinClass);
+  const [flightPaymentTypes, setFlightPaymentTypes] =
+    useState(initialPaymentTypes);
+  const [flightDirectOnly, setFlightDirectOnly] = useState(initialDirectOnly);
 
-  // Popover controls
-  const [openFromPopover, setOpenFromPopover] = useState(false);
-  const [openToPopover, setOpenToPopover] = useState(false);
-  const [openPassengers, setOpenPassengers] = useState(false);
-  const [openCabinClass, setOpenCabinClass] = useState(false);
-  const [openPaymentTypes, setOpenPaymentTypes] = useState(false);
-  const [openCalendar, setOpenCalendar] = useState<"depart" | "return" | null>(null);
+  // Multi-city flight rows
+  const [multiCityFlights, setMultiCityFlights] = useState([
+    { from: "", to: "", departDate: new Date(2026, 10, 5) as Date | null },
+    { from: "", to: "", departDate: null as Date | null },
+    { from: "", to: "", departDate: null as Date | null },
+  ]);
+
+  // Flight popovers state
+  const [isFlightFromOpen, setIsFlightFromOpen] = useState(false);
+  const [isFlightToOpen, setIsFlightToOpen] = useState(false);
+  const [multiCityActiveInput, setMultiCityActiveInput] = useState<{
+    rowIdx: number;
+    field: "from" | "to";
+  } | null>(null);
+  const [multiCityDateIdx, setMultiCityDateIdx] = useState<number | null>(null);
+  const [isFlightDateOpen, setIsFlightDateOpen] = useState(false);
+  const [isFlightPassengersOpen, setIsFlightPassengersOpen] = useState(false);
+  const [isFlightClassOpen, setIsFlightClassOpen] = useState(false);
+  const [isFlightPaymentOpen, setIsFlightPaymentOpen] = useState(false);
+  const [calendarViewDate, setCalendarViewDate] = useState<Date>(
+    new Date(2026, 10, 1),
+  );
 
   // Filter Sidebar State
   const [selectedStops, setSelectedStops] = useState<string[]>([]);
   const [selectedAirlines, setSelectedAirlines] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number>(608831);
   const [minPrice] = useState<number>(121766);
-  const [sortOption, setSortOption] = useState<"recommended" | "cheapest" | "fastest">("recommended");
-  const [compareSiteEmirates, setCompareSiteEmirates] = useState(true);
+  const [sortOption, setSortOption] = useState<
+    "recommended" | "cheapest" | "fastest"
+  >("recommended");
   const [checkedBagFilter, setCheckedBagFilter] = useState(false);
   const [noOvernightFilter, setNoOvernightFilter] = useState(false);
+
+  // Click outside listener for flight popovers
+  const filterWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        filterWrapperRef.current &&
+        !filterWrapperRef.current.contains(e.target as Node)
+      ) {
+        setIsFlightFromOpen(false);
+        setIsFlightToOpen(false);
+        setMultiCityActiveInput(null);
+        setMultiCityDateIdx(null);
+        setIsFlightDateOpen(false);
+        setIsFlightPassengersOpen(false);
+        setIsFlightClassOpen(false);
+        setIsFlightPaymentOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Update when URL changes
   useEffect(() => {
@@ -495,28 +547,243 @@ const FlightPageContent = () => {
     const qDestination = searchParams.get("destination");
     const qDepart = searchParams.get("departDate");
     const qReturn = searchParams.get("returnDate");
-    const qTrip = searchParams.get("tripType") as "oneway" | "roundtrip" | "multicity" | null;
+    const qTrip = searchParams.get("tripType") as
+      | "oneway"
+      | "roundtrip"
+      | "multicity"
+      | null;
 
-    if (qOrigin !== null) setOrigin(qOrigin);
-    if (qDestination !== null) setDestination(qDestination);
-    if (qDepart) setDepartDate(new Date(qDepart));
-    if (qReturn) setReturnDate(new Date(qReturn));
-    if (qTrip) setTripType(qTrip);
+    if (qOrigin !== null) setFlightOrigin(qOrigin);
+    if (qDestination !== null) setFlightDestination(qDestination);
+    if (qDepart) setFlightDepartDate(new Date(qDepart));
+    if (qReturn) setFlightReturnDate(new Date(qReturn));
+    if (qTrip) setFlightTripType(qTrip);
   }, [searchParams]);
 
-  // Date formatter
-  const formatDate = (date: Date | null, fallback = "Select date") => {
-    if (!date) return fallback;
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    return `${days[date.getDay()]}, ${String(date.getDate()).padStart(2, "0")} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  const handleFlightSearch = () => {
+    const params = new URLSearchParams();
+    params.set("tripType", flightTripType);
+    if (flightTripType === "multicity") {
+      params.set("multiCity", JSON.stringify(multiCityFlights));
+    } else {
+      params.set("origin", flightOrigin);
+      params.set("destination", flightDestination);
+      if (flightDepartDate)
+        params.set("departDate", flightDepartDate.toISOString());
+      if (flightReturnDate)
+        params.set("returnDate", flightReturnDate.toISOString());
+    }
+    params.set("adults", String(flightAdults));
+    params.set("children", String(flightChildren));
+    params.set("infants", String(flightInfants));
+    params.set("cabinClass", flightCabinClass);
+    params.set("paymentTypes", flightPaymentTypes);
+    if (flightDirectOnly) params.set("directOnly", "true");
+
+    router.push(`/flights?${params.toString()}`);
   };
 
-  // Swap Origin and Destination
-  const handleSwap = () => {
-    const temp = origin;
-    setOrigin(destination);
-    setDestination(temp);
+  const totalFlightPassengers =
+    flightAdults + flightChildren + flightInfants;
+  const flightPassengersLabel = `${totalFlightPassengers} passenger${
+    totalFlightPassengers > 1 ? "s" : ""
+  }`;
+
+  const formatDisplayDate = (d: Date) => {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fr", "Sa"];
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    return `${days[d.getDay()]}, ${String(d.getDate()).padStart(2, "0")} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  };
+
+  const getDaysInMonth = (year: number, month: number) =>
+    new Date(year, month + 1, 0).getDate();
+
+  const getFirstDayOfMonth = (year: number, month: number) =>
+    new Date(year, month, 1).getDay();
+
+  const isSameDay = (d1: Date, d2: Date) =>
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate();
+
+  const isInRange = (d: Date, start: Date, end: Date) => {
+    const t = d.getTime();
+    const s = new Date(
+      start.getFullYear(),
+      start.getMonth(),
+      start.getDate(),
+    ).getTime();
+    const e = new Date(
+      end.getFullYear(),
+      end.getMonth(),
+      end.getDate(),
+    ).getTime();
+    return t > s && t < e;
+  };
+
+  const handleFlightDateClick = (dayDate: Date) => {
+    if (flightTripType === "roundtrip") {
+      if (
+        !flightReturnDate ||
+        dayDate < flightDepartDate ||
+        isSameDay(dayDate, flightDepartDate)
+      ) {
+        setFlightDepartDate(dayDate);
+        setFlightReturnDate(null);
+      } else {
+        setFlightReturnDate(dayDate);
+      }
+    } else {
+      setFlightDepartDate(dayDate);
+    }
+  };
+
+  const renderMonthCalendar = (monthOffset: number) => {
+    const targetMonthDate = new Date(
+      calendarViewDate.getFullYear(),
+      calendarViewDate.getMonth() + monthOffset,
+      1,
+    );
+    const year = targetMonthDate.getFullYear();
+    const month = targetMonthDate.getMonth();
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December",
+    ];
+    const daysInMonth = getDaysInMonth(year, month);
+    const firstDay = getFirstDayOfMonth(year, month);
+    const prevMonthDays = getDaysInMonth(year, month - 1);
+
+    const cells: { day: number; isCurrentMonth: boolean; date: Date }[] = [];
+    for (let i = firstDay - 1; i >= 0; i--) {
+      cells.push({
+        day: prevMonthDays - i,
+        isCurrentMonth: false,
+        date: new Date(year, month - 1, prevMonthDays - i),
+      });
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      cells.push({ day: i, isCurrentMonth: true, date: new Date(year, month, i) });
+    }
+
+    return (
+      <div className="flex-1 min-w-[250px]">
+        <div className="text-center font-bold text-neutral-800 text-sm mb-3">
+          {monthNames[month]} {year}
+        </div>
+        <div className="grid grid-cols-7 gap-y-1 text-center text-xs text-neutral-400 font-medium mb-1.5">
+          <span>Su</span>
+          <span>Mo</span>
+          <span>Tu</span>
+          <span>We</span>
+          <span>Th</span>
+          <span>Fr</span>
+          <span>Sa</span>
+        </div>
+        <div className="grid grid-cols-7 gap-y-1 text-center text-xs">
+          {cells.map((cell, idx) => {
+            const isDepart =
+              cell.isCurrentMonth && isSameDay(cell.date, flightDepartDate);
+            const isReturn =
+              !!flightReturnDate &&
+              cell.isCurrentMonth &&
+              isSameDay(cell.date, flightReturnDate);
+            const inRange =
+              cell.isCurrentMonth &&
+              !!flightReturnDate &&
+              isInRange(cell.date, flightDepartDate, flightReturnDate);
+            const isNewYearsEve =
+              cell.isCurrentMonth && month === 11 && cell.day === 31;
+
+            let bgClass = "hover:bg-neutral-100 text-neutral-700";
+            if (!cell.isCurrentMonth) {
+              bgClass = "text-neutral-300 pointer-events-none";
+            } else if (isDepart) {
+              bgClass = "bg-[#2563eb] text-white font-bold rounded-l-md shadow-sm";
+            } else if (isReturn) {
+              bgClass = "bg-[#2563eb] text-white font-bold rounded-r-md shadow-sm";
+            } else if (inRange) {
+              bgClass = "bg-[#a3e892]/60 text-neutral-900";
+            }
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                disabled={!cell.isCurrentMonth}
+                onClick={() => cell.isCurrentMonth && handleFlightDateClick(cell.date)}
+                className={`h-8 flex items-center justify-center transition-colors relative text-xs ${bgClass}`}
+              >
+                <span>{cell.day}</span>
+                {isNewYearsEve && !isDepart && !isReturn && (
+                  <span className="text-red-500 font-semibold absolute top-1 right-1 text-[9px] leading-none">
+                    *
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  // Reusable Flight City Popover (opens under any From or To input box)
+  const renderFlightCityPopover = (
+    placeholder: string,
+    currentValue: string,
+    onSelect: (city: string) => void,
+    onClose: () => void,
+    alignRight = false,
+  ) => {
+    return (
+      <div
+        className={`absolute top-full mt-2 w-full sm:w-[460px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150 ${
+          alignRight ? "right-0" : "left-0"
+        }`}
+      >
+        <div className="border border-[#2563eb] rounded-xl px-4 py-3 mb-5 ring-1 ring-[#2563eb] bg-white">
+          <input
+            type="text"
+            placeholder={placeholder}
+            defaultValue={currentValue}
+            autoFocus
+            className="w-full text-sm font-semibold text-neutral-900 outline-none bg-transparent placeholder:text-neutral-400"
+          />
+        </div>
+
+        <div>
+          <h4 className="text-xs font-bold text-neutral-800 mb-3 tracking-wide">
+            Popular cities
+          </h4>
+          <div className="grid grid-cols-4 gap-y-3.5 gap-x-2 text-xs font-medium text-neutral-700">
+            {FLIGHT_POPULAR_CITIES.map((city) => {
+              const isChittagong = city === "Chittagong";
+              return (
+                <button
+                  key={city}
+                  type="button"
+                  onClick={() => {
+                    onSelect(city);
+                    onClose();
+                  }}
+                  className={`text-left py-1 px-2 rounded-lg transition-colors truncate ${
+                    isChittagong
+                      ? "bg-[#eff6ff] text-[#1d4ed8] font-semibold"
+                      : "hover:bg-neutral-100 hover:text-neutral-950"
+                  }`}
+                >
+                  {city}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // Filtered & Sorted Flights
@@ -526,21 +793,30 @@ const FlightPageContent = () => {
     // Stops filter
     if (selectedStops.length > 0) {
       result = result.filter((f) => {
-        if (selectedStops.includes("direct") && f.outbound.stops === 0) return true;
-        if (selectedStops.includes("1stop") && f.outbound.stops === 1) return true;
-        if (selectedStops.includes("2stops") && f.outbound.stops >= 2) return true;
+        if (selectedStops.includes("direct") && f.outbound.stops === 0)
+          return true;
+        if (selectedStops.includes("1stop") && f.outbound.stops === 1)
+          return true;
+        if (selectedStops.includes("2stops") && f.outbound.stops >= 2)
+          return true;
         return false;
       });
     }
 
     // Direct only filter from top bar
-    if (directOnly) {
-      result = result.filter((f) => f.outbound.stops === 0 && (!f.inbound || f.inbound.stops === 0));
+    if (flightDirectOnly) {
+      result = result.filter(
+        (f) => f.outbound.stops === 0 && (!f.inbound || f.inbound.stops === 0),
+      );
     }
 
     // Airline filter
     if (selectedAirlines.length > 0) {
-      result = result.filter((f) => selectedAirlines.includes(f.outbound.airline) || (f.inbound && selectedAirlines.includes(f.inbound.airline)));
+      result = result.filter(
+        (f) =>
+          selectedAirlines.includes(f.outbound.airline) ||
+          (f.inbound && selectedAirlines.includes(f.inbound.airline)),
+      );
     }
 
     // Max Price
@@ -554,339 +830,878 @@ const FlightPageContent = () => {
     }
 
     return result;
-  }, [selectedStops, selectedAirlines, maxPrice, sortOption, directOnly]);
-
-  const totalPassengers = adults + children + infants;
+  }, [selectedStops, selectedAirlines, maxPrice, sortOption, flightDirectOnly]);
 
   return (
-    <div className="min-h-screen bg-[#f7f7f9] text-neutral-800">
+    <div className="min-h-screen bg-[#FFFFFF] text-neutral-800">
       <Navbar />
 
       {/* Main Container */}
       <div className="pt-24 pb-16 container-page">
         {/* ========================================================= */}
-        {/* TOP SEARCH BAR WIDGET (Image 1, 2, 3)                     */}
+        {/* TOP SEARCH BAR WIDGET                                     */}
         {/* ========================================================= */}
-        <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-sm border border-neutral-200/90 p-4 sm:p-5 mb-5 transition-all">
-          {/* Top Options Row: Trip Type Pills + Passenger / Cabin / Payment dropdown triggers */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-neutral-100">
-            {/* Trip Type Pills */}
-            <div className="flex items-center gap-1.5 bg-neutral-100/70 backdrop-blur-md p-1 rounded-xl text-xs font-semibold border border-neutral-200/60">
+        <div
+          ref={filterWrapperRef}
+          className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-6 mb-5 transition-all"
+        >
+          {/* Top Row: Trip Types & "Search with AI" */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div className="inline-flex items-center gap-1.5 bg-neutral-100/80 p-1 rounded-xl">
               <button
                 type="button"
-                onClick={() => setTripType("oneway")}
-                className={`px-3.5 py-1.5 rounded-lg transition-all duration-200 ${
-                  tripType === "oneway"
-                    ? "bg-[#eff6ff]/90 backdrop-blur-md text-[#1d4ed8] border border-[#bfdbfe] font-bold shadow-sm"
-                    : "text-neutral-600 hover:text-neutral-900 hover:bg-white/60"
+                onClick={() => setFlightTripType("oneway")}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  flightTripType === "oneway"
+                    ? "bg-[#eff6ff] text-[#1d4ed8] border border-[#bfdbfe] font-bold"
+                    : "text-neutral-600 hover:text-neutral-900"
                 }`}
               >
                 One-way
               </button>
               <button
                 type="button"
-                onClick={() => setTripType("roundtrip")}
-                className={`px-3.5 py-1.5 rounded-lg transition-all duration-200 ${
-                  tripType === "roundtrip"
-                    ? "bg-[#eff6ff]/90 backdrop-blur-md text-[#1d4ed8] border border-[#bfdbfe] font-bold shadow-sm"
-                    : "text-neutral-600 hover:text-neutral-900 hover:bg-white/60"
+                onClick={() => setFlightTripType("roundtrip")}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  flightTripType === "roundtrip"
+                    ? "bg-[#eff6ff] text-[#1d4ed8] border border-[#bfdbfe] font-bold"
+                    : "text-neutral-600 hover:text-neutral-900"
                 }`}
               >
                 Round-trip
               </button>
               <button
                 type="button"
-                onClick={() => setTripType("multicity")}
-                className={`px-3.5 py-1.5 rounded-lg transition-all duration-200 ${
-                  tripType === "multicity"
-                    ? "bg-[#eff6ff]/90 backdrop-blur-md text-[#1d4ed8] border border-[#bfdbfe] font-bold shadow-sm"
-                    : "text-neutral-600 hover:text-neutral-900 hover:bg-white/60"
+                onClick={() => setFlightTripType("multicity")}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  flightTripType === "multicity"
+                    ? "bg-[#eff6ff] text-[#1d4ed8] border border-[#bfdbfe] font-bold"
+                    : "text-neutral-600 hover:text-neutral-900"
                 }`}
               >
                 Multi-city
               </button>
             </div>
 
-            {/* Passengers, Class, Payment type triggers */}
-            <div className="flex items-center gap-4 text-xs font-semibold text-neutral-700 relative">
-              {/* Passengers Dropdown */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setOpenPassengers(!openPassengers)}
-                  className="flex items-center gap-1.5 hover:text-neutral-950 py-1"
-                >
-                  <span>{totalPassengers} Passenger{totalPassengers > 1 ? "s" : ""}</span>
-                  <FaChevronDown className={`text-[10px] text-neutral-400 transition-transform ${openPassengers ? "rotate-180" : ""}`} />
-                </button>
-                {openPassengers && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white/95 backdrop-blur-xl border border-neutral-200 rounded-2xl shadow-2xl p-4 z-50 space-y-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <div>
-                        <p className="font-bold text-neutral-900">Adults</p>
-                        <p className="text-neutral-400 text-[10px]">12+ years</p>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <button
-                          type="button"
-                          onClick={() => setAdults(Math.max(1, adults - 1))}
-                          className="w-6 h-6 rounded-full border border-neutral-300 flex items-center justify-center text-xs hover:bg-neutral-100"
-                        >-</button>
-                        <span className="font-bold w-4 text-center">{adults}</span>
-                        <button
-                          type="button"
-                          onClick={() => setAdults(adults + 1)}
-                          className="w-6 h-6 rounded-full border border-neutral-300 flex items-center justify-center text-xs hover:bg-neutral-100"
-                        >+</button>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <div>
-                        <p className="font-bold text-neutral-900">Children</p>
-                        <p className="text-neutral-400 text-[10px]">2-11 years</p>
-                      </div>
-                      <div className="flex items-center gap-2.5">
-                        <button
-                          type="button"
-                          onClick={() => setChildren(Math.max(0, children - 1))}
-                          className="w-6 h-6 rounded-full border border-neutral-300 flex items-center justify-center text-xs hover:bg-neutral-100"
-                        >-</button>
-                        <span className="font-bold w-4 text-center">{children}</span>
-                        <button
-                          type="button"
-                          onClick={() => setChildren(children + 1)}
-                          className="w-6 h-6 rounded-full border border-neutral-300 flex items-center justify-center text-xs hover:bg-neutral-100"
-                        >+</button>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setOpenPassengers(false)}
-                      className="w-full mt-2 bg-[#2563eb] text-white font-bold py-1.5 rounded-lg text-xs"
-                    >
-                      Done
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Cabin Class Dropdown */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setOpenCabinClass(!openCabinClass)}
-                  className="flex items-center gap-1.5 hover:text-neutral-950 py-1"
-                >
-                  <span>{cabinClass}</span>
-                  <FaChevronDown className={`text-[10px] text-neutral-400 transition-transform ${openCabinClass ? "rotate-180" : ""}`} />
-                </button>
-                {openCabinClass && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-xl border border-neutral-200 rounded-2xl shadow-2xl py-2 z-50">
-                    {["Economy", "Premium Economy", "Business", "First Class"].map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        onClick={() => { setCabinClass(c); setOpenCabinClass(false); }}
-                        className={`w-full text-left px-3.5 py-2 text-xs transition-colors flex items-center justify-between hover:bg-neutral-50 ${cabinClass === c ? "text-[#2563eb] font-bold" : "text-neutral-700"}`}
-                      >
-                        <span>{c}</span>
-                        {cabinClass === c && <FiCheck className="text-[#2563eb]" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Payment Types Dropdown */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setOpenPaymentTypes(!openPaymentTypes)}
-                  className="flex items-center gap-1.5 hover:text-neutral-950 py-1"
-                >
-                  <span>{paymentTypes}</span>
-                  <FaChevronDown className={`text-[10px] text-neutral-400 transition-transform ${openPaymentTypes ? "rotate-180" : ""}`} />
-                </button>
-                {openPaymentTypes && (
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-white/95 backdrop-blur-xl border border-neutral-200 rounded-2xl shadow-2xl py-2 z-50">
-                    {["4 Payment Types", "Credit Card", "Mobile Banking (bKash/Nagad)", "Bank Transfer"].map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => { setPaymentTypes(p); setOpenPaymentTypes(false); }}
-                        className={`w-full text-left px-3.5 py-2 text-xs transition-colors flex items-center justify-between hover:bg-neutral-50 ${paymentTypes === p ? "text-[#2563eb] font-bold" : "text-neutral-700"}`}
-                      >
-                        <span>{p}</span>
-                        {paymentTypes === p && <FiCheck className="text-[#2563eb]" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-xl border border-neutral-200/90 hover:border-neutral-300 bg-white hover:bg-neutral-50 text-xs sm:text-[13px] font-medium text-neutral-700 shadow-sm transition-all"
+            >
+              <IoSparklesOutline className="text-sm text-neutral-600" />
+              <span>Search with AI</span>
+              <span className="bg-[#ff6a00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none">
+                New
+              </span>
+            </button>
           </div>
 
-          {/* Main Search Inputs Grid (From, To, Depart Date, Return Date, Search Button) */}
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-12 gap-2.5 items-center">
-            {/* From & To Combined Strip */}
-            <div className="md:col-span-6 flex items-center border border-neutral-200 rounded-xl bg-white/90 backdrop-blur-md relative focus-within:ring-2 focus-within:ring-inset focus-within:ring-[#2563eb]">
-              {/* From Input */}
-              <div className="flex-1 px-4 py-2.5 relative">
-                <span className="block text-[10px] text-neutral-400 font-medium">From</span>
-                <input
-                  type="text"
-                  placeholder="Where from?"
-                  value={origin}
-                  onChange={(e) => setOrigin(e.target.value)}
-                  onFocus={() => { setOpenFromPopover(true); setOpenToPopover(false); }}
-                  className="w-full text-xs sm:text-sm font-semibold text-neutral-900 outline-none bg-transparent placeholder:text-neutral-400"
-                />
-                {origin && (
-                  <button
-                    type="button"
-                    onClick={() => setOrigin("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-xs"
-                  >
-                    <FaTimes />
-                  </button>
-                )}
-                {/* Popular Cities Popover */}
-                {openFromPopover && (
-                  <div className="absolute top-full left-0 mt-2 w-72 bg-white/95 backdrop-blur-2xl border border-neutral-200/90 rounded-2xl shadow-2xl p-3 z-50">
-                    <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Popular Cities</p>
-                    <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
-                      {POPULAR_CITIES.map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => { setOrigin(c); setOpenFromPopover(false); }}
-                          className="text-left text-xs text-neutral-700 hover:text-[#2563eb] hover:bg-neutral-50 px-2 py-1.5 rounded truncate"
-                        >
-                          {c}
-                        </button>
-                      ))}
+          {/* Main Inputs: Switches layout between Round-trip / One-way and Multi-city */}
+          {flightTripType === "multicity" ? (
+            /* Multi-City Layout */
+            <div className="space-y-3 mb-5">
+              {multiCityFlights.map((flightRow, fIdx) => (
+                <div key={fIdx} className="flex items-center gap-2">
+                  <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 relative">
+                    {/* From / To Container */}
+                    <div className="lg:col-span-8 relative flex items-center border border-neutral-200 rounded-xl bg-white">
+                      {/* From Field */}
+                      <div
+                        onClick={() => {
+                          setMultiCityActiveInput(
+                            multiCityActiveInput?.rowIdx === fIdx && multiCityActiveInput?.field === "from"
+                              ? null
+                              : { rowIdx: fIdx, field: "from" },
+                          );
+                          setIsFlightDateOpen(false);
+                        }}
+                        className={`flex-1 px-4 py-3 border-r border-neutral-200/80 cursor-pointer rounded-l-xl transition-all ${
+                          multiCityActiveInput?.rowIdx === fIdx && multiCityActiveInput?.field === "from"
+                            ? "ring-2 ring-inset ring-[#2563eb] bg-white"
+                            : "hover:bg-neutral-50/50"
+                        }`}
+                      >
+                        <span className={`text-xs sm:text-sm font-semibold truncate block ${flightRow.from ? "text-neutral-900" : "text-neutral-400"}`}>
+                          {flightRow.from || "From"}
+                        </span>
+                      </div>
+
+                      {/* Swap Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = [...multiCityFlights];
+                          const temp = updated[fIdx].from;
+                          updated[fIdx].from = updated[fIdx].to;
+                          updated[fIdx].to = temp;
+                          setMultiCityFlights(updated);
+                        }}
+                        className="w-7 h-7 rounded-full border border-neutral-200 bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 flex items-center justify-center -mx-3.5 z-20 shrink-0 shadow-sm transition-colors"
+                      >
+                        <FaExchangeAlt className="text-[10px]" />
+                      </button>
+
+                      {/* To Field */}
+                      <div
+                        onClick={() => {
+                          setMultiCityActiveInput(
+                            multiCityActiveInput?.rowIdx === fIdx && multiCityActiveInput?.field === "to"
+                              ? null
+                              : { rowIdx: fIdx, field: "to" },
+                          );
+                          setIsFlightDateOpen(false);
+                        }}
+                        className={`flex-1 px-4 py-3 cursor-pointer rounded-r-xl transition-all ${
+                          multiCityActiveInput?.rowIdx === fIdx && multiCityActiveInput?.field === "to"
+                            ? "ring-2 ring-inset ring-[#2563eb] bg-white"
+                            : "hover:bg-neutral-50/50"
+                        }`}
+                      >
+                        <span className={`text-xs sm:text-sm font-semibold truncate block ${flightRow.to ? "text-neutral-900" : "text-neutral-400"}`}>
+                          {flightRow.to || "To"}
+                        </span>
+                      </div>
+
+                      {/* Multi-city Popover for From */}
+                      {multiCityActiveInput?.rowIdx === fIdx && multiCityActiveInput?.field === "from" &&
+                        renderFlightCityPopover(
+                          "From",
+                          flightRow.from,
+                          (selectedCity) => {
+                            const updated = [...multiCityFlights];
+                            updated[fIdx].from = selectedCity;
+                            setMultiCityFlights(updated);
+                          },
+                          () => setMultiCityActiveInput(null),
+                        )}
+
+                      {/* Multi-city Popover for To */}
+                      {multiCityActiveInput?.rowIdx === fIdx && multiCityActiveInput?.field === "to" &&
+                        renderFlightCityPopover(
+                          "To",
+                          flightRow.to,
+                          (selectedCity) => {
+                            const updated = [...multiCityFlights];
+                            updated[fIdx].to = selectedCity;
+                            setMultiCityFlights(updated);
+                          },
+                          () => setMultiCityActiveInput(null),
+                          true,
+                        )}
+                    </div>
+
+                    {/* Depart Date Container */}
+                    <div className="lg:col-span-4 relative">
+                      <div
+                        onClick={() => {
+                          setMultiCityDateIdx(multiCityDateIdx === fIdx ? null : fIdx);
+                          setMultiCityActiveInput(null);
+                        }}
+                        className={`border rounded-xl bg-white px-4 py-3 flex items-center justify-between cursor-pointer transition-all ${
+                          multiCityDateIdx === fIdx ? "border-[#2563eb] ring-1 ring-[#2563eb]" : "border-neutral-200"
+                        }`}
+                      >
+                        {flightRow.departDate ? (
+                          <span className="text-xs sm:text-[13px] font-bold text-neutral-800">
+                            {formatDisplayDate(flightRow.departDate)}
+                          </span>
+                        ) : (
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updated = [...multiCityFlights];
+                              const d = new Date(flightDepartDate);
+                              d.setDate(d.getDate() + fIdx * 3);
+                              updated[fIdx].departDate = d;
+                              setMultiCityFlights(updated);
+                              setMultiCityDateIdx(fIdx);
+                            }}
+                            className="text-xs sm:text-[13px] font-medium text-neutral-400 cursor-pointer hover:text-neutral-600"
+                          >
+                            Depart
+                          </span>
+                        )}
+
+                        {flightRow.departDate && (
+                          <div className="flex items-center gap-1 text-neutral-400">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const updated = [...multiCityFlights];
+                                if (updated[fIdx].departDate) {
+                                  const d = new Date(updated[fIdx].departDate!);
+                                  d.setDate(d.getDate() - 1);
+                                  updated[fIdx].departDate = d;
+                                  setMultiCityFlights(updated);
+                                }
+                              }}
+                              className="p-1 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
+                            >
+                              <FiChevronLeft className="text-xs" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const updated = [...multiCityFlights];
+                                if (updated[fIdx].departDate) {
+                                  const d = new Date(updated[fIdx].departDate!);
+                                  d.setDate(d.getDate() + 1);
+                                  updated[fIdx].departDate = d;
+                                  setMultiCityFlights(updated);
+                                }
+                              }}
+                              className="p-1 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
+                            >
+                              <FiChevronRight className="text-xs" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Multi-city Calendar Popover */}
+                      {multiCityDateIdx === fIdx && (
+                        <div className="absolute top-full right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 w-[95vw] max-w-[620px] animate-in fade-in zoom-in-95 duration-150">
+                          <div className="border border-[#2563eb] rounded-xl overflow-hidden mb-4 p-3 bg-neutral-50/50">
+                            <span className="block text-xs sm:text-sm font-bold text-neutral-900">
+                              {flightRow.departDate ? formatDisplayDate(flightRow.departDate) : "Select date"}
+                            </span>
+                          </div>
+
+                          <div className="relative mb-3">
+                            <div className="flex items-center justify-between mb-2 px-1">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setCalendarViewDate(
+                                    new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1),
+                                  )
+                                }
+                                className="w-7 h-7 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors"
+                              >
+                                <IoIosArrowBack />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setCalendarViewDate(
+                                    new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1),
+                                  )
+                                }
+                                className="w-7 h-7 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors"
+                              >
+                                <IoIosArrowForward />
+                              </button>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-6">
+                              {renderMonthCalendar(0)}
+                              {renderMonthCalendar(1)}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Swap Button */}
-              <button
-                type="button"
-                onClick={handleSwap}
-                className="w-8 h-8 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 flex items-center justify-center text-neutral-500 hover:text-neutral-800 transition-colors shadow-sm -mx-2 z-10"
-              >
-                <FaExchangeAlt className="text-xs" />
-              </button>
-
-              {/* To Input */}
-              <div className="flex-1 px-4 py-2.5 relative">
-                <span className="block text-[10px] text-neutral-400 font-medium">To</span>
-                <input
-                  type="text"
-                  placeholder="Where to?"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  onFocus={() => { setOpenToPopover(true); setOpenFromPopover(false); }}
-                  className="w-full text-xs sm:text-sm font-semibold text-neutral-900 outline-none bg-transparent placeholder:text-neutral-400"
-                />
-                {destination && (
+                  {/* Delete row button */}
                   <button
                     type="button"
-                    onClick={() => setDestination("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-xs"
+                    onClick={() => {
+                      if (multiCityFlights.length > 2) {
+                        setMultiCityFlights(multiCityFlights.filter((_, i) => i !== fIdx));
+                      } else {
+                        const updated = [...multiCityFlights];
+                        updated[fIdx] = { from: "", to: "", departDate: null };
+                        setMultiCityFlights(updated);
+                      }
+                    }}
+                    className="w-7 h-7 rounded-full bg-neutral-500/80 hover:bg-neutral-600 text-white flex items-center justify-center shrink-0 transition-colors"
                   >
-                    <FaTimes />
+                    <MdClose className="text-xs" />
                   </button>
-                )}
-                {/* Popular Cities Popover */}
-                {openToPopover && (
-                  <div className="absolute top-full right-0 mt-2 w-72 bg-white/95 backdrop-blur-2xl border border-neutral-200/90 rounded-2xl shadow-2xl p-3 z-50">
-                    <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Popular Cities</p>
-                    <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
-                      {POPULAR_CITIES.map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => { setDestination(c); setOpenToPopover(false); }}
-                          className="text-left text-xs text-neutral-700 hover:text-[#2563eb] hover:bg-neutral-50 px-2 py-1.5 rounded truncate"
-                        >
-                          {c}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                </div>
+              ))}
+
+              {/* + Add flight button */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setMultiCityFlights([
+                      ...multiCityFlights,
+                      { from: "", to: "", departDate: null },
+                    ])
+                  }
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#2563eb] text-[#1d4ed8] hover:bg-[#eff6ff]/50 text-xs sm:text-[13px] font-bold transition-all"
+                >
+                  <FaPlus className="text-[11px]" />
+                  <span>Add flight</span>
+                </button>
               </div>
             </div>
-
-            {/* Depart & Return Date Boxes */}
-            <div className="md:col-span-5 flex items-center border border-neutral-200 rounded-xl bg-white overflow-hidden">
-              {/* Depart Date */}
-              <div
-                onClick={() => setOpenCalendar(openCalendar === "depart" ? null : "depart")}
-                className="flex-1 px-4 py-2.5 cursor-pointer hover:bg-neutral-50 transition-colors border-r border-neutral-100 relative"
-              >
-                <span className="block text-[10px] text-neutral-400 font-medium">Depart</span>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs sm:text-[13px] font-bold text-neutral-800">
-                    {formatDate(departDate, "Depart Date")}
-                  </span>
-                  <div className="flex items-center text-neutral-400 text-xs gap-1">
-                    <IoIosArrowBack />
-                    <IoIosArrowForward />
-                  </div>
-                </div>
-              </div>
-
-              {/* Return Date (only if round-trip) */}
-              {tripType === "roundtrip" ? (
+          ) : (
+            /* One-way and Round-trip Layout */
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-5 relative">
+              {/* Origin & Destination Container */}
+              <div className="lg:col-span-6 relative flex items-center border border-neutral-200 rounded-xl bg-white">
+                {/* From Field */}
                 <div
-                  onClick={() => setOpenCalendar(openCalendar === "return" ? null : "return")}
-                  className="flex-1 px-4 py-2.5 cursor-pointer hover:bg-neutral-50 transition-colors relative"
+                  onClick={() => {
+                    setIsFlightFromOpen(!isFlightFromOpen);
+                    setIsFlightToOpen(false);
+                    setIsFlightDateOpen(false);
+                    setIsFlightPassengersOpen(false);
+                    setIsFlightClassOpen(false);
+                    setIsFlightPaymentOpen(false);
+                  }}
+                  className={`flex-1 flex items-center gap-2 px-3.5 py-3 border-r border-neutral-200/80 cursor-pointer rounded-l-xl transition-all ${
+                    isFlightFromOpen
+                      ? "ring-2 ring-inset ring-[#2563eb] bg-white"
+                      : "hover:bg-neutral-50/50"
+                  }`}
                 >
-                  <span className="block text-[10px] text-neutral-400 font-medium">Return</span>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs sm:text-[13px] font-bold text-neutral-800">
-                      {formatDate(returnDate, "Return Date")}
+                  {flightOrigin ? (
+                    <div className="inline-flex items-center gap-1.5 bg-neutral-100 hover:bg-neutral-200/80 px-2.5 py-1 rounded-md text-xs font-bold text-neutral-800 transition-colors">
+                      <FaMapMarkerAlt className="text-neutral-500 text-[11px]" />
+                      <span>{flightOrigin}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFlightOrigin("");
+                        }}
+                        className="text-neutral-400 hover:text-neutral-700 ml-0.5"
+                      >
+                        <MdClose className="text-xs" />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-xs sm:text-sm font-medium text-neutral-400">
+                      From
                     </span>
-                    <div className="flex items-center text-neutral-400 text-xs gap-1">
-                      <IoIosArrowBack />
-                      <IoIosArrowForward />
+                  )}
+                </div>
+
+                {/* Swap Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const temp = flightOrigin;
+                    setFlightOrigin(flightDestination);
+                    setFlightDestination(temp);
+                  }}
+                  className="w-7 h-7 rounded-full border border-neutral-200 bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 flex items-center justify-center -mx-3.5 z-20 shrink-0 shadow-sm transition-colors"
+                >
+                  <FaExchangeAlt className="text-[10px]" />
+                </button>
+
+                {/* To Field */}
+                <div
+                  onClick={() => {
+                    setIsFlightToOpen(!isFlightToOpen);
+                    setIsFlightFromOpen(false);
+                    setIsFlightDateOpen(false);
+                    setIsFlightPassengersOpen(false);
+                    setIsFlightClassOpen(false);
+                    setIsFlightPaymentOpen(false);
+                  }}
+                  className={`flex-1 flex items-center px-4 py-3 cursor-pointer rounded-r-xl transition-all ${
+                    isFlightToOpen
+                      ? "ring-2 ring-inset ring-[#2563eb] bg-white"
+                      : "hover:bg-neutral-50/50"
+                  }`}
+                >
+                  {flightDestination ? (
+                    <div className="inline-flex items-center gap-1.5 bg-neutral-100 hover:bg-neutral-200/80 px-2.5 py-1 rounded-md text-xs font-bold text-neutral-800 transition-colors">
+                      <FaPlane className="text-neutral-500 text-[11px]" />
+                      <span>{flightDestination}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFlightDestination("");
+                        }}
+                        className="text-neutral-400 hover:text-neutral-700 ml-0.5"
+                      >
+                        <MdClose className="text-xs" />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-xs sm:text-sm font-medium text-neutral-400">
+                      To
+                    </span>
+                  )}
+                </div>
+
+                {/* "From" Dropdown Popup (Popular cities 4x4) */}
+                {isFlightFromOpen &&
+                  renderFlightCityPopover(
+                    "From",
+                    flightOrigin,
+                    (city) => setFlightOrigin(city),
+                    () => setIsFlightFromOpen(false),
+                  )}
+
+                {/* "To" Dropdown Popup (Popular cities 4x4) */}
+                {isFlightToOpen &&
+                  renderFlightCityPopover(
+                    "To",
+                    flightDestination,
+                    (city) => setFlightDestination(city),
+                    () => setIsFlightToOpen(false),
+                    true,
+                  )}
+              </div>
+
+              {/* Depart & Return Dates Container */}
+              <div className="lg:col-span-6 relative">
+                {flightTripType === "oneway" ? (
+                  /* One-way Single Date Box */
+                  <div
+                    onClick={() => {
+                      setIsFlightDateOpen(!isFlightDateOpen);
+                      setIsFlightFromOpen(false);
+                      setIsFlightToOpen(false);
+                      setIsFlightPassengersOpen(false);
+                      setIsFlightClassOpen(false);
+                      setIsFlightPaymentOpen(false);
+                    }}
+                    className={`border rounded-xl bg-white overflow-hidden cursor-pointer px-4 py-3 flex items-center justify-between transition-all ${
+                      isFlightDateOpen ? "border-[#2563eb] ring-1 ring-[#2563eb]" : "border-neutral-200"
+                    }`}
+                  >
+                    <span className="text-xs sm:text-[13px] font-bold text-neutral-800 truncate">
+                      {formatDisplayDate(flightDepartDate)}
+                    </span>
+                    <div className="flex items-center gap-1 text-neutral-400 shrink-0 ml-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const d = new Date(flightDepartDate);
+                          d.setDate(d.getDate() - 1);
+                          setFlightDepartDate(d);
+                        }}
+                        className="p-1 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
+                      >
+                        <FiChevronLeft className="text-xs" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const d = new Date(flightDepartDate);
+                          d.setDate(d.getDate() + 1);
+                          setFlightDepartDate(d);
+                        }}
+                        className="p-1 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
+                      >
+                        <FiChevronRight className="text-xs" />
+                      </button>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="flex-1 px-4 py-2.5 text-neutral-400 text-xs italic">
-                  One-way only
-                </div>
-              )}
-            </div>
+                ) : (
+                  /* Round-trip Dual Date Box */
+                  <div
+                    onClick={() => {
+                      setIsFlightDateOpen(!isFlightDateOpen);
+                      setIsFlightFromOpen(false);
+                      setIsFlightToOpen(false);
+                      setIsFlightPassengersOpen(false);
+                      setIsFlightClassOpen(false);
+                      setIsFlightPaymentOpen(false);
+                    }}
+                    className={`grid grid-cols-2 border rounded-xl bg-white overflow-hidden cursor-pointer ${
+                      isFlightDateOpen ? "border-[#2563eb] ring-1 ring-[#2563eb]" : "border-neutral-200"
+                    }`}
+                  >
+                    {/* Depart Date */}
+                    <div className="flex items-center justify-between px-3.5 py-3 border-r border-neutral-200/80">
+                      <span className="text-xs sm:text-[13px] font-bold text-neutral-800 truncate">
+                        {formatDisplayDate(flightDepartDate)}
+                      </span>
+                      <div className="flex items-center gap-1 text-neutral-400 shrink-0 ml-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const d = new Date(flightDepartDate);
+                            d.setDate(d.getDate() - 1);
+                            setFlightDepartDate(d);
+                          }}
+                          className="p-1 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
+                        >
+                          <FiChevronLeft className="text-xs" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const d = new Date(flightDepartDate);
+                            d.setDate(d.getDate() + 1);
+                            setFlightDepartDate(d);
+                          }}
+                          className="p-1 hover:text-neutral-700 hover:bg-neutral-100 rounded transition-colors"
+                        >
+                          <FiChevronRight className="text-xs" />
+                        </button>
+                      </div>
+                    </div>
 
-            {/* Green Search Action Button */}
-            <div className="md:col-span-1 flex items-center">
+                    {/* Return Date */}
+                    <div className="flex items-center px-4 py-3">
+                      {flightReturnDate ? (
+                        <span className="text-xs sm:text-[13px] font-bold text-neutral-800">
+                          {formatDisplayDate(flightReturnDate)}
+                        </span>
+                      ) : (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const d = new Date(flightDepartDate);
+                            d.setDate(d.getDate() + 4);
+                            setFlightReturnDate(d);
+                          }}
+                          className="text-xs sm:text-[13px] font-medium text-neutral-400 hover:text-neutral-600 transition-colors"
+                        >
+                          Return
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Flight Date Calendar Popover */}
+                {isFlightDateOpen && (
+                  <div className="absolute top-full right-0 sm:left-[-100px] mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 w-[95vw] max-w-[620px] animate-in fade-in zoom-in-95 duration-150">
+                    {/* Active Selection Header */}
+                    <div className={`grid ${flightTripType === "oneway" ? "grid-cols-1" : "grid-cols-2"} border border-[#2563eb] rounded-xl overflow-hidden mb-4`}>
+                      <div className="p-3 border-r border-[#2563eb]/30 bg-neutral-50/50">
+                        <span className="block text-xs sm:text-sm font-bold text-neutral-900">
+                          {formatDisplayDate(flightDepartDate)}
+                        </span>
+                      </div>
+                      {flightTripType !== "oneway" && (
+                        <div className="p-3 bg-white">
+                          <span className="block text-xs sm:text-sm font-medium text-neutral-400">
+                            {flightReturnDate ? formatDisplayDate(flightReturnDate) : "Return"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Month Navigation & Two Months Display */}
+                    <div className="relative mb-3">
+                      <div className="flex items-center justify-between mb-2 px-1">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCalendarViewDate(
+                              new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() - 1, 1),
+                            )
+                          }
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors"
+                        >
+                          <IoIosArrowBack />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCalendarViewDate(
+                              new Date(calendarViewDate.getFullYear(), calendarViewDate.getMonth() + 1, 1),
+                            )
+                          }
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-100 transition-colors"
+                        >
+                          <IoIosArrowForward />
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-6">
+                        {renderMonthCalendar(0)}
+                        {renderMonthCalendar(1)}
+                      </div>
+                    </div>
+
+                    {/* Public Holidays Legend */}
+                    <div className="border-t border-neutral-100 pt-3 mt-3">
+                      <span className="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-1.5">
+                        *Public Holidays
+                      </span>
+                      <div className="inline-flex items-center gap-2 bg-neutral-50 px-2.5 py-1 rounded-md text-xs">
+                        <span className="text-red-500 font-bold">31 Dec</span>
+                        <span className="text-neutral-600">New Year&apos;s Eve</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Bottom Row: Direct Only (hidden in multi-city), Passengers, Class, Payments & Search */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 relative">
+            {/* Direct Only Checkbox (shown only for One-way / Round-trip) */}
+            {flightTripType !== "multicity" ? (
+              <label className="flex items-center gap-2.5 cursor-pointer select-none text-xs sm:text-sm font-medium text-neutral-700">
+                <div
+                  onClick={() => setFlightDirectOnly(!flightDirectOnly)}
+                  className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                    flightDirectOnly
+                      ? "bg-[#2563eb] border-[#2563eb] text-white"
+                      : "border-neutral-300 bg-white"
+                  }`}
+                >
+                  {flightDirectOnly && <FiCheck className="text-xs stroke-[3]" />}
+                </div>
+                <span onClick={() => setFlightDirectOnly(!flightDirectOnly)}>
+                  Direct Only
+                </span>
+              </label>
+            ) : (
+              <div />
+            )}
+
+            {/* Dropdown Filters & Search Button */}
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 self-stretch sm:self-auto justify-between sm:justify-end">
+              <div className="flex items-center gap-4 text-xs font-semibold text-neutral-700">
+                {/* Passengers Dropdown */}
+                <div className="relative">
+                  <div
+                    onClick={() => {
+                      setIsFlightPassengersOpen(!isFlightPassengersOpen);
+                      setIsFlightClassOpen(false);
+                      setIsFlightPaymentOpen(false);
+                    }}
+                    className="flex items-center gap-1 cursor-pointer hover:text-neutral-950 py-1 select-none"
+                  >
+                    <span>{flightPassengersLabel}</span>
+                    <FaChevronDown
+                      className={`text-[9px] text-neutral-500 transition-transform duration-200 ${
+                        isFlightPassengersOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+
+                  {/* Passengers Popover (opens at bottom) */}
+                  {isFlightPassengersOpen && (
+                    <div className="absolute top-full mt-2 right-0 w-[300px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="space-y-4">
+                        {/* Adults */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <LuUser className="text-xl text-neutral-600" />
+                            <div>
+                              <div className="text-xs font-bold text-neutral-800">Adults</div>
+                              <div className="text-[10px] text-neutral-400">&gt;12 years</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              disabled={flightAdults <= 1}
+                              onClick={() => setFlightAdults(Math.max(1, flightAdults - 1))}
+                              className="w-7 h-7 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-700 disabled:opacity-30 hover:border-neutral-500"
+                            >
+                              <FaMinus className="text-[9px]" />
+                            </button>
+                            <span className="w-4 text-center text-xs font-bold text-neutral-800">
+                              {flightAdults}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setFlightAdults(flightAdults + 1)}
+                              className="w-7 h-7 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-700 hover:border-neutral-500"
+                            >
+                              <FaPlus className="text-[9px]" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Children */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <LuUser className="text-xl text-neutral-600" />
+                            <div>
+                              <div className="text-xs font-bold text-neutral-800">Children</div>
+                              <div className="text-[10px] text-neutral-400">2-12 years</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              disabled={flightChildren <= 0}
+                              onClick={() => setFlightChildren(Math.max(0, flightChildren - 1))}
+                              className="w-7 h-7 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-700 disabled:opacity-30 hover:border-neutral-500"
+                            >
+                              <FaMinus className="text-[9px]" />
+                            </button>
+                            <span className="w-4 text-center text-xs font-bold text-neutral-800">
+                              {flightChildren}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setFlightChildren(flightChildren + 1)}
+                              className="w-7 h-7 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-700 hover:border-neutral-500"
+                            >
+                              <FaPlus className="text-[9px]" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Infants */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <FaBaby className="text-xl text-neutral-600" />
+                            <div>
+                              <div className="text-xs font-bold text-neutral-800">Infants</div>
+                              <div className="text-[10px] text-neutral-400">&lt;2 years</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              disabled={flightInfants <= 0}
+                              onClick={() => setFlightInfants(Math.max(0, flightInfants - 1))}
+                              className="w-7 h-7 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-700 disabled:opacity-30 hover:border-neutral-500"
+                            >
+                              <FaMinus className="text-[9px]" />
+                            </button>
+                            <span className="w-4 text-center text-xs font-bold text-neutral-800">
+                              {flightInfants}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setFlightInfants(flightInfants + 1)}
+                              className="w-7 h-7 rounded-full border border-neutral-300 flex items-center justify-center text-neutral-700 hover:border-neutral-500"
+                            >
+                              <FaPlus className="text-[9px]" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-neutral-100 pt-3 mt-4 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setIsFlightPassengersOpen(false)}
+                          className="text-xs font-bold text-[#2563eb] hover:text-[#1d4ed8] px-2 py-1"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Cabin Class Dropdown */}
+                <div className="relative">
+                  <div
+                    onClick={() => {
+                      setIsFlightClassOpen(!isFlightClassOpen);
+                      setIsFlightPassengersOpen(false);
+                      setIsFlightPaymentOpen(false);
+                    }}
+                    className="flex items-center gap-1 cursor-pointer hover:text-neutral-950 py-1 select-none"
+                  >
+                    <span>{flightCabinClass}</span>
+                    <FaChevronDown
+                      className={`text-[9px] text-neutral-500 transition-transform duration-200 ${
+                        isFlightClassOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+
+                  {/* Cabin Class Popover (opens at bottom) */}
+                  {isFlightClassOpen && (
+                    <div className="absolute top-full mt-2 right-0 w-[200px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150">
+                      {[
+                        "Economy",
+                        "Premium Economy",
+                        "Business Class",
+                        "First Class",
+                      ].map((item) => (
+                        <div
+                          key={item}
+                          onClick={() => {
+                            setFlightCabinClass(item);
+                            setIsFlightClassOpen(false);
+                          }}
+                          className={`flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer text-xs font-medium transition-colors ${
+                            flightCabinClass === item
+                              ? "text-neutral-900 font-bold bg-neutral-50"
+                              : "text-neutral-700 hover:bg-neutral-50 hover:text-neutral-950"
+                          }`}
+                        >
+                          <span>{item}</span>
+                          {flightCabinClass === item && (
+                            <FiCheck className="text-[#2563eb] text-sm stroke-[3]" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 4 Payment Types dropdown */}
+                <div className="relative">
+                  <div
+                    onClick={() => {
+                      setIsFlightPaymentOpen(!isFlightPaymentOpen);
+                      setIsFlightPassengersOpen(false);
+                      setIsFlightClassOpen(false);
+                    }}
+                    className="flex items-center gap-1 cursor-pointer hover:text-neutral-950 py-1 select-none"
+                  >
+                    <span>{flightPaymentTypes}</span>
+                    <FaChevronDown
+                      className={`text-[9px] text-neutral-500 transition-transform duration-200 ${
+                        isFlightPaymentOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+
+                  {/* Payment Types Popover (opens at bottom) */}
+                  {isFlightPaymentOpen && (
+                    <div className="absolute top-full mt-2 right-0 w-[220px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150">
+                      {[
+                        "4 Payment Types",
+                        "Credit / Debit Card",
+                        "Mobile Banking (bKash/Nagad)",
+                        "Net Banking",
+                      ].map((type) => (
+                        <div
+                          key={type}
+                          onClick={() => {
+                            setFlightPaymentTypes(type);
+                            setIsFlightPaymentOpen(false);
+                          }}
+                          className={`flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-xs font-medium transition-colors ${
+                            flightPaymentTypes === type
+                              ? "text-neutral-900 font-bold bg-neutral-50"
+                              : "text-neutral-700 hover:bg-neutral-50"
+                          }`}
+                        >
+                          <span>{type}</span>
+                          {flightPaymentTypes === type && (
+                            <FiCheck className="text-[#2563eb] text-xs" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <button
                 type="button"
-                className="w-full h-11 bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold rounded-xl flex items-center justify-center transition-all shadow-md"
+                onClick={handleFlightSearch}
+                className="bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold text-sm px-10 py-3 rounded-full transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                <FaSearch className="text-sm" />
+                Search
               </button>
             </div>
-          </div>
-
-          {/* Quick Checkbox: Compare with Emirates */}
-          <div className="mt-3 pt-2.5 border-t border-neutral-100 flex items-center gap-2 text-xs text-neutral-600">
-            <span>Compare Mongzo vs. these sites:</span>
-            <label className="flex items-center gap-1.5 cursor-pointer select-none font-medium text-neutral-800">
-              <input
-                type="checkbox"
-                checked={compareSiteEmirates}
-                onChange={(e) => setCompareSiteEmirates(e.target.checked)}
-                className="accent-[#2563eb] rounded w-3.5 h-3.5"
-              />
-              <span className="bg-[#d71921] text-white text-[10px] font-bold px-1 rounded">Emirates</span>
-              <span>Emirates</span>
-            </label>
           </div>
         </div>
 
@@ -899,20 +1714,22 @@ const FlightPageContent = () => {
           {/* ========================================= */}
           <div className="lg:col-span-3 space-y-4">
             {/* Notify Me If Price Drops Banner */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-2xl border border-neutral-200/90 p-3.5 flex items-center justify-between shadow-sm cursor-pointer hover:border-[#2563eb] hover:bg-white transition-all">
+            <div className="bg-[#F5F5F5] backdrop-blur-lg rounded-2xl border border-neutral-200/90 p-3.5 flex items-center justify-between shadow-sm cursor-pointer hover:border-[#2563eb] hover:bg-white transition-all">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center">
                   <FaBell className="text-sm" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-neutral-900 leading-tight">Notify me if price drops</p>
+                  <p className="text-xs font-bold text-neutral-900 leading-tight">
+                    Notify me if price drops
+                  </p>
                 </div>
               </div>
               <IoIosArrowForward className="text-neutral-400 text-sm" />
             </div>
 
             {/* Filter Card Container */}
-            <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-neutral-200/90 p-4 sm:p-5 shadow-sm space-y-5">
+            <div className="bg-[#F5F5F5] backdrop-blur-xl rounded-2xl border border-neutral-200/90 p-4 sm:p-5 shadow-sm space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
                 <span className="text-xs font-semibold text-neutral-600">
                   {filteredFlights.length} results
@@ -925,7 +1742,7 @@ const FlightPageContent = () => {
                     setMaxPrice(608831);
                     setCheckedBagFilter(false);
                     setNoOvernightFilter(false);
-                    setDirectOnly(false);
+                    setFlightDirectOnly(false);
                   }}
                   className="text-xs text-[#2563eb] font-bold hover:underline"
                 >
@@ -965,20 +1782,29 @@ const FlightPageContent = () => {
                     { id: "1stop", label: "1 stop", price: "৳121,105" },
                     { id: "2stops", label: "2+ stops", price: "৳136,746" },
                   ].map((s) => (
-                    <label key={s.id} className="flex items-center justify-between text-xs text-neutral-700 cursor-pointer">
+                    <label
+                      key={s.id}
+                      className="flex items-center justify-between text-xs text-neutral-700 cursor-pointer"
+                    >
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
                           checked={selectedStops.includes(s.id)}
                           onChange={(e) => {
-                            if (e.target.checked) setSelectedStops([...selectedStops, s.id]);
-                            else setSelectedStops(selectedStops.filter((x) => x !== s.id));
+                            if (e.target.checked)
+                              setSelectedStops([...selectedStops, s.id]);
+                            else
+                              setSelectedStops(
+                                selectedStops.filter((x) => x !== s.id),
+                              );
                           }}
                           className="accent-[#2563eb] rounded"
                         />
                         <span>{s.label}</span>
                       </div>
-                      <span className="text-neutral-400 text-[11px]">{s.price}</span>
+                      <span className="text-neutral-400 text-[11px]">
+                        {s.price}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -1027,11 +1853,17 @@ const FlightPageContent = () => {
                     <span>No overnight flights</span>
                   </label>
                   <label className="flex items-center gap-2 text-xs text-neutral-700 cursor-pointer">
-                    <input type="checkbox" className="accent-[#2563eb] rounded" />
+                    <input
+                      type="checkbox"
+                      className="accent-[#2563eb] rounded"
+                    />
                     <span>No long stop-overs (up to 4hrs)</span>
                   </label>
                   <label className="flex items-center gap-2 text-xs text-neutral-700 cursor-pointer">
-                    <input type="checkbox" className="accent-[#2563eb] rounded" />
+                    <input
+                      type="checkbox"
+                      className="accent-[#2563eb] rounded"
+                    />
                     <span>No self-transfer</span>
                   </label>
                 </div>
@@ -1044,27 +1876,35 @@ const FlightPageContent = () => {
                   <FaChevronUp className="text-[10px] text-neutral-400" />
                 </div>
                 <p className="text-[11px] font-semibold text-neutral-700 mb-2">
-                  {origin || "Dhaka"} → {destination || "Jeddah"}
+                  {flightOrigin || "Dhaka"} → {flightDestination || "Jeddah"}
                 </p>
                 <div className="grid grid-cols-2 gap-1.5 text-center text-xs">
                   <div className="border border-neutral-200 rounded-lg p-2 hover:border-[#2563eb] cursor-pointer">
                     <FaMoon className="mx-auto text-neutral-400 text-xs mb-1" />
-                    <p className="text-[10px] font-bold text-neutral-800">00:00 - 06:00</p>
+                    <p className="text-[10px] font-bold text-neutral-800">
+                      00:00 - 06:00
+                    </p>
                     <p className="text-[9px] text-neutral-400">৳122,473</p>
                   </div>
                   <div className="border border-neutral-200 rounded-lg p-2 hover:border-[#2563eb] cursor-pointer">
                     <FaSun className="mx-auto text-amber-500 text-xs mb-1" />
-                    <p className="text-[10px] font-bold text-neutral-800">06:00 - 12:00</p>
+                    <p className="text-[10px] font-bold text-neutral-800">
+                      06:00 - 12:00
+                    </p>
                     <p className="text-[9px] text-neutral-400">৳121,105</p>
                   </div>
                   <div className="border border-neutral-200 rounded-lg p-2 hover:border-[#2563eb] cursor-pointer">
                     <FaSun className="mx-auto text-amber-500 text-xs mb-1" />
-                    <p className="text-[10px] font-bold text-neutral-800">12:00 - 18:00</p>
+                    <p className="text-[10px] font-bold text-neutral-800">
+                      12:00 - 18:00
+                    </p>
                     <p className="text-[9px] text-neutral-400">৳122,774</p>
                   </div>
                   <div className="border border-neutral-200 rounded-lg p-2 hover:border-[#2563eb] cursor-pointer">
                     <FaMoon className="mx-auto text-neutral-400 text-xs mb-1" />
-                    <p className="text-[10px] font-bold text-neutral-800">18:00 - 24:00</p>
+                    <p className="text-[10px] font-bold text-neutral-800">
+                      18:00 - 24:00
+                    </p>
                     <p className="text-[9px] text-neutral-400">৳125,254</p>
                   </div>
                 </div>
@@ -1085,20 +1925,32 @@ const FlightPageContent = () => {
                     { name: "Qatar Airways", price: "৳251,898" },
                     { name: "Saudia", price: "৳140,469" },
                   ].map((a) => (
-                    <label key={a.name} className="flex items-center justify-between text-xs text-neutral-700 cursor-pointer">
+                    <label
+                      key={a.name}
+                      className="flex items-center justify-between text-xs text-neutral-700 cursor-pointer"
+                    >
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
                           checked={selectedAirlines.includes(a.name)}
                           onChange={(e) => {
-                            if (e.target.checked) setSelectedAirlines([...selectedAirlines, a.name]);
-                            else setSelectedAirlines(selectedAirlines.filter((x) => x !== a.name));
+                            if (e.target.checked)
+                              setSelectedAirlines([
+                                ...selectedAirlines,
+                                a.name,
+                              ]);
+                            else
+                              setSelectedAirlines(
+                                selectedAirlines.filter((x) => x !== a.name),
+                              );
                           }}
                           className="accent-[#2563eb] rounded"
                         />
                         <span className="truncate max-w-[120px]">{a.name}</span>
                       </div>
-                      <span className="text-neutral-400 text-[11px]">{a.price}</span>
+                      <span className="text-neutral-400 text-[11px]">
+                        {a.price}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -1111,7 +1963,7 @@ const FlightPageContent = () => {
           {/* ========================================= */}
           <div className="lg:col-span-9 space-y-4">
             {/* Top Sort Bar (Recommended, Cheapest, Fastest, Sort By Dropdown) */}
-            <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-neutral-200/90 p-2 shadow-sm flex items-center justify-between overflow-x-auto">
+            <div className="bg-[#F5F5F5] backdrop-blur-xl rounded-2xl border border-neutral-200/90 p-2 shadow-sm flex items-center justify-between overflow-x-auto">
               <div className="flex items-center divide-x divide-neutral-200">
                 {/* Recommended */}
                 <button
@@ -1166,16 +2018,20 @@ const FlightPageContent = () => {
             {/* FLIGHT CARDS LIST */}
             <div className="space-y-3.5">
               {filteredFlights.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-neutral-200 p-12 text-center">
+                <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-12 text-center">
                   <FaPlane className="text-3xl text-neutral-300 mx-auto mb-3" />
-                  <p className="text-base font-bold text-neutral-800">No flights found</p>
-                  <p className="text-xs text-neutral-500 mt-1">Try relaxing some of your filter criteria.</p>
+                  <p className="text-base font-bold text-neutral-800">
+                    No flights found
+                  </p>
+                  <p className="text-xs text-neutral-500 mt-1">
+                    Try relaxing some of your filter criteria.
+                  </p>
                 </div>
               ) : (
                 filteredFlights.map((flight) => (
                   <div
                     key={flight.id}
-                    className={`rounded-2xl border transition-all duration-200 overflow-hidden shadow-sm hover:shadow-lg bg-white/95 backdrop-blur-lg hover:border-neutral-300 ${
+                    className={`rounded-2xl border transition-all duration-200 overflow-hidden shadow-sm hover:shadow-lg bg-[#F5F5F5] backdrop-blur-lg hover:border-neutral-300 ${
                       flight.isSponsored
                         ? "border-[#5c0632]/40 ring-1 ring-[#5c0632]/20"
                         : "border-neutral-200"
@@ -1185,13 +2041,21 @@ const FlightPageContent = () => {
                     {flight.isSponsored && (
                       <div className="bg-[#5c0632] text-white px-5 py-2.5 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-3">
-                          <span className="font-bold tracking-wider text-sm">QATAR</span>
+                          <span className="font-bold tracking-wider text-sm">
+                            QATAR
+                          </span>
                           <div>
-                            <p className="font-bold leading-tight">{flight.sponsorTitle}</p>
-                            <p className="text-white/80 text-[10px]">{flight.sponsorSubtitle}</p>
+                            <p className="font-bold leading-tight">
+                              {flight.sponsorTitle}
+                            </p>
+                            <p className="text-white/80 text-[10px]">
+                              {flight.sponsorSubtitle}
+                            </p>
                           </div>
                         </div>
-                        <span className="text-[10px] uppercase font-semibold text-white/70">Sponsored</span>
+                        <span className="text-[10px] uppercase font-semibold text-white/70">
+                          Sponsored
+                        </span>
                       </div>
                     )}
 
@@ -1202,13 +2066,19 @@ const FlightPageContent = () => {
                         {/* Outbound Segment */}
                         <div className="flex items-center gap-4 text-xs">
                           {/* Airline Logo & Name */}
-                          <div className="w-28 flex-shrink-0 flex items-center gap-2">
-                            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${flight.outbound.logoColor}`}>
+                          <div className="w-28 flex-shrink-0 flex items-center gap-2 min-w-0">
+                            <div
+                              className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold ${flight.outbound.logoColor}`}
+                            >
                               {flight.outbound.logoText.slice(0, 3)}
                             </div>
-                            <div>
-                              <p className="font-bold text-neutral-900 leading-tight truncate">{flight.outbound.airline}</p>
-                              <p className="text-[10px] text-neutral-400">{flight.outbound.aircraft}</p>
+                            <div className="min-w-0 overflow-hidden">
+                              <p className="font-bold text-neutral-900 leading-tight truncate max-w-[80px]">
+                                {flight.outbound.airline}
+                              </p>
+                              <p className="text-[10px] text-neutral-400 truncate">
+                                {flight.outbound.aircraft}
+                              </p>
                             </div>
                           </div>
 
@@ -1216,13 +2086,19 @@ const FlightPageContent = () => {
                           <div className="flex-1 flex items-center justify-between gap-3 px-2">
                             {/* Depart */}
                             <div className="text-left">
-                              <p className="text-sm font-bold text-neutral-900">{flight.outbound.departTime}</p>
-                              <p className="text-[11px] text-neutral-500 font-semibold">{flight.outbound.departAirport}</p>
+                              <p className="text-sm font-bold text-neutral-900">
+                                {flight.outbound.departTime}
+                              </p>
+                              <p className="text-[11px] text-neutral-500 font-semibold">
+                                {flight.outbound.departAirport}
+                              </p>
                             </div>
 
                             {/* Duration & Stop Indicator Graphic */}
                             <div className="flex-1 max-w-[200px] text-center">
-                              <span className="text-[10px] text-neutral-400 block mb-0.5">{flight.outbound.duration}</span>
+                              <span className="text-[10px] text-neutral-400 block mb-0.5">
+                                {flight.outbound.duration}
+                              </span>
                               <div className="relative flex items-center">
                                 <div className="w-2 h-2 rounded-full border border-neutral-400 bg-white" />
                                 <div className="flex-1 h-[1.5px] bg-neutral-300" />
@@ -1233,19 +2109,27 @@ const FlightPageContent = () => {
                                 <div className="w-2 h-2 rounded-full border border-neutral-400 bg-neutral-600" />
                               </div>
                               <span className="text-[10px] text-neutral-500 block mt-0.5 font-medium">
-                                {flight.outbound.stops === 0 ? "Direct" : flight.outbound.stopAirport}
+                                {flight.outbound.stops === 0
+                                  ? "Direct"
+                                  : flight.outbound.stopAirport}
                               </span>
                             </div>
 
                             {/* Arrive */}
                             <div className="text-right">
                               <div className="flex items-center justify-end gap-1">
-                                <span className="text-sm font-bold text-neutral-900">{flight.outbound.arriveTime}</span>
+                                <span className="text-sm font-bold text-neutral-900">
+                                  {flight.outbound.arriveTime}
+                                </span>
                                 {flight.outbound.nextDay && (
-                                  <span className="text-[10px] text-red-500 font-bold">{flight.outbound.nextDay}</span>
+                                  <span className="text-[10px] text-red-500 font-bold">
+                                    {flight.outbound.nextDay}
+                                  </span>
                                 )}
                               </div>
-                              <p className="text-[11px] text-neutral-500 font-semibold">{flight.outbound.arriveAirport}</p>
+                              <p className="text-[11px] text-neutral-500 font-semibold">
+                                {flight.outbound.arriveAirport}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -1254,13 +2138,19 @@ const FlightPageContent = () => {
                         {flight.inbound && (
                           <div className="flex items-center gap-4 text-xs pt-3 border-t border-neutral-100">
                             {/* Airline Logo & Name */}
-                            <div className="w-28 flex-shrink-0 flex items-center gap-2">
-                              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${flight.inbound.logoColor}`}>
+                            <div className="w-28 flex-shrink-0 flex items-center gap-2 min-w-0">
+                              <div
+                                className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold ${flight.inbound.logoColor}`}
+                              >
                                 {flight.inbound.logoText.slice(0, 3)}
                               </div>
-                              <div>
-                                <p className="font-bold text-neutral-900 leading-tight truncate">{flight.inbound.airline}</p>
-                                <p className="text-[10px] text-neutral-400">{flight.inbound.aircraft}</p>
+                              <div className="min-w-0 overflow-hidden">
+                                <p className="font-bold text-neutral-900 leading-tight truncate max-w-[80px]">
+                                  {flight.inbound.airline}
+                                </p>
+                                <p className="text-[10px] text-neutral-400 truncate">
+                                  {flight.inbound.aircraft}
+                                </p>
                               </div>
                             </div>
 
@@ -1268,13 +2158,19 @@ const FlightPageContent = () => {
                             <div className="flex-1 flex items-center justify-between gap-3 px-2">
                               {/* Depart */}
                               <div className="text-left">
-                                <p className="text-sm font-bold text-neutral-900">{flight.inbound.departTime}</p>
-                                <p className="text-[11px] text-neutral-500 font-semibold">{flight.inbound.departAirport}</p>
+                                <p className="text-sm font-bold text-neutral-900">
+                                  {flight.inbound.departTime}
+                                </p>
+                                <p className="text-[11px] text-neutral-500 font-semibold">
+                                  {flight.inbound.departAirport}
+                                </p>
                               </div>
 
                               {/* Duration & Stop Indicator Graphic */}
                               <div className="flex-1 max-w-[200px] text-center">
-                                <span className="text-[10px] text-neutral-400 block mb-0.5">{flight.inbound.duration}</span>
+                                <span className="text-[10px] text-neutral-400 block mb-0.5">
+                                  {flight.inbound.duration}
+                                </span>
                                 <div className="relative flex items-center">
                                   <div className="w-2 h-2 rounded-full border border-neutral-400 bg-white" />
                                   <div className="flex-1 h-[1.5px] bg-neutral-300" />
@@ -1285,22 +2181,30 @@ const FlightPageContent = () => {
                                   <div className="w-2 h-2 rounded-full border border-neutral-400 bg-neutral-600" />
                                 </div>
                                 <span className="text-[10px] text-neutral-500 block mt-0.5 font-medium">
-                                  {flight.inbound.stops === 0 ? "Direct" : flight.inbound.stopAirport}
+                                  {flight.inbound.stops === 0
+                                    ? "Direct"
+                                    : flight.inbound.stopAirport}
                                 </span>
                               </div>
 
                               {/* Arrive */}
                               <div className="text-right">
                                 <div className="flex items-center justify-end gap-1">
-                                  <span className="text-sm font-bold text-neutral-900">{flight.inbound.arriveTime}</span>
+                                  <span className="text-sm font-bold text-neutral-900">
+                                    {flight.inbound.arriveTime}
+                                  </span>
                                   {flight.inbound.nextDay && (
-                                    <span className="text-[10px] text-red-500 font-bold">{flight.inbound.nextDay}</span>
+                                    <span className="text-[10px] text-red-500 font-bold">
+                                      {flight.inbound.nextDay}
+                                    </span>
                                   )}
                                   {flight.inbound.hasMoon && (
                                     <FaMoon className="text-[10px] text-neutral-500" />
                                   )}
                                 </div>
-                                <p className="text-[11px] text-neutral-500 font-semibold">{flight.inbound.arriveAirport}</p>
+                                <p className="text-[11px] text-neutral-500 font-semibold">
+                                  {flight.inbound.arriveAirport}
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -1316,23 +2220,34 @@ const FlightPageContent = () => {
                                 flight.badge === "Best Value"
                                   ? "bg-amber-100 text-amber-800"
                                   : flight.badge === "Cheapest"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : flight.badge === "Cheapest Direct"
-                                  ? "bg-sky-100 text-sky-800"
-                                  : "bg-neutral-100 text-neutral-700"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : flight.badge === "Cheapest Direct"
+                                      ? "bg-sky-100 text-sky-800"
+                                      : "bg-neutral-100 text-neutral-700"
                               }`}
                             >
                               {flight.badge}
                             </span>
                           )}
-                          <p className="text-[11px] text-neutral-400">{flight.seller}</p>
-                          <p className="text-xl font-bold text-neutral-900">৳{flight.price.toLocaleString()}</p>
-                          <p className="text-[10px] text-neutral-400">Per person</p>
+                          <p className="text-[11px] text-neutral-400">
+                            {flight.seller}
+                          </p>
+                          <p className="text-xl font-bold text-neutral-900">
+                            ৳{flight.price.toLocaleString()}
+                          </p>
+                          <p className="text-[10px] text-neutral-400">
+                            Per person
+                          </p>
                         </div>
 
                         <button
                           type="button"
                           className="mt-2 bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-sm"
+                          onClick={() =>
+                            router.push(
+                              `/flights/payment?id=${flight.id}&origin=${encodeURIComponent(flightOrigin)}&destination=${encodeURIComponent(flightDestination)}&tripType=${flightTripType}&passengers=${totalFlightPassengers}`
+                            )
+                          }
                         >
                           Select Flight
                         </button>
@@ -1353,7 +2268,13 @@ const FlightPageContent = () => {
 
 export default function FlightPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#f7f7f9] flex items-center justify-center">Loading flights...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center">
+          Loading flights...
+        </div>
+      }
+    >
       <FlightPageContent />
     </Suspense>
   );

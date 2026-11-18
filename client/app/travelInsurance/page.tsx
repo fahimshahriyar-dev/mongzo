@@ -24,7 +24,10 @@ interface Traveler {
   isPurchaser: boolean;
 }
 
-const TARIFF_INFO: Record<string, { name: string; coverage: string; basePrice: number }> = {
+const TARIFF_INFO: Record<
+  string,
+  { name: string; coverage: string; basePrice: number }
+> = {
   econom: { name: "Econom", coverage: "35 000 USD", basePrice: 60 },
   standard: { name: "Standard", coverage: "250 000 USD", basePrice: 113 },
   million: { name: "Million", coverage: "1 000 000 USD", basePrice: 162 },
@@ -58,11 +61,11 @@ function TravelInsuranceContent() {
 
   // Useful options state
   const [options, setOptions] = useState({
-    skiing: false,      // +$13
-    surfing: false,     // +$13
-    diving: false,      // +$13
-    luggage: false,     // +$4
-    liability: false,   // +$6
+    skiing: false, // +$13
+    surfing: false, // +$13
+    diving: false, // +$13
+    luggage: false, // +$4
+    liability: false, // +$6
   });
 
   // Promo code state
@@ -136,7 +139,7 @@ function TravelInsuranceContent() {
           return updated;
         }
         return t;
-      })
+      }),
     );
   };
 
@@ -158,11 +161,7 @@ function TravelInsuranceContent() {
 
   // Handle navigation
   const handleBack = () => {
-    if (window.history.length > 1) {
-      router.back();
-    } else {
-      router.push("/booking?tab=insurance");
-    }
+    router.push("/booking?tab=insurance");
   };
 
   const handleNext = () => {
@@ -238,7 +237,11 @@ function TravelInsuranceContent() {
                           type="text"
                           value={traveler.lastName}
                           onChange={(e) =>
-                            updateTraveler(traveler.id, "lastName", e.target.value.toUpperCase())
+                            updateTraveler(
+                              traveler.id,
+                              "lastName",
+                              e.target.value.toUpperCase(),
+                            )
                           }
                           placeholder="e.g. MUGDHO"
                           className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
@@ -254,7 +257,11 @@ function TravelInsuranceContent() {
                           type="text"
                           value={traveler.firstName}
                           onChange={(e) =>
-                            updateTraveler(traveler.id, "firstName", e.target.value.toUpperCase())
+                            updateTraveler(
+                              traveler.id,
+                              "firstName",
+                              e.target.value.toUpperCase(),
+                            )
                           }
                           placeholder="e.g. FAHIM"
                           className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
@@ -283,7 +290,9 @@ function TravelInsuranceContent() {
                           type="button"
                           onClick={() => handleTogglePurchaser(traveler.id)}
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all bg-white shrink-0 ${
-                            traveler.isPurchaser ? "border-[#2563eb]" : "border-neutral-300 hover:border-neutral-400"
+                            traveler.isPurchaser
+                              ? "border-[#2563eb]"
+                              : "border-neutral-300 hover:border-neutral-400"
                           }`}
                           title="Mark as purchaser"
                         >
@@ -322,7 +331,9 @@ function TravelInsuranceContent() {
                   <span>Add a traveler</span>
                 </button>
                 <p className="text-[11px] text-neutral-400 leading-snug max-w-md">
-                  We do not need the international passport number. We will define the insured by the insurance certificate number, name, surname and date of birth.
+                  We do not need the international passport number. We will
+                  define the insured by the insurance certificate number, name,
+                  surname and date of birth.
                 </p>
               </div>
             </div>
@@ -333,7 +344,9 @@ function TravelInsuranceContent() {
                 Purchaser (policyholder)
               </h2>
               <p className="text-xs text-neutral-400 mt-1 mb-4 leading-relaxed">
-                Data of the person subscribing and paying for the policy in Latin letters. The policyholder can be anyone above 18, not necessarily one of the insured persons.
+                Data of the person subscribing and paying for the policy in
+                Latin letters. The policyholder can be anyone above 18, not
+                necessarily one of the insured persons.
               </p>
               <div className="border-b border-neutral-200/70 mb-5" />
 
@@ -347,7 +360,10 @@ function TravelInsuranceContent() {
                     type="text"
                     value={purchaser.lastName}
                     onChange={(e) =>
-                      setPurchaser((p) => ({ ...p, lastName: e.target.value.toUpperCase() }))
+                      setPurchaser((p) => ({
+                        ...p,
+                        lastName: e.target.value.toUpperCase(),
+                      }))
                     }
                     placeholder="e.g. MUGDHO"
                     className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
@@ -362,7 +378,10 @@ function TravelInsuranceContent() {
                     type="text"
                     value={purchaser.firstName}
                     onChange={(e) =>
-                      setPurchaser((p) => ({ ...p, firstName: e.target.value.toUpperCase() }))
+                      setPurchaser((p) => ({
+                        ...p,
+                        firstName: e.target.value.toUpperCase(),
+                      }))
                     }
                     placeholder="e.g. FAHIM"
                     className="w-full px-3.5 py-2.5 text-xs sm:text-sm font-medium uppercase border border-neutral-300 rounded-lg outline-none focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-all bg-white"
@@ -428,7 +447,8 @@ function TravelInsuranceContent() {
                 Useful options
               </h2>
               <p className="text-xs text-neutral-400 mt-1 mb-4">
-                We recommend to include insurance in order to improve your policy.
+                We recommend to include insurance in order to improve your
+                policy.
               </p>
               <div className="border-b border-neutral-200/70 mb-5" />
 
@@ -605,13 +625,17 @@ function TravelInsuranceContent() {
               {/* Departure */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Departure</span>
-                <span className="font-medium text-neutral-700">18 november 2026</span>
+                <span className="font-medium text-neutral-700">
+                  18 november 2026
+                </span>
               </div>
 
               {/* Return */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Return</span>
-                <span className="font-medium text-neutral-700">30 november 2026</span>
+                <span className="font-medium text-neutral-700">
+                  30 november 2026
+                </span>
               </div>
 
               {/* Days */}
@@ -623,18 +647,26 @@ function TravelInsuranceContent() {
               {/* Skiing */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-neutral-400">
-                  <span className="max-w-[170px] truncate">Mountain skiing and snowboarding</span>
+                  <span className="max-w-[170px] truncate">
+                    Mountain skiing and snowboarding
+                  </span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${options.skiing ? "text-[#2563eb]" : "text-neutral-400"}`}>
+                <span
+                  className={`font-semibold ${options.skiing ? "text-[#2563eb]" : "text-neutral-400"}`}
+                >
                   {options.skiing ? "yes" : "no"}
                 </span>
               </div>
 
               {/* Surfing */}
               <div className="flex items-center justify-between">
-                <span className="text-neutral-400">Surfing and windsurfing</span>
-                <span className={`font-semibold ${options.surfing ? "text-[#2563eb]" : "text-neutral-400"}`}>
+                <span className="text-neutral-400">
+                  Surfing and windsurfing
+                </span>
+                <span
+                  className={`font-semibold ${options.surfing ? "text-[#2563eb]" : "text-neutral-400"}`}
+                >
                   {options.surfing ? "yes" : "no"}
                 </span>
               </div>
@@ -642,10 +674,14 @@ function TravelInsuranceContent() {
               {/* Diving */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-neutral-400">
-                  <span className="max-w-[170px] truncate">Diving with an instructor</span>
+                  <span className="max-w-[170px] truncate">
+                    Diving with an instructor
+                  </span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${options.diving ? "text-[#2563eb]" : "text-neutral-400"}`}>
+                <span
+                  className={`font-semibold ${options.diving ? "text-[#2563eb]" : "text-neutral-400"}`}
+                >
                   {options.diving ? "yes" : "no"}
                 </span>
               </div>
@@ -656,7 +692,9 @@ function TravelInsuranceContent() {
                   <span>Luggage</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${options.luggage ? "text-[#2563eb]" : "text-neutral-400"}`}>
+                <span
+                  className={`font-semibold ${options.luggage ? "text-[#2563eb]" : "text-neutral-400"}`}
+                >
                   {options.luggage ? "yes" : "no"}
                 </span>
               </div>
@@ -667,7 +705,9 @@ function TravelInsuranceContent() {
                   <span>Personal liability</span>
                   <FaInfoCircle className="text-[10px] text-neutral-300 shrink-0" />
                 </div>
-                <span className={`font-semibold ${options.liability ? "text-[#2563eb]" : "text-neutral-400"}`}>
+                <span
+                  className={`font-semibold ${options.liability ? "text-[#2563eb]" : "text-neutral-400"}`}
+                >
                   {options.liability ? "yes" : "no"}
                 </span>
               </div>
