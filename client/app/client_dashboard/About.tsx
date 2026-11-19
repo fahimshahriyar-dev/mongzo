@@ -505,37 +505,34 @@ export default function About() {
         </section>
 
         {/* ========================================================= */}
-        {/* 8. BOTTOM CTA BANNER (Blue Theme on White/Light Base)      */}
+        {/* 8. BOTTOM CTA BANNER (Clean Light/Neutral Container)       */}
         {/* ========================================================= */}
-        <section className="py-16 md:py-20 bg-white border-t border-neutral-200">
+        <section className="py-16 md:py-20 bg-white border-t border-neutral-100">
           <div className="container-page">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] p-8 sm:p-12 md:p-16 text-white shadow-xl shadow-blue-500/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-              {/* Subtle light bubble */}
-              <div className="pointer-events-none absolute -right-20 -bottom-20 w-80 h-80 bg-white/10 rounded-full blur-2xl" />
-
-              <div className="relative z-10 max-w-xl">
-                <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold uppercase tracking-wider mb-3">
+            <div className="relative overflow-hidden rounded-[28px] sm:rounded-[36px] bg-[#f5f5f5] border border-neutral-200/80 p-8 sm:p-12 md:p-14 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-8 transition-all">
+              <div className="max-w-xl">
+                <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-[#2563eb] border border-blue-200/60 text-xs font-bold uppercase tracking-wider mb-3">
                   Start Exploring
                 </span>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-neutral-900 tracking-tight leading-tight">
                   Ready to plan your next trip?
                 </h2>
-                <p className="text-blue-100 text-sm mt-2 font-normal">
+                <p className="text-neutral-600 text-sm mt-2 font-normal">
                   Find the best deals on flights, stays, cars and insurance worldwide with instant booking.
                 </p>
               </div>
 
-              <div className="relative z-10 flex flex-wrap items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3.5">
                 <Link
                   href="/hotels"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white hover:bg-neutral-100 active:scale-95 text-[#2563eb] font-bold text-sm transition-all shadow-md"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold text-sm transition-all shadow-md shadow-blue-500/20"
                 >
                   <span>Find a stay</span>
                   <FaArrowRight size={13} />
                 </Link>
                 <Link
                   href="/flights"
-                  className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 text-white font-medium text-sm transition-all backdrop-blur-sm"
+                  className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-white hover:bg-neutral-50 border border-neutral-300 text-neutral-800 font-semibold text-sm transition-all shadow-sm"
                 >
                   Book Flights
                 </Link>
