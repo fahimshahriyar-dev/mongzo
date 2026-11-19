@@ -10,6 +10,7 @@ import {
 import { FiCheck } from "react-icons/fi";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import Navbar from "./components/Navbar";
+import NavServiceBar from "./components/NavServiceBar";
 import Footer from "./components/Footer";
 
 // ─── Countries ───────────────────────────────────────────────────────────────
@@ -615,6 +616,7 @@ export default function Cars({
       <Navbar />
 
       <main className="flex-1 pt-24 pb-20">
+        <NavServiceBar active="cars" />
         {/* ── Search Bar ────────────────────────────────────────────────── */}
         <div className="container-page mb-8" ref={wrapperRef}>
           <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-5">

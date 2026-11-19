@@ -20,6 +20,7 @@ import {
 } from "react-icons/fa";
 import { FiCheck } from "react-icons/fi";
 import Navbar from "./components/Navbar";
+import NavServiceBar from "./components/NavServiceBar";
 import Footer from "./components/Footer";
 import { CAR_DATA, CarItem } from "./Cars";
 
@@ -181,6 +182,7 @@ export default function CarPayment({
       <Navbar />
 
       <main className="flex-1 pt-24 pb-20">
+        <NavServiceBar active="cars" />
         <div className="container-page">
           {/* Top Destination & Date Bar */}
           <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 px-6 py-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

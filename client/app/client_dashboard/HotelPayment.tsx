@@ -23,6 +23,7 @@ import {
 } from "react-icons/fa";
 import { FiCheck } from "react-icons/fi";
 import Navbar from "./components/Navbar";
+import NavServiceBar from "./components/NavServiceBar";
 import Footer from "./components/Footer";
 import { INITIAL_HOTELS, HotelItem } from "./Hotels";
 
@@ -228,6 +229,7 @@ export default function HotelPayment({
       <Navbar />
 
       <main className="flex-1 pt-24 pb-20">
+        <NavServiceBar active="hotels" />
         <div className="container-page max-w-6xl mx-auto space-y-6">
           {/* Top Header Card */}
           <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">

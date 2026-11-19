@@ -15,9 +15,9 @@ const navLinks = [
   {
     label: "Transport",
     children: [
-      { label: "Hotel", href: "/hotels" },
-      { label: "Flight", href: "/flights" },
-      { label: "Car", href: "/cars" },
+      { label: "Hotels", href: "/hotels" },
+      { label: "Flights", href: "/flights" },
+      { label: "Cars", href: "/cars" },
       { label: "E-Sim", href: "/esim" },
       {
         label: "Travel Insurance",

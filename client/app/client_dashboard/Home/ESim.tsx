@@ -12,6 +12,7 @@ import {
 import { FiCheck } from "react-icons/fi";
 import { MdClose } from "react-icons/md";
 import { ESIM_PRODUCTS, ESimProduct } from "./ESimSection";
+import NavServiceBar from "../components/NavServiceBar";
 
 export const ESIM_DESTINATIONS = [
   "Global",
@@ -121,6 +122,7 @@ export default function ESim({ initialDestination = "Global" }: ESimProps) {
   return (
     <div className="min-h-screen bg-[#FFFFFF] pt-24 pb-20">
       <div className="container-page space-y-6">
+        <NavServiceBar active="esim" />
         {/* Top Destination Filter Search Box - Exact replica of Booking.tsx */}
         <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-6 transition-all">
           {/* Header Row: Title */}

@@ -9,6 +9,7 @@ import {
   FaPlane,
 } from "react-icons/fa";
 import { MdLuggage, MdOutlineLuggage } from "react-icons/md";
+import NavServiceBar from "./components/NavServiceBar";
 
 interface FlightSegment {
   logoColor: string;
@@ -213,6 +214,7 @@ export default function FlightPayment({
   return (
     <div className="min-h-screen bg-white pt-24 pb-20">
       <div className="container-page">
+        <NavServiceBar active="flights" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-6xl mx-auto">
           {/* ===================== LEFT: Fare Review + Book ===================== */}
           <div className="lg:col-span-8 space-y-8">

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
@@ -16,6 +17,32 @@ import {
   FaSuitcase,
   FaStar,
 } from "react-icons/fa";
+
+const TeamAvatar = ({ src, name }: { src: string; name: string }) => {
+  const [failed, setFailed] = React.useState(false);
+  const initials = name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+
+  if (failed) {
+    return <span>{initials}</span>;
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={name}
+      width={160}
+      height={160}
+      onError={() => setFailed(true)}
+      className="w-full h-full object-cover"
+    />
+  );
+};
 
 export default function About() {
   return (
@@ -429,41 +456,23 @@ export default function About() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
               {/* Member A */}
-              <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-blue-50 text-[#2563eb] flex items-center justify-center text-2xl font-bold shadow-inner mb-4 border-2 border-blue-200">
-                  F
+              <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-blue-50 text-[#2563eb] flex items-center justify-center text-2xl font-bold shadow-inner mb-4 border-2 border-blue-200">
+                  <TeamAvatar src="/assets/images/owner_ceo.jpeg" name="Md Hanif Hasan" />
                 </div>
-                <h4 className="text-base font-bold text-neutral-900">Fahim</h4>
-                <p className="text-xs text-[#2563eb] font-semibold mt-0.5">Founder & CEO</p>
+                <h4 className="text-base font-bold text-neutral-900">Md Hanif Hasan</h4>
+                <p className="text-xs text-[#2563eb] font-semibold mt-0.5">Owner &amp; CEO</p>
               </div>
 
               {/* Member B */}
-              <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-blue-50 text-[#2563eb] flex items-center justify-center text-2xl font-bold shadow-inner mb-4 border-2 border-blue-200">
-                  T
+              <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-blue-50 text-[#2563eb] flex items-center justify-center text-2xl font-bold shadow-inner mb-4 border-2 border-blue-200">
+                  <TeamAvatar src="/assets/images/head_of_operations.jpeg" name="Kawsar Ahmed" />
                 </div>
-                <h4 className="text-base font-bold text-neutral-900">Tanvir</h4>
+                <h4 className="text-base font-bold text-neutral-900">Kawsar Ahmed</h4>
                 <p className="text-xs text-[#2563eb] font-semibold mt-0.5">Head of Operations</p>
-              </div>
-
-              {/* Member C */}
-              <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-blue-50 text-[#2563eb] flex items-center justify-center text-2xl font-bold shadow-inner mb-4 border-2 border-blue-200">
-                  A
-                </div>
-                <h4 className="text-base font-bold text-neutral-900">Arif</h4>
-                <p className="text-xs text-[#2563eb] font-semibold mt-0.5">Lead Engineer</p>
-              </div>
-
-              {/* Member D */}
-              <div className="flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-blue-50 text-[#2563eb] flex items-center justify-center text-2xl font-bold shadow-inner mb-4 border-2 border-blue-200">
-                  S
-                </div>
-                <h4 className="text-base font-bold text-neutral-900">Sabrina</h4>
-                <p className="text-xs text-[#2563eb] font-semibold mt-0.5">Customer Support Lead</p>
               </div>
             </div>
           </div>

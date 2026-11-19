@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { FiCheck } from "react-icons/fi";
 import { ESIM_PRODUCTS, ESimProduct } from "./ESimSection";
+import NavServiceBar from "../components/NavServiceBar";
 
 const DAYS_OPTIONS = [
   "1 day",
@@ -133,6 +134,7 @@ export default function ESimPayment({ productId }: ESimPaymentProps) {
   return (
     <div className="min-h-screen bg-white pt-24 pb-20">
       <div className="container-page space-y-6 max-w-6xl">
+        <NavServiceBar active="esim" />
         {/* ================= CARD 1: PRODUCT HEADER ================= */}
         <div className="bg-[#F5F5F5] rounded-3xl border border-neutral-200/90 shadow-sm overflow-hidden">
           {/* Banner Image */}

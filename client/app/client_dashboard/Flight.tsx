@@ -20,6 +20,7 @@ import { IoSparklesOutline } from "react-icons/io5";
 import { LuUser } from "react-icons/lu";
 import { MdClose } from "react-icons/md";
 import Navbar from "./components/Navbar";
+import NavServiceBar from "./components/NavServiceBar";
 import Footer from "./components/Footer";
 
 // Popular flight cities list for From/To popover
@@ -838,6 +839,7 @@ const FlightPageContent = () => {
 
       {/* Main Container */}
       <div className="pt-24 pb-16 container-page">
+        <NavServiceBar active="flights" />
         {/* ========================================================= */}
         {/* TOP SEARCH BAR WIDGET                                     */}
         {/* ========================================================= */}

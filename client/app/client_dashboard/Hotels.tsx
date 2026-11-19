@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import {
   FaSearch,
@@ -24,6 +24,7 @@ import { IoSparklesOutline } from "react-icons/io5";
 import { LuUser } from "react-icons/lu";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import NavServiceBar from "./components/NavServiceBar";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 export interface RoomBooking {
@@ -493,6 +494,9 @@ export default function Hotels({
       <Navbar />
 
       <main className="flex-1 pt-24 pb-12" ref={filterRef}>
+        <Suspense fallback={null}>
+          <NavServiceBar active="hotels" />
+        </Suspense>
         {/* ── Sticky Top Controls (Search Bar & Filters) ─────────── */}
         <div className="sticky top-20 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 shadow-sm z-30 py-3 mb-6">
           <div className="container-page flex flex-col gap-3">

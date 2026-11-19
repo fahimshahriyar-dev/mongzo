@@ -15,6 +15,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import Navbar from "../client_dashboard/components/Navbar";
 import Footer from "../client_dashboard/components/Footer";
+import NavServiceBar from "../client_dashboard/components/NavServiceBar";
 
 interface Traveler {
   id: string;
@@ -188,6 +189,7 @@ function TravelInsuranceContent() {
       <Navbar />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+        <NavServiceBar active="insurance" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* ================= LEFT COLUMN: FORMS ================= */}
           <div className="lg:col-span-8 space-y-6">

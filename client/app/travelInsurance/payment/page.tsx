@@ -12,6 +12,7 @@ import {
 } from "react-icons/si";
 import Navbar from "../../client_dashboard/components/Navbar";
 import Footer from "../../client_dashboard/components/Footer";
+import NavServiceBar from "../../client_dashboard/components/NavServiceBar";
 
 const TARIFF_INFO: Record<string, { name: string; coverage: string; basePrice: number }> = {
   econom: { name: "Econom", coverage: "35 000 USD", basePrice: 60 },
@@ -61,6 +62,7 @@ function TravelInsurancePaymentContent() {
       <Navbar />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+        <NavServiceBar active="insurance" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* ================= LEFT COLUMN ================= */}
           <div className="lg:col-span-8 space-y-6">
