@@ -84,20 +84,27 @@ export default function Suggestions() {
           {/* Destinations Grid (City name on top, Country name directly below it) */}
           <div className="pt-8">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-6 text-sm">
-              {currentList.map((item, idx) => (
-                <Link
-                  key={`${item.city}-${idx}`}
-                  href={`/hotels?destination=${encodeURIComponent(item.city)}`}
-                  className="group block"
-                >
-                  <p className="font-semibold text-neutral-900 group-hover:text-[#2563eb] transition-colors leading-tight">
-                    {item.city}
-                  </p>
-                  <p className="text-xs text-neutral-500 mt-1 leading-snug">
-                    {item.country}
-                  </p>
-                </Link>
-              ))}
+              {currentList.map((item, idx) => {
+                const targetHref =
+                  item.city.toLowerCase().includes("cox")
+                    ? `/travel-guides/city?destination=${encodeURIComponent(item.city)}&country=${encodeURIComponent(item.country)}`
+                    : `/hotels?destination=${encodeURIComponent(item.city)}`;
+
+                return (
+                  <Link
+                    key={`${item.city}-${idx}`}
+                    href={targetHref}
+                    className="group block"
+                  >
+                    <p className="font-semibold text-neutral-900 group-hover:text-[#2563eb] transition-colors leading-tight">
+                      {item.city}
+                    </p>
+                    <p className="text-xs text-neutral-500 mt-1 leading-snug">
+                      {item.country}
+                    </p>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>
