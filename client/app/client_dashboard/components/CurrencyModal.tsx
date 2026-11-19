@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaSearch } from "react-icons/fa";
 
 export interface CurrencyItem {
   name: string;
@@ -70,6 +70,7 @@ interface CurrencyModalProps {
 
 const CurrencyModal = ({ open, onClose, selected, onSelect }: CurrencyModalProps) => {
   const [mounted, setMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -78,6 +79,7 @@ const CurrencyModal = ({ open, onClose, selected, onSelect }: CurrencyModalProps
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
+      setSearchQuery("");
     } else {
       document.body.style.overflow = "unset";
     }
@@ -85,6 +87,18 @@ const CurrencyModal = ({ open, onClose, selected, onSelect }: CurrencyModalProps
       document.body.style.overflow = "unset";
     };
   }, [open]);
+
+  const filteredCurrencies = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return CURRENCIES;
+    return CURRENCIES.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.code.toLowerCase().includes(q) ||
+        c.country.toLowerCase().includes(q) ||
+        c.symbol.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
 
   if (!open || !mounted) return null;
 
@@ -99,50 +113,79 @@ const CurrencyModal = ({ open, onClose, selected, onSelect }: CurrencyModalProps
       {/* Modal Container */}
       <div className="relative w-full max-w-5xl bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-neutral-200/90 overflow-hidden flex flex-col max-h-[88vh] z-10 animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-neutral-100 flex items-center justify-between">
-          <div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-8 h-8 rounded-full text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 flex items-center justify-center transition-colors mb-2"
-            >
-              <FaTimes className="text-sm" />
-            </button>
-            <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">
-              Choose a currency
-            </h2>
+        <div className="px-6 sm:px-8 pt-6 pb-4 border-b border-neutral-100 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-8 h-8 rounded-full text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 flex items-center justify-center transition-colors mb-2"
+              >
+                <FaTimes className="text-sm" />
+              </button>
+              <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">
+                Choose a currency
+              </h2>
+            </div>
+          </div>
+
+          {/* Search bar */}
+          <div className="relative w-full max-w-md">
+            <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-sm" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by currency name, code (e.g. USD, BDT), or country..."
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-neutral-200/90 bg-neutral-50/80 focus:bg-white text-xs sm:text-sm text-neutral-900 placeholder-neutral-400 outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15 transition-all"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-xs"
+              >
+                <FaTimes />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Scrollable Grid of Currencies (5 Columns like image) */}
+        {/* Scrollable Grid of Currencies */}
         <div className="px-6 sm:px-8 py-6 overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
-            {CURRENCIES.map((cur) => {
-              const isSelected = selected.code === cur.code;
-              return (
-                <button
-                  key={cur.code}
-                  type="button"
-                  onClick={() => {
-                    onSelect(cur);
-                    onClose();
-                  }}
-                  className={`text-left p-3.5 rounded-2xl border transition-all duration-150 flex flex-col justify-between ${
-                    isSelected
-                      ? "border-blue-600 bg-blue-50/70 shadow-sm ring-1 ring-blue-600"
-                      : "border-neutral-200/80 hover:border-blue-400/80 hover:bg-neutral-50/80 hover:shadow-sm"
-                  }`}
-                >
-                  <span className="text-xs font-semibold text-neutral-900 leading-tight">
-                    {cur.name}
-                  </span>
-                  <span className="text-[11px] text-neutral-500 font-medium mt-1">
-                    {cur.code} - {cur.symbol}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          {filteredCurrencies.length === 0 ? (
+            <div className="py-12 text-center text-neutral-400 text-sm">
+              No currencies found matching &quot;{searchQuery}&quot;
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+              {filteredCurrencies.map((cur) => {
+                const isSelected = selected.code === cur.code;
+                return (
+                  <button
+                    key={cur.code}
+                    type="button"
+                    onClick={() => {
+                      onSelect(cur);
+                      onClose();
+                    }}
+                    className={`text-left p-3.5 rounded-2xl border transition-all duration-150 flex flex-col justify-between ${
+                      isSelected
+                        ? "border-[#2563eb] bg-blue-50/70 shadow-sm ring-1 ring-[#2563eb]"
+                        : "border-neutral-200/80 hover:border-[#2563eb]/60 hover:bg-neutral-50/80 hover:shadow-sm"
+                    }`}
+                  >
+                    <span className="text-xs font-semibold text-neutral-900 leading-tight">
+                      {cur.name}
+                    </span>
+                    <span className="text-[11px] text-neutral-500 font-medium mt-1">
+                      {cur.code} - {cur.symbol}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>,
