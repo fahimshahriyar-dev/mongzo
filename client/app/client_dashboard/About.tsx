@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { FiArrowRight, FiCheckCircle } from "react-icons/fi";
@@ -12,78 +11,98 @@ import {
   FaBuilding,
   FaShieldAlt,
   FaHeadset,
-  FaRegCreditCard,
   FaTags,
+  FaArrowRight,
 } from "react-icons/fa";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-[#FDFCFB] text-slate-800 font-Poppins flex flex-col selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen bg-white text-mongzo-dark font-Poppins flex flex-col selection:bg-mongzo-green/20 selection:text-mongzo-dark">
       <Navbar />
 
       <main className="flex-1">
         {/* ========================================================= */}
-        {/* 1. HERO SECTION (Dark Blue / Deep Teal background) */}
+        {/* 1. HERO SECTION (Mongzo Dark Theme with Neon Green Glow)  */}
         {/* ========================================================= */}
-        <section className="relative bg-[#0d2a33] text-white overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
-          {/* Subtle radial ambient glow */}
-          <div className="pointer-events-none absolute -top-40 right-0 w-[550px] h-[550px] bg-sky-500/10 rounded-full blur-3xl" />
-          <div className="pointer-events-none absolute bottom-0 left-0 w-[450px] h-[450px] bg-emerald-500/10 rounded-full blur-3xl" />
+        <section className="relative bg-mongzo-dark text-white overflow-hidden pt-32 pb-20 md:pt-40 md:pb-28">
+          {/* Ambient Brand Glows */}
+          <div className="pointer-events-none absolute -top-32 right-[-10%] w-[550px] h-[550px] bg-mongzo-green/10 rounded-full blur-[130px]" />
+          <div className="pointer-events-none absolute bottom-[-15%] left-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[130px]" />
 
-          <div className="container-page relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+          <div className="container-page relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Content */}
             <div className="lg:col-span-6 space-y-6">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-[1.12]">
-                Every trip you <br className="hidden sm:block" />
-                take, booked in <br className="hidden sm:block" />
-                one place.
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                <span className="w-2 h-2 rounded-full bg-mongzo-green animate-pulse" />
+                <span className="text-xs uppercase font-semibold tracking-wider text-slate-300">
+                  About Mongzo
+                </span>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-bold text-white tracking-tight leading-[1.12]">
+                Every trip you take, <br className="hidden sm:block" />
+                booked in{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-mongzo-green to-emerald-400">
+                  one place.
+                </span>
               </h1>
 
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-lg">
+              <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-lg font-light">
                 Mongzo brings hotels, apartments, flights and cars together,
-                with support from people who know Bangladesh and the places you want to go.
+                with 24/7 dedicated support from travel experts who know Bangladesh
+                and the destinations you dream of exploring.
               </p>
 
-              <div className="pt-2">
+              <div className="pt-2 flex flex-wrap items-center gap-4">
                 <Link
                   href="/hotels"
-                  className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-[#F4B436] hover:bg-[#e2a42b] active:scale-[0.98] text-slate-950 font-semibold text-sm transition-all shadow-lg shadow-amber-500/20"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-mongzo-green hover:bg-mongzo-greenDark active:scale-[0.98] text-mongzo-dark font-bold text-sm transition-all shadow-lg shadow-mongzo-green/25"
                 >
-                  Find a stay
+                  <span>Find a stay</span>
+                  <FaArrowRight size={13} />
+                </Link>
+                <Link
+                  href="/flights"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-medium text-sm transition-all backdrop-blur-sm"
+                >
+                  Explore flights
                 </Link>
               </div>
             </div>
 
-            {/* Right Arch Image with Travel Pin Dot */}
+            {/* Right Arch Image with Travel Journey Curve */}
             <div className="lg:col-span-6 flex justify-center lg:justify-end">
               <div className="relative w-full max-w-[480px]">
+                {/* Outer Glow Halo */}
+                <div className="absolute -inset-1 rounded-t-[204px] rounded-b-3xl bg-gradient-to-b from-mongzo-green/30 to-transparent blur-md -z-10" />
+
                 {/* Arch-shaped container */}
-                <div className="relative aspect-[4/3.8] rounded-t-[200px] rounded-b-2xl overflow-hidden border border-white/10 shadow-2xl bg-slate-900">
+                <div className="relative aspect-[4/3.9] rounded-t-[200px] rounded-b-3xl overflow-hidden border border-white/15 shadow-2xl bg-neutral-900">
                   <img
                     src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80"
-                    alt="Luxury Resort and Pool"
-                    className="w-full h-full object-cover"
+                    alt="Mongzo Luxury Resort and Pool"
+                    className="w-full h-full object-cover scale-105 hover:scale-100 transition-transform duration-700"
                   />
-                  {/* Subtle lighting overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                  {/* Vignette Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-mongzo-dark/80 via-transparent to-black/20 pointer-events-none" />
 
-                  {/* Curving dashed journey path + amber locator dot */}
+                  {/* Curving dashed journey path + Neon Green locator pin */}
                   <svg
                     className="absolute inset-0 w-full h-full pointer-events-none"
                     viewBox="0 0 400 380"
                     fill="none"
                   >
                     <path
-                      d="M 120 300 Q 240 180 300 100"
-                      stroke="#F4B436"
+                      d="M 110 310 Q 230 190 300 95"
+                      stroke="#00ED64"
                       strokeWidth="2.5"
                       strokeDasharray="6 6"
                       strokeLinecap="round"
-                      opacity="0.85"
+                      opacity="0.9"
                     />
-                    <circle cx="300" cy="100" r="7" fill="#F4B436" />
-                    <circle cx="300" cy="100" r="13" stroke="#F4B436" strokeWidth="2" opacity="0.4" />
-                    <circle cx="120" cy="300" r="5" fill="#F4B436" />
+                    <circle cx="300" cy="95" r="7" fill="#00ED64" />
+                    <circle cx="300" cy="95" r="14" stroke="#00ED64" strokeWidth="2" opacity="0.35" className="animate-ping" />
+                    <circle cx="110" cy="310" r="5" fill="#00ED64" />
                   </svg>
                 </div>
               </div>
@@ -92,149 +111,167 @@ export default function About() {
         </section>
 
         {/* ========================================================= */}
-        {/* 2. WHY WE STARTED MONGZO */}
+        {/* 2. WHY WE STARTED MONGZO (Clean White Story Section)       */}
         {/* ========================================================= */}
-        <section className="py-16 md:py-24 bg-white border-b border-slate-100">
-          <div className="container-page grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14">
+        <section className="py-20 md:py-28 bg-white border-b border-neutral-100">
+          <div className="container-page grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
             {/* Left Title & Hook */}
             <div className="lg:col-span-5">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+              <span className="text-xs uppercase font-bold text-mongzo-greenDark tracking-wider block mb-2">
+                Our Mission
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-mongzo-dark tracking-tight leading-tight">
                 Why we started Mongzo
               </h2>
 
-              <div className="mt-5 pl-4 border-l-4 border-[#F4B436]">
-                <p className="text-base sm:text-lg font-medium text-slate-700 leading-snug">
+              <div className="mt-6 pl-5 border-l-4 border-mongzo-green bg-mongzo-mist py-3.5 pr-4 rounded-r-2xl">
+                <p className="text-base sm:text-lg font-medium text-mongzo-dark leading-snug">
                   Planning a trip should not need ten tabs and three phone calls.
                 </p>
               </div>
             </div>
 
             {/* Right Story Paragraphs */}
-            <div className="lg:col-span-7 space-y-5 text-slate-600 text-sm sm:text-base leading-relaxed">
+            <div className="lg:col-span-7 space-y-5 text-neutral-600 text-sm sm:text-base leading-relaxed">
               <p>
-                Travelers in Bangladesh have long had to juggle disparate websites to compare
-                flights, message multiple hotel properties directly, check car rentals, and still
-                make phone calls just to verify a reservation.
+                Travelers in Bangladesh and beyond have long had to navigate fragmented portals
+                just to compare domestic flights, negotiate with hotels via individual WhatsApp
+                chats, find safe airport transfers, and then still make calls to verify bookings.
               </p>
               <p>
-                We built Mongzo to unify the entire journey under one clean, transparent platform.
-                Whether you need a quick domestic flight, a serene retreat in Sylhet or Cox&apos;s
-                Bazar, or a seamless international itinerary, Mongzo provides verified properties,
-                upfront rates without surprise fees, and local human customer support ready to assist
-                at every step.
+                We built Mongzo to unify every component of your travel into one seamless,
+                transparent ecosystem. Whether you are reserving a flight to Cox&apos;s Bazar,
+                booking a weekend villa in Sylhet, or planning a multi-city global itinerary,
+                Mongzo offers verified properties, clear upfront pricing with zero hidden fees,
+                and round-the-clock local assistance.
               </p>
             </div>
           </div>
         </section>
 
         {/* ========================================================= */}
-        {/* 3. WHAT YOU CAN BOOK WITH US */}
+        {/* 3. WHAT YOU CAN BOOK WITH US (Cards & Table)               */}
         {/* ========================================================= */}
-        <section className="py-16 md:py-20 bg-[#F4F7F9]">
+        <section className="py-20 bg-mongzo-mist">
           <div className="container-page">
-            <div className="mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            <div className="max-w-2xl mb-12">
+              <span className="text-xs uppercase font-bold text-mongzo-greenDark tracking-wider block mb-1">
+                Ecosystem
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-mongzo-dark tracking-tight">
                 What you can book with us
               </h2>
-              <p className="text-sm text-slate-500 mt-1 font-medium">
-                Four things, one account, one support team.
+              <p className="text-sm text-neutral-500 mt-2 font-medium">
+                Four essentials. One account. One dedicated support team.
               </p>
             </div>
 
             {/* List Table / Rows */}
-            <div className="divide-y divide-slate-200/80 border-y border-slate-200/80 bg-white rounded-2xl shadow-sm px-6 sm:px-8">
+            <div className="divide-y divide-neutral-200/80 border border-neutral-200/80 bg-white rounded-3xl shadow-sm overflow-hidden px-6 sm:px-10">
               {/* Hotels */}
-              <div className="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="md:w-1/4 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                    <FaHotel size={16} />
+              <div className="py-7 flex flex-col md:flex-row md:items-center justify-between gap-4 group">
+                <div className="md:w-1/4 flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-2xl bg-mongzo-green/10 text-mongzo-greenDark flex items-center justify-center transition-colors group-hover:bg-mongzo-green group-hover:text-mongzo-dark">
+                    <FaHotel size={18} />
                   </div>
-                  <span className="text-base font-bold text-slate-900">Hotels</span>
+                  <div>
+                    <span className="text-base font-bold text-mongzo-dark block">Hotels</span>
+                    <span className="text-xs text-neutral-400">10,000+ stays</span>
+                  </div>
                 </div>
                 <div className="md:w-1/2">
-                  <p className="text-sm text-slate-600">
-                    Resorts, boutique stays and city hotels with free cancellation on many rooms.
+                  <p className="text-sm text-neutral-600">
+                    Resorts, boutique stays and city hotels with free cancellation on select rooms.
                   </p>
                 </div>
                 <div className="md:w-1/4 md:text-right">
                   <Link
                     href="/hotels"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0d2a33] hover:text-[#00B84E] transition-colors"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-mongzo-dark hover:text-mongzo-greenDark transition-colors"
                   >
                     <span>Browse hotels</span>
-                    <FiArrowRight size={14} />
+                    <FiArrowRight size={15} />
                   </Link>
                 </div>
               </div>
 
               {/* Apartments */}
-              <div className="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="md:w-1/4 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
-                    <FaBuilding size={16} />
+              <div className="py-7 flex flex-col md:flex-row md:items-center justify-between gap-4 group">
+                <div className="md:w-1/4 flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center transition-colors group-hover:bg-sky-500 group-hover:text-white">
+                    <FaBuilding size={18} />
                   </div>
-                  <span className="text-base font-bold text-slate-900">Apartments</span>
+                  <div>
+                    <span className="text-base font-bold text-mongzo-dark block">Apartments</span>
+                    <span className="text-xs text-neutral-400">Long & short stays</span>
+                  </div>
                 </div>
                 <div className="md:w-1/2">
-                  <p className="text-sm text-slate-600">
-                    Furnished places with a kitchen, for longer trips or family stays.
+                  <p className="text-sm text-neutral-600">
+                    Fully furnished spaces with kitchens, designed for longer trips or family stays.
                   </p>
                 </div>
                 <div className="md:w-1/4 md:text-right">
                   <Link
                     href="/hotels"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0d2a33] hover:text-[#00B84E] transition-colors"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-mongzo-dark hover:text-mongzo-greenDark transition-colors"
                   >
                     <span>Browse apartments</span>
-                    <FiArrowRight size={14} />
+                    <FiArrowRight size={15} />
                   </Link>
                 </div>
               </div>
 
               {/* Flights */}
-              <div className="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="md:w-1/4 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                    <FaPlane size={16} />
+              <div className="py-7 flex flex-col md:flex-row md:items-center justify-between gap-4 group">
+                <div className="md:w-1/4 flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center transition-colors group-hover:bg-amber-500 group-hover:text-white">
+                    <FaPlane size={18} />
                   </div>
-                  <span className="text-base font-bold text-slate-900">Flights</span>
+                  <div>
+                    <span className="text-base font-bold text-mongzo-dark block">Flights</span>
+                    <span className="text-xs text-neutral-400">Domestic & global</span>
+                  </div>
                 </div>
                 <div className="md:w-1/2">
-                  <p className="text-sm text-slate-600">
-                    Compare fares across airlines for domestic and international routes.
+                  <p className="text-sm text-neutral-600">
+                    Compare airfares in real-time across top airlines for domestic and international routes.
                   </p>
                 </div>
                 <div className="md:w-1/4 md:text-right">
                   <Link
                     href="/flights"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0d2a33] hover:text-[#00B84E] transition-colors"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-mongzo-dark hover:text-mongzo-greenDark transition-colors"
                   >
                     <span>Search flights</span>
-                    <FiArrowRight size={14} />
+                    <FiArrowRight size={15} />
                   </Link>
                 </div>
               </div>
 
               {/* Cars */}
-              <div className="py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="md:w-1/4 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                    <FaCar size={16} />
+              <div className="py-7 flex flex-col md:flex-row md:items-center justify-between gap-4 group">
+                <div className="md:w-1/4 flex items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center transition-colors group-hover:bg-indigo-500 group-hover:text-white">
+                    <FaCar size={18} />
                   </div>
-                  <span className="text-base font-bold text-slate-900">Cars</span>
+                  <div>
+                    <span className="text-base font-bold text-mongzo-dark block">Cars</span>
+                    <span className="text-xs text-neutral-400">Airport & city rentals</span>
+                  </div>
                 </div>
                 <div className="md:w-1/2">
-                  <p className="text-sm text-slate-600">
-                    Cars with or without a driver, picked up where you land.
+                  <p className="text-sm text-neutral-600">
+                    Vehicles with or without a verified driver, ready and waiting where you land.
                   </p>
                 </div>
                 <div className="md:w-1/4 md:text-right">
                   <Link
                     href="/cars"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0d2a33] hover:text-[#00B84E] transition-colors"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-mongzo-dark hover:text-mongzo-greenDark transition-colors"
                   >
                     <span>Find a car</span>
-                    <FiArrowRight size={14} />
+                    <FiArrowRight size={15} />
                   </Link>
                 </div>
               </div>
@@ -243,12 +280,12 @@ export default function About() {
         </section>
 
         {/* ========================================================= */}
-        {/* 4. STATS BANNER (Dark Strip) */}
+        {/* 4. STATS METRICS (Mongzo Dark Accent Strip)                */}
         {/* ========================================================= */}
-        <section className="bg-[#0d2a33] text-white py-12 md:py-14 border-t border-slate-800">
+        <section className="bg-mongzo-dark text-white py-14 md:py-16 border-t border-neutral-800">
           <div className="container-page grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left">
-            <div>
-              <p className="text-3xl sm:text-4xl font-bold text-[#F4B436] tracking-tight">
+            <div className="border-l-2 border-mongzo-green/60 pl-4 md:pl-6">
+              <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-mongzo-green tracking-tight font-Poppins">
                 100K+
               </p>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium">
@@ -256,86 +293,95 @@ export default function About() {
               </p>
             </div>
 
-            <div>
-              <p className="text-3xl sm:text-4xl font-bold text-[#F4B436] tracking-tight">
+            <div className="border-l-2 border-mongzo-green/60 pl-4 md:pl-6">
+              <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-mongzo-green tracking-tight font-Poppins">
                 500+
               </p>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium">
-                Destinations
+                Curated destinations
               </p>
             </div>
 
-            <div>
-              <p className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+            <div className="border-l-2 border-white/40 pl-4 md:pl-6">
+              <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight font-Poppins">
                 24/7
               </p>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium">
-                Support, in Bangla and English
+                Support in Bangla & English
               </p>
             </div>
 
-            <div>
-              <p className="text-3xl sm:text-4xl font-bold text-[#F4B436] tracking-tight">
-                4.9
+            <div className="border-l-2 border-mongzo-green/60 pl-4 md:pl-6">
+              <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-mongzo-green tracking-tight font-Poppins">
+                4.9/5
               </p>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium">
-                Average guest rating
+                Average traveler rating
               </p>
             </div>
           </div>
         </section>
 
         {/* ========================================================= */}
-        {/* 5. WHAT YOU GET WHEN YOU BOOK WITH MONGZO */}
+        {/* 5. WHAT YOU GET WHEN YOU BOOK WITH MONGZO                  */}
         {/* ========================================================= */}
-        <section className="py-16 md:py-24 bg-white">
+        <section className="py-20 md:py-28 bg-white">
           <div className="container-page">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 tracking-tight mb-12">
-              What you get when you book with Mongzo
-            </h2>
+            <div className="max-w-2xl mb-14">
+              <span className="text-xs uppercase font-bold text-mongzo-greenDark tracking-wider block mb-1">
+                Why Choose Us
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-mongzo-dark tracking-tight">
+                What you get when you book with Mongzo
+              </h2>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
               {/* Feature 1 */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2.5">
-                  <FaTags className="text-[#00B84E]" />
-                  <h3 className="text-lg font-bold text-slate-900">Clear prices</h3>
+              <div className="p-8 rounded-3xl bg-[#f5f5f5] border border-neutral-200/70 hover:border-mongzo-green/40 transition-colors">
+                <div className="w-12 h-12 rounded-2xl bg-white text-mongzo-greenDark flex items-center justify-center shadow-sm mb-5">
+                  <FaTags size={20} />
                 </div>
-                <p className="text-sm text-slate-600 leading-relaxed pl-6">
-                  The price you see includes the fees we know about. Deals show the original price next to the new one.
+                <h3 className="text-lg font-bold text-mongzo-dark">Clear & Transparent Prices</h3>
+                <p className="text-sm text-neutral-600 mt-2 leading-relaxed">
+                  The price you see is the price you pay. All taxes and booking fees are disclosed
+                  upfront, and discounted deals show clear price comparisons.
                 </p>
               </div>
 
               {/* Feature 2 */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2.5">
-                  <FiCheckCircle className="text-[#00B84E]" />
-                  <h3 className="text-lg font-bold text-slate-900">Free cancellation on many stays</h3>
+              <div className="p-8 rounded-3xl bg-[#f5f5f5] border border-neutral-200/70 hover:border-mongzo-green/40 transition-colors">
+                <div className="w-12 h-12 rounded-2xl bg-white text-mongzo-greenDark flex items-center justify-center shadow-sm mb-5">
+                  <FiCheckCircle size={22} />
                 </div>
-                <p className="text-sm text-slate-600 leading-relaxed pl-6">
-                  Look for the label on each room. Changing plans should not cost you.
+                <h3 className="text-lg font-bold text-mongzo-dark">Free Cancellation Options</h3>
+                <p className="text-sm text-neutral-600 mt-2 leading-relaxed">
+                  Look for the free cancellation badge on hotels and cars. Changing plans or adjusting
+                  dates shouldn&apos;t penalize you.
                 </p>
               </div>
 
               {/* Feature 3 */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2.5">
-                  <FaHeadset className="text-[#00B84E]" />
-                  <h3 className="text-lg font-bold text-slate-900">Support in your language</h3>
+              <div className="p-8 rounded-3xl bg-[#f5f5f5] border border-neutral-200/70 hover:border-mongzo-green/40 transition-colors">
+                <div className="w-12 h-12 rounded-2xl bg-white text-mongzo-greenDark flex items-center justify-center shadow-sm mb-5">
+                  <FaHeadset size={20} />
                 </div>
-                <p className="text-sm text-slate-600 leading-relaxed pl-6">
-                  Reach us in Bangla or English at any hour, before and during your trip.
+                <h3 className="text-lg font-bold text-mongzo-dark">Support in Your Language</h3>
+                <p className="text-sm text-neutral-600 mt-2 leading-relaxed">
+                  Connect with real human agents in Bangla or English via live chat, email, or direct
+                  phone call at any point before, during, or after your trip.
                 </p>
               </div>
 
               {/* Feature 4 */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2.5">
-                  <FaShieldAlt className="text-[#00B84E]" />
-                  <h3 className="text-lg font-bold text-slate-900">Secure payment</h3>
+              <div className="p-8 rounded-3xl bg-[#f5f5f5] border border-neutral-200/70 hover:border-mongzo-green/40 transition-colors">
+                <div className="w-12 h-12 rounded-2xl bg-white text-mongzo-greenDark flex items-center justify-center shadow-sm mb-5">
+                  <FaShieldAlt size={20} />
                 </div>
-                <p className="text-sm text-slate-600 leading-relaxed pl-6">
-                  Pay in BDT, USD or EUR through trusted payment partners including bKash, Nagad, Visa and Mastercard.
+                <h3 className="text-lg font-bold text-mongzo-dark">Trusted & Secure Payments</h3>
+                <p className="text-sm text-neutral-600 mt-2 leading-relaxed">
+                  Pay with confidence in BDT, USD or EUR using bKash, Nagad, Visa, Mastercard, or
+                  international debit/credit cards with bank-grade encryption.
                 </p>
               </div>
             </div>
@@ -343,98 +389,135 @@ export default function About() {
         </section>
 
         {/* ========================================================= */}
-        {/* 6. THE PEOPLE BEHIND MONGZO */}
+        {/* 6. THE PEOPLE BEHIND MONGZO                                */}
         {/* ========================================================= */}
-        <section className="py-16 md:py-24 bg-[#F2F7FA] border-t border-slate-100">
+        <section className="py-20 md:py-28 bg-mongzo-mist border-t border-neutral-200/70">
           <div className="container-page">
-            <div className="mb-12">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <span className="text-xs uppercase font-bold text-mongzo-greenDark tracking-wider block mb-1">
+                Our Team
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-mongzo-dark tracking-tight">
                 The people behind Mongzo
               </h2>
-              <p className="text-sm text-slate-500 mt-2 font-medium">
-                A dedicated team that answers your messages.
+              <p className="text-sm text-neutral-500 mt-2 font-medium">
+                A dedicated, hands-on team committed to crafting your best journey.
               </p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {/* Member A */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-[#0d2a33] text-[#F4B436] flex items-center justify-center text-2xl font-bold shadow-lg shadow-slate-900/10 mb-4 transition-transform hover:scale-105">
+              <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-mongzo-dark text-mongzo-green flex items-center justify-center text-2xl font-bold shadow-md shadow-mongzo-dark/15 mb-4 border-2 border-mongzo-green/30">
                   F
                 </div>
-                <h4 className="text-base font-bold text-slate-900">Fahim</h4>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">Founder & CEO</p>
+                <h4 className="text-base font-bold text-mongzo-dark">Fahim</h4>
+                <p className="text-xs text-mongzo-greenDark font-semibold mt-0.5">Founder & CEO</p>
               </div>
 
               {/* Member B */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-[#0d2a33] text-[#F4B436] flex items-center justify-center text-2xl font-bold shadow-lg shadow-slate-900/10 mb-4 transition-transform hover:scale-105">
+              <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-mongzo-dark text-mongzo-green flex items-center justify-center text-2xl font-bold shadow-md shadow-mongzo-dark/15 mb-4 border-2 border-mongzo-green/30">
                   T
                 </div>
-                <h4 className="text-base font-bold text-slate-900">Tanvir</h4>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">Head of Operations</p>
+                <h4 className="text-base font-bold text-mongzo-dark">Tanvir</h4>
+                <p className="text-xs text-mongzo-greenDark font-semibold mt-0.5">Head of Operations</p>
               </div>
 
               {/* Member C */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-[#0d2a33] text-[#F4B436] flex items-center justify-center text-2xl font-bold shadow-lg shadow-slate-900/10 mb-4 transition-transform hover:scale-105">
+              <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-mongzo-dark text-mongzo-green flex items-center justify-center text-2xl font-bold shadow-md shadow-mongzo-dark/15 mb-4 border-2 border-mongzo-green/30">
                   A
                 </div>
-                <h4 className="text-base font-bold text-slate-900">Arif</h4>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">Lead Engineer</p>
+                <h4 className="text-base font-bold text-mongzo-dark">Arif</h4>
+                <p className="text-xs text-mongzo-greenDark font-semibold mt-0.5">Lead Engineer</p>
               </div>
 
               {/* Member D */}
-              <div className="flex flex-col items-center text-center">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-[#0d2a33] text-[#F4B436] flex items-center justify-center text-2xl font-bold shadow-lg shadow-slate-900/10 mb-4 transition-transform hover:scale-105">
+              <div className="flex flex-col items-center text-center p-6 rounded-3xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-mongzo-dark text-mongzo-green flex items-center justify-center text-2xl font-bold shadow-md shadow-mongzo-dark/15 mb-4 border-2 border-mongzo-green/30">
                   S
                 </div>
-                <h4 className="text-base font-bold text-slate-900">Sabrina</h4>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">Customer Support Lead</p>
+                <h4 className="text-base font-bold text-mongzo-dark">Sabrina</h4>
+                <p className="text-xs text-mongzo-greenDark font-semibold mt-0.5">Customer Support Lead</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* ========================================================= */}
-        {/* 7. AIRLINES, HOTELS AND PAYMENT PARTNERS */}
+        {/* 7. AIRLINES, HOTELS AND PAYMENT PARTNERS                   */}
         {/* ========================================================= */}
-        <section className="py-14 bg-white border-t border-slate-100">
+        <section className="py-16 bg-white border-t border-neutral-200/70">
           <div className="container-page">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-6">
+            <span className="text-xs uppercase font-bold text-neutral-400 tracking-wider block mb-2 text-center md:text-left">
+              Partners & Integrations
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold text-mongzo-dark tracking-tight mb-8 text-center md:text-left">
               Airlines, hotels and payment partners
             </h2>
 
-            <div className="flex flex-wrap items-center gap-4 sm:gap-8 text-sm text-slate-500 font-medium">
-              <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">Biman Bangladesh</span>
-              <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">US-Bangla</span>
-              <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">Emirates</span>
-              <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">Qatar Airways</span>
-              <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">bKash</span>
-              <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">Nagad</span>
-              <span className="px-3.5 py-1.5 rounded-lg bg-slate-100 text-slate-700">Visa / Mastercard</span>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 text-xs sm:text-sm text-neutral-700 font-medium">
+              <span className="px-4 py-2.5 rounded-xl bg-mongzo-mist border border-neutral-200/80 hover:border-mongzo-green/50 transition-colors">
+                ✈️ Biman Bangladesh
+              </span>
+              <span className="px-4 py-2.5 rounded-xl bg-mongzo-mist border border-neutral-200/80 hover:border-mongzo-green/50 transition-colors">
+                ✈️ US-Bangla Airlines
+              </span>
+              <span className="px-4 py-2.5 rounded-xl bg-mongzo-mist border border-neutral-200/80 hover:border-mongzo-green/50 transition-colors">
+                ✈️ Emirates
+              </span>
+              <span className="px-4 py-2.5 rounded-xl bg-mongzo-mist border border-neutral-200/80 hover:border-mongzo-green/50 transition-colors">
+                ✈️ Qatar Airways
+              </span>
+              <span className="px-4 py-2.5 rounded-xl bg-mongzo-mist border border-neutral-200/80 hover:border-mongzo-green/50 transition-colors">
+                💳 bKash
+              </span>
+              <span className="px-4 py-2.5 rounded-xl bg-mongzo-mist border border-neutral-200/80 hover:border-mongzo-green/50 transition-colors">
+                💳 Nagad
+              </span>
+              <span className="px-4 py-2.5 rounded-xl bg-mongzo-mist border border-neutral-200/80 hover:border-mongzo-green/50 transition-colors">
+                💳 Visa & Mastercard
+              </span>
             </div>
           </div>
         </section>
 
         {/* ========================================================= */}
-        {/* 8. BOTTOM CTA BANNER (Amber Yellow Theme) */}
+        {/* 8. BOTTOM CTA BANNER (Mongzo Signature Green / Dark)       */}
         {/* ========================================================= */}
-        <section className="bg-[#F4B436] py-14 md:py-16">
-          <div className="container-page flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <section className="relative bg-mongzo-dark text-white py-16 md:py-20 overflow-hidden">
+          {/* Subtle green ambient accent */}
+          <div className="pointer-events-none absolute -bottom-20 right-0 w-[400px] h-[400px] bg-mongzo-green/15 rounded-full blur-[100px]" />
+
+          <div className="container-page relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-950 tracking-tight">
-                Ready to plan your next <br className="hidden sm:block" />
-                trip?
+              <span className="inline-block px-3 py-1 rounded-full bg-mongzo-green/10 text-mongzo-green text-xs font-semibold uppercase tracking-wider mb-3 border border-mongzo-green/20">
+                Start Exploring
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight">
+                Ready to plan your next trip?
               </h2>
+              <p className="text-slate-300 text-sm mt-2 font-light">
+                Find the best deals on flights, stays, cars and insurance worldwide.
+              </p>
             </div>
 
-            <Link
-              href="/hotels"
-              className="inline-flex items-center justify-center px-7 py-3.5 rounded-xl bg-[#0d2a33] hover:bg-[#081e25] text-white font-semibold text-sm transition-all shadow-md active:scale-95"
-            >
-              Find a stay
-            </Link>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href="/hotels"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-mongzo-green hover:bg-mongzo-greenDark active:scale-95 text-mongzo-dark font-bold text-sm transition-all shadow-lg shadow-mongzo-green/30"
+              >
+                <span>Find a stay</span>
+                <FaArrowRight size={13} />
+              </Link>
+              <Link
+                href="/flights"
+                className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium text-sm transition-all"
+              >
+                Book Flights
+              </Link>
+            </div>
           </div>
         </section>
       </main>
