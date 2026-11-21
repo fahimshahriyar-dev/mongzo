@@ -40,9 +40,9 @@ const Hero = () => {
   // Hide the page scrollbar on the home page only.
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.add("no-scrollbar");
+    root.classList.add("no-scrollbar", "home-hero-page");
     return () => {
-      root.classList.remove("no-scrollbar");
+      root.classList.remove("no-scrollbar", "home-hero-page");
     };
   }, []);
 
@@ -103,6 +103,8 @@ const Hero = () => {
     });
 
     let currentFrame = 0;
+    const mobileViewport = window.matchMedia("(max-width: 767px)");
+    let mobileScrollFrame = 0;
 
     const draw = (index: number) => {
       const image = frames[index];
@@ -136,11 +138,39 @@ const Hero = () => {
       );
     };
 
+    const updateMobileFrame = () => {
+      mobileScrollFrame = 0;
+      if (!mobileViewport.matches) return;
+
+      const scrollDistance = section.offsetHeight - window.innerHeight;
+      const progress =
+        scrollDistance > 0
+          ? Math.max(
+              0,
+              Math.min(
+                1,
+                -section.getBoundingClientRect().top / scrollDistance,
+              ),
+            )
+          : 0;
+      const frame = Math.round(progress * (FRAME_COUNT - 1));
+      if (frame !== currentFrame) {
+        currentFrame = frame;
+        draw(frame);
+      }
+    };
+
+    const handleMobileScroll = () => {
+      if (!mobileViewport.matches || mobileScrollFrame) return;
+      mobileScrollFrame = window.requestAnimationFrame(updateMobileFrame);
+    };
+
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
       canvas.width = Math.round(window.innerWidth * dpr);
       canvas.height = Math.round(window.innerHeight * dpr);
       draw(currentFrame);
+      handleMobileScroll();
     };
 
     frames.forEach((image, index) => {
@@ -155,6 +185,7 @@ const Hero = () => {
 
     resize();
     window.addEventListener("resize", resize);
+    window.addEventListener("scroll", handleMobileScroll, { passive: true });
 
     const playhead = { frame: 0 };
 
@@ -179,6 +210,7 @@ const Hero = () => {
         ease: "none",
         duration: 1,
         onUpdate: () => {
+          if (mobileViewport.matches) return;
           const frame = Math.round(playhead.frame);
           if (frame !== currentFrame) {
             currentFrame = frame;
@@ -302,7 +334,9 @@ const Hero = () => {
       introTl.kill();
       masterTl.scrollTrigger?.kill();
       masterTl.kill();
+      window.cancelAnimationFrame(mobileScrollFrame);
       window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", handleMobileScroll);
     };
   }, []);
 
@@ -310,7 +344,7 @@ const Hero = () => {
     <section ref={sectionRef} className="relative h-[500vh] bg-[#1a1410]">
       {/* Sticky container that stays in viewport while scrolling the 500vh track.
           After the last frame, Home.tsx slides the Booking panel up over it. */}
-      <div className="sticky top-0 z-0 h-screen w-full overflow-hidden bg-[#18130f] select-none">
+      <div className="sticky top-0 z-0 h-dvh w-full overflow-hidden bg-[#18130f] select-none">
         {/* Background Canvas for Airplane Window Scroll Animation */}
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full object-cover" />
 
@@ -323,9 +357,9 @@ const Hero = () => {
           {/* Top-Left Title: "book your dream flight" */}
           <div
             ref={topLeftRef}
-            className="absolute top-[18%] md:top-[19%] left-6 md:left-12 lg:left-16 xl:left-20 max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-xl origin-top-left will-change-transform"
+            className="absolute top-[18%] left-6 md:top-[19%] md:left-12 lg:left-16 xl:left-20 max-w-[calc(100vw-3rem)] md:max-w-lg lg:max-w-xl origin-top-left will-change-transform"
           >
-            <h1 className="font-Poppins text-[36px] sm:text-[48px] md:text-[58px] lg:text-[70px] xl:text-[78px] font-bold text-white leading-[1.05] tracking-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+            <h1 className="font-Poppins text-[clamp(2.5rem,11vw,4rem)] md:text-[58px] lg:text-[70px] xl:text-[78px] font-bold text-white leading-[1.05] tracking-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
               <RevealLines lines={["Book your", "dream flight"]} />
             </h1>
           </div>
@@ -333,9 +367,9 @@ const Hero = () => {
           {/* Lower-Right Title: "All bookings, one place" */}
           <div
             ref={topRightRef}
-            className="absolute top-[57%] md:top-[58%] right-6 md:right-12 lg:right-16 xl:right-20 text-right max-w-[280px] sm:max-w-md md:max-w-lg lg:max-w-xl origin-bottom-right will-change-transform"
+            className="absolute top-[51%] left-6 right-6 text-left max-w-none md:top-[58%] md:left-auto md:right-12 lg:right-16 xl:right-20 md:text-right md:max-w-lg lg:max-w-xl origin-bottom-right will-change-transform"
           >
-            <h2 className="font-Poppins text-[36px] sm:text-[48px] md:text-[58px] lg:text-[70px] xl:text-[78px] font-bold text-white leading-[1.05] tracking-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
+            <h2 className="font-Poppins text-[clamp(2.5rem,11vw,4rem)] md:text-[58px] lg:text-[70px] xl:text-[78px] font-bold text-white leading-[1.05] tracking-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]">
               <RevealLines lines={["All bookings,", "one place"]} />
             </h2>
           </div>
@@ -343,13 +377,15 @@ const Hero = () => {
           {/* Bottom-Left: "Your freedom to enjoy life" */}
           <div
             ref={bottomLeftRef}
-            className="absolute bottom-8 sm:bottom-10 md:bottom-12 left-6 md:left-12 lg:left-16 xl:left-20 max-w-[220px] sm:max-w-[260px] md:max-w-[310px] text-left origin-bottom-left will-change-transform"
+            className="absolute bottom-24 left-6 right-6 max-w-none text-left origin-bottom-left will-change-transform md:bottom-12 md:left-12 md:right-auto lg:left-16 xl:left-20 md:max-w-[310px]"
           >
-            <h3 className="font-Poppins text-sm sm:text-base md:text-[18px] lg:text-[20px] font-semibold text-white leading-[1.3] tracking-normal mb-3">
-              Your<br />freedom to<br />enjoy life
+            <h3 className="font-Poppins text-sm md:text-[18px] lg:text-[20px] font-semibold text-white leading-[1.3] tracking-normal mb-2 md:mb-3">
+              <span className="md:block">Your</span>{" "}
+              <span className="md:block">freedom to</span>{" "}
+              <span className="md:block">enjoy life</span>
             </h3>
-            <div className="w-6 sm:w-8 h-[1px] bg-white/50 mb-3" />
-            <p className="font-Poppins text-white/80 text-[11px] sm:text-[12px] md:text-[13px] leading-[1.6] font-normal">
+            <div className="w-6 md:w-8 h-[1px] bg-white/50 mb-2 md:mb-3" />
+            <p className="font-Poppins text-white/80 text-xs md:text-[13px] leading-[1.5] md:leading-[1.6] font-normal">
               Every flight is designed around your comfort, time, and ambitions — so you can focus on what truly matters, while we take care of everything else.
             </p>
           </div>
@@ -357,9 +393,9 @@ const Hero = () => {
           {/* Bottom-Right: Scroll Down / To Start The Journey */}
           <div
             ref={bottomRightRef}
-            className="absolute bottom-8 sm:bottom-10 md:bottom-12 right-6 md:right-12 lg:right-16 xl:right-20 flex flex-col items-end text-right origin-bottom-right will-change-transform"
+            className="absolute bottom-5 right-6 flex flex-col items-end text-right origin-bottom-right will-change-transform md:bottom-12 md:right-12 lg:right-16 xl:right-20"
           >
-            <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px] md:text-xs tracking-[0.15em] text-white/90 uppercase font-Poppins font-medium">
+            <div className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 md:gap-4 text-[9px] md:text-xs tracking-[0.08em] md:tracking-[0.15em] text-white/90 uppercase font-Poppins font-medium">
               <div className="flex items-center gap-1.5 opacity-90">
                 <span className="text-[11px] animate-bounce">↓</span>
                 <span>Scroll Down</span>

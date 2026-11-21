@@ -72,6 +72,7 @@ function TravelInsuranceContent() {
   // Promo code state
   const [promoCode, setPromoCode] = useState("SUN3");
   const [promoApplied, setPromoApplied] = useState(true);
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   // Helper for Date of Birth input: only numbers and dots allowed, max 10 chars (DD.MM.YYYY)
   const sanitizeDob = (value: string) => {
@@ -188,7 +189,7 @@ function TravelInsuranceContent() {
     <div className="min-h-screen bg-[#FFFFFF] text-neutral-800 flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 xl:px-20 pt-24 md:pt-28 pb-16">
         <NavServiceBar active="insurance" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* ================= LEFT COLUMN: FORMS ================= */}
@@ -353,8 +354,8 @@ function TravelInsuranceContent() {
               <div className="border-b border-neutral-200/70 mb-5" />
 
               {/* Row 1: Name & DOB */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-4">
-                <div className="sm:col-span-4">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-4">
+                <div className="md:col-span-6 lg:col-span-4">
                   <label className="text-xs text-neutral-400 block mb-1.5 font-normal">
                     Last name
                   </label>
@@ -372,7 +373,7 @@ function TravelInsuranceContent() {
                   />
                 </div>
 
-                <div className="sm:col-span-4">
+                <div className="md:col-span-6 lg:col-span-4">
                   <label className="text-xs text-neutral-400 block mb-1.5 font-normal">
                     First name
                   </label>
@@ -390,7 +391,7 @@ function TravelInsuranceContent() {
                   />
                 </div>
 
-                <div className="sm:col-span-4">
+                <div className="md:col-span-12 lg:col-span-4">
                   <label className="text-xs text-neutral-400 block mb-1.5 font-normal">
                     Date of birth
                   </label>
@@ -455,7 +456,7 @@ function TravelInsuranceContent() {
               <div className="border-b border-neutral-200/70 mb-5" />
 
               {/* Grid of options */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
                 {/* Option 1: Skiing */}
                 <div
                   onClick={() => toggleOption("skiing")}
@@ -583,18 +584,18 @@ function TravelInsuranceContent() {
             </div>
 
             {/* Bottom Actions: Back & Next Buttons */}
-            <div className="flex items-center justify-center gap-4 pt-4 pb-8">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 pb-8">
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-12 py-3.5 rounded-full bg-[#eff6ff] hover:bg-[#dbeafe] text-[#2563eb] font-semibold text-sm transition-all active:scale-95 shadow-sm border border-blue-200/60"
+                className="min-h-11 w-full sm:w-auto px-12 py-3.5 rounded-full bg-[#eff6ff] hover:bg-[#dbeafe] text-[#2563eb] font-semibold text-sm transition-all active:scale-95 shadow-sm border border-blue-200/60"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-16 py-3.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-sm tracking-wide transition-all active:scale-95 shadow-md shadow-blue-500/25"
+                className="min-h-11 w-full sm:w-auto px-16 py-3.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold text-sm tracking-wide transition-all active:scale-95 shadow-md shadow-blue-500/25"
               >
                 Next
               </button>
@@ -602,8 +603,18 @@ function TravelInsuranceContent() {
           </div>
 
           {/* ================= RIGHT COLUMN: SUMMARY SIDEBAR ================= */}
-          <div className="lg:col-span-4 sticky top-24">
-            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/70 shadow-sm p-5 text-xs space-y-3">
+          <div className="lg:col-span-4 lg:sticky lg:top-[calc(var(--nav-h)+1rem)]">
+            <div className="bg-[#f5f5f5] rounded-2xl border border-neutral-200/70 shadow-sm p-5 text-xs">
+              <button
+                type="button"
+                aria-expanded={summaryOpen}
+                onClick={() => setSummaryOpen((open) => !open)}
+                className="lg:hidden w-full min-h-11 flex items-center justify-between font-semibold text-neutral-700"
+              >
+                <span>Order summary</span>
+                <span className="text-lg font-extrabold text-[#2563eb]">${totalPrice}</span>
+              </button>
+              <div className={`${summaryOpen ? "block" : "hidden"} lg:block space-y-3 pt-1 lg:pt-0`}>
               {/* Tariff */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400">Tariff</span>
@@ -754,6 +765,7 @@ function TravelInsuranceContent() {
                 >
                   OK
                 </button>
+              </div>
               </div>
             </div>
           </div>

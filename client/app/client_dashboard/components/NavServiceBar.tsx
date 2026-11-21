@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { FaPlane, FaHotel, FaCar, FaSimCard, FaShieldAlt } from "react-icons/fa";
+import type { IconType } from "react-icons";
 
 export type BookingServiceType = "hotels" | "flights" | "cars" | "esim" | "insurance";
 
@@ -11,7 +12,11 @@ interface NavServiceBarProps {
   className?: string;
 }
 
-const TABS: { id: BookingServiceType; label: string; icon: any }[] = [
+export const BOOKING_SERVICE_TABS: {
+  id: BookingServiceType;
+  label: string;
+  icon: IconType;
+}[] = [
   { id: "hotels", label: "Hotels", icon: FaHotel },
   { id: "flights", label: "Flights", icon: FaPlane },
   { id: "cars", label: "Cars", icon: FaCar },
@@ -45,7 +50,7 @@ export default function NavServiceBar({ active, className = "" }: NavServiceBarP
   const [sliderReady, setSliderReady] = useState(false);
 
   useEffect(() => {
-    const idx = TABS.findIndex((t) => t.id === currentTab);
+    const idx = BOOKING_SERVICE_TABS.findIndex((t) => t.id === currentTab);
     const btn = tabRefs.current[idx];
     if (btn && sliderRef.current) {
       sliderRef.current.style.left = `${btn.offsetLeft}px`;
@@ -71,8 +76,8 @@ export default function NavServiceBar({ active, className = "" }: NavServiceBarP
   };
 
   return (
-    <div className={`w-full flex justify-center py-3 overflow-x-auto no-scrollbar ${className}`}>
-      <div className="relative inline-flex items-center shrink-0 bg-sky-500/10 backdrop-blur-md p-1.5 rounded-full border border-sky-300/30 shadow-inner">
+    <div className={`hidden md:flex w-full justify-center py-3 overflow-x-auto no-scrollbar ${className}`}>
+      <div className="relative mx-auto w-max max-w-full md:mx-auto inline-flex items-center bg-sky-500/10 backdrop-blur-md p-1.5 rounded-full border border-sky-300/30 shadow-inner">
         {/* Sliding active pill */}
         <div
           ref={sliderRef}
@@ -82,7 +87,7 @@ export default function NavServiceBar({ active, className = "" }: NavServiceBarP
           style={{ left: 6, width: 0 }}
         />
 
-        {TABS.map((tab, idx) => {
+        {BOOKING_SERVICE_TABS.map((tab, idx) => {
           const Icon = tab.icon;
           const isActive = currentTab === tab.id;
           return (
@@ -93,7 +98,7 @@ export default function NavServiceBar({ active, className = "" }: NavServiceBarP
                 tabRefs.current[idx] = el;
               }}
               onClick={() => handleSelectTab(tab.id)}
-              className={`relative z-10 flex items-center gap-2 px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors duration-200 select-none ${
+              className={`relative z-10 flex min-h-11 md:min-h-10 items-center gap-2 px-3 sm:px-4 md:px-5 lg:px-6 py-2 rounded-full text-[13px] md:text-sm font-semibold whitespace-nowrap transition-colors duration-200 select-none ${
                 isActive
                   ? `text-[#2563eb] font-bold ${sliderReady ? "" : "bg-white shadow-md"}`
                   : "text-neutral-600 hover:text-neutral-900"

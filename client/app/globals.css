@@ -3,7 +3,44 @@
 @tailwind utilities;
 
 body {
-  @apply bg-white text-mongzo-dark;
+  @apply bg-white text-mongzo-dark overflow-x-hidden;
+  min-width: 320px;
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+html.home-hero-page {
+  overscroll-behavior-y: none;
+}
+
+:root {
+  --nav-h: 64px;
+}
+
+@media (min-width: 768px) {
+  :root { --nav-h: 72px; }
+}
+
+@media (min-width: 1024px) {
+  :root { --nav-h: 80px; }
+}
+
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
 }
 
 @layer utilities {
@@ -20,7 +57,7 @@ body {
 
 @layer components {
   .container-page {
-    @apply w-full mx-auto px-6 md:px-12 lg:px-16 xl:px-20;
+    @apply w-full mx-auto px-4 md:px-8 lg:px-12 xl:px-20;
   }
 
   .flex-center {

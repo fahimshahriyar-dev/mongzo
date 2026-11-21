@@ -290,12 +290,14 @@ export default function CityGuide() {
                 <span>Change location</span>
               </button>
 
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-neutral-100 text-neutral-600 text-xs sm:text-sm font-semibold cursor-default opacity-85"
+              <Link
+                href={`/travel-guides/city/travel-guide?destination=${encodeURIComponent(
+                  cityParam
+                )}&country=${encodeURIComponent(countryParam)}`}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs sm:text-sm font-semibold transition-all active:scale-95 shadow-sm"
               >
                 <span>Travel guide</span>
-              </button>
+              </Link>
             </div>
           </div>
 

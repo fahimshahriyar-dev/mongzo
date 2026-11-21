@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Poppins, Archivo_Black, Orbitron, MonteCarlo } from "next/font/google";
 import { Toaster } from "react-hot-toast";
@@ -38,6 +38,11 @@ export const metadata: Metadata = {
     icon: "/assets/images/mongzo_logo.png",
     apple: "/assets/images/mongzo_logo.png",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

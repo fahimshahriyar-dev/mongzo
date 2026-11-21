@@ -38,6 +38,25 @@ const Home = () => {
       document.documentElement.scrollHeight - window.innerHeight - 5;
 
     const panelAtTop = () => (panelRef.current?.scrollTop ?? 0) <= 0;
+    const pageAtTop = () =>
+      Math.max(
+        window.scrollY,
+        document.documentElement.scrollTop,
+        document.body.scrollTop,
+      ) <= 0;
+    const canScrollUpFromTarget = (target: EventTarget | null) => {
+      let element = target instanceof HTMLElement ? target : null;
+      while (element) {
+        const style = window.getComputedStyle(element);
+        const isVerticallyScrollable =
+          /auto|scroll/.test(style.overflowY) &&
+          element.scrollHeight > element.clientHeight;
+        if (isVerticallyScrollable && element.scrollTop > 0) return true;
+        if (element === panelRef.current) break;
+        element = element.parentElement;
+      }
+      return false;
+    };
 
     const slideTo = (open: boolean) => {
       const panel = panelRef.current;
@@ -124,6 +143,13 @@ const Home = () => {
       touchStartPanelTop = panelRef.current?.scrollTop ?? 0;
     };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touch || touch.clientY <= touchStartY) return;
+      const atTop = isOpenRef.current ? panelAtTop() : pageAtTop();
+      if (atTop && !canScrollUpFromTarget(e.target)) e.preventDefault();
+    };
+
     const handleTouchEnd = (e: TouchEvent) => {
       if (isAnimatingRef.current) return;
       const diffY = touchStartY - e.changedTouches[0].clientY;
@@ -140,12 +166,14 @@ const Home = () => {
 
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("mongzo-open-booking", handleOpenBooking);
       window.removeEventListener("mongzo-close-booking", handleCloseBooking);
@@ -161,7 +189,7 @@ const Home = () => {
       <div
         ref={panelRef}
         id="booking-section"
-        className="fixed top-full left-0 z-40 h-screen w-full overflow-y-auto overflow-x-hidden overscroll-contain bg-white no-scrollbar"
+        className="fixed top-full left-0 z-40 h-screen w-full overflow-y-auto overflow-x-hidden overscroll-y-none bg-white no-scrollbar"
         style={{ transform: "translate3d(0px, 0px, 0px)" }}
       >
         <Booking />

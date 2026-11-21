@@ -78,16 +78,16 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="w-full bg-white py-10 sm:py-14">
+    <footer className="w-full bg-white py-8 md:py-12">
       {/* Floating Card Container */}
       <div className="container-page">
-      <div className="w-full bg-[#f5f5f5] rounded-[28px] sm:rounded-[36px] border border-neutral-100 p-8 sm:p-12 lg:p-14 transition-all duration-300">
+      <div className="w-full bg-[#f5f5f5] rounded-3xl md:rounded-[36px] border border-neutral-100 p-5 sm:p-8 md:p-10 lg:p-14 transition-all duration-300">
         
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-10 lg:gap-8 items-start">
           
           {/* Brand & Description (4 Cols) */}
-          <div className="lg:col-span-4 space-y-4 pr-0 lg:pr-6">
+          <div className="md:col-span-2 lg:col-span-4 space-y-4 pr-0 lg:pr-6">
             <Link href="/" className="inline-flex items-center gap-2">
               <Image
                 src="/assets/images/mongzo_logo_black.png"
@@ -115,7 +115,7 @@ const Footer = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="w-8 h-8 rounded-full border border-neutral-200 bg-neutral-50/80 flex items-center justify-center text-neutral-600 hover:text-blue-600 hover:border-blue-500 hover:bg-blue-50/50 transition-all text-xs"
+                    className="w-11 h-11 md:w-9 md:h-9 rounded-full border border-neutral-200 bg-neutral-50/80 flex items-center justify-center text-neutral-600 hover:text-blue-600 hover:border-blue-500 hover:bg-blue-50/50 transition-all text-xs"
                   >
                     <Icon />
                   </a>
@@ -125,7 +125,7 @@ const Footer = () => {
           </div>
 
           {/* Right Side Links */}
-          <div className="lg:col-span-8 flex flex-col sm:flex-row sm:justify-end gap-10 lg:gap-16">
+          <div className="md:col-span-2 lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 lg:gap-16">
             {/* Company Links */}
             <div>
               <h4 className="text-[11px] sm:text-xs font-bold text-neutral-900 uppercase tracking-[0.16em] mb-4">
@@ -165,7 +165,7 @@ const Footer = () => {
             </div>
 
             {/* Contact Us */}
-            <div className="space-y-3 sm:max-w-xs">
+            <div className="col-span-2 md:col-span-1 space-y-3 max-w-full md:max-w-xs">
             <h4 className="text-[11px] sm:text-xs font-bold text-neutral-900 uppercase tracking-[0.16em] mb-4">
               Contact Us
             </h4>
@@ -173,41 +173,37 @@ const Footer = () => {
             {/* Email */}
             <div className="space-y-1">
               <a
-                href="mailto:concierge@mongzo.com"
+                href="mailto:mongzoinfo@gmail.com"
                 className="flex items-center gap-2 text-xs sm:text-sm text-neutral-600 hover:text-blue-600 transition-colors"
               >
                 <FaEnvelope className="text-neutral-400 text-xs shrink-0" />
-                <span>concierge@mongzo.com</span>
+                <span className="break-all [overflow-wrap:anywhere]">mongzoinfo@gmail.com</span>
               </a>
               <a
-                href="mailto:support@mongzo.com"
+                href="mailto:bayzidhossein831@gmail.com"
                 className="flex items-center gap-2 text-xs sm:text-sm text-neutral-600 hover:text-blue-600 transition-colors"
               >
                 <FaEnvelope className="text-neutral-400 text-xs shrink-0 opacity-0" />
-                <span>support@mongzo.com</span>
+                <span className="break-all [overflow-wrap:anywhere]">bayzidhossein831@gmail.com</span>
               </a>
             </div>
 
             {/* Phone */}
             <div className="space-y-1 pt-1">
-              <p className="flex items-center gap-2 text-xs sm:text-sm text-neutral-600">
+              <a
+                href="tel:+8801611651183"
+                className="flex items-center gap-2 text-xs sm:text-sm text-neutral-600 hover:text-blue-600 transition-colors"
+              >
                 <FaPhoneAlt className="text-neutral-400 text-xs shrink-0" />
-                <span>+880 1711-426173</span>
-              </p>
-              <p className="text-xs sm:text-sm text-neutral-600 pl-5">
-                +880 1971-426173
-              </p>
+                <span>+88 01611651183</span>
+              </a>
             </div>
 
             {/* Address */}
             <div className="pt-2 flex items-start gap-2">
               <FaMapMarkerAlt className="text-neutral-400 text-xs shrink-0 mt-0.5" />
               <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-                Eastern Mansion, Room # 3/7 (3rd Floor),
-                <br />
-                67/9 Pioneer Road, Kakrail,
-                <br />
-                Dhaka-1000, Bangladesh
+                Dubai, United Arab Emirate
               </p>
             </div>
             </div>
@@ -216,8 +212,8 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar: Copyright & Settings */}
-        <div className="mt-12 pt-6 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
-          <p>© {new Date().getFullYear()} Mongzo. All Rights Reserved.</p>
+        <div className="mt-8 md:mt-12 pt-6 border-t border-neutral-100 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500 text-center md:text-left">
+          <p className="w-full md:w-auto">© {new Date().getFullYear()} Mongzo. All Rights Reserved.</p>
 
           <div className="flex items-center gap-3">
             <button

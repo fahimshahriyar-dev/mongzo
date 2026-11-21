@@ -18,32 +18,6 @@ import {
   FaStar,
 } from "react-icons/fa";
 
-const TeamAvatar = ({ src, name }: { src: string; name: string }) => {
-  const [failed, setFailed] = React.useState(false);
-  const initials = name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-
-  if (failed) {
-    return <span>{initials}</span>;
-  }
-
-  return (
-    <Image
-      src={src}
-      alt={name}
-      width={160}
-      height={160}
-      onError={() => setFailed(true)}
-      className="w-full h-full object-cover"
-    />
-  );
-};
-
 export default function About() {
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-Poppins flex flex-col selection:bg-blue-100 selection:text-blue-900">
@@ -128,30 +102,12 @@ export default function About() {
                 {/* Arch-shaped container */}
                 <div className="relative aspect-[4/4.2] rounded-t-[200px] rounded-b-3xl overflow-hidden border-4 border-white shadow-xl bg-white">
                   <img
-                    src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80"
-                    alt="Luxury Travel Experience"
+                    src="https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?auto=format&fit=crop&w=1200&q=80"
+                    alt="Tropical beach destination with Mongzo"
                     className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                   />
                   {/* Subtle clean gradient at bottom */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-
-                  {/* Curving dashed journey path + Blue locator pin */}
-                  <svg
-                    className="absolute inset-0 w-full h-full pointer-events-none"
-                    viewBox="0 0 400 400"
-                    fill="none"
-                  >
-                    <path
-                      d="M 100 320 Q 230 200 300 100"
-                      stroke="#2563eb"
-                      strokeWidth="3"
-                      strokeDasharray="6 6"
-                      strokeLinecap="round"
-                    />
-                    <circle cx="300" cy="100" r="8" fill="#2563eb" />
-                    <circle cx="300" cy="100" r="16" stroke="#2563eb" strokeWidth="2" opacity="0.3" className="animate-ping" />
-                    <circle cx="100" cy="320" r="6" fill="#2563eb" />
-                  </svg>
 
                   {/* Floating Trust Pill */}
                   <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3 border border-neutral-100 shadow-md flex items-center justify-between">
@@ -456,23 +412,94 @@ export default function About() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
-              {/* Member A */}
-              <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-blue-50 text-[#2563eb] flex items-center justify-center text-2xl font-bold shadow-inner mb-4 border-2 border-blue-200">
-                  <TeamAvatar src="/assets/images/owner_ceo.jpeg" name="Md Hanif Hasan" />
+            <div className="max-w-5xl mx-auto space-y-8">
+              {/* Member A — image left, content right */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 overflow-hidden rounded-3xl bg-white border border-neutral-200/80 shadow-sm">
+                <div className="relative order-1 min-h-[320px] sm:min-h-[420px] lg:min-h-[480px]">
+                  <Image
+                    src="/assets/images/owner.jpeg"
+                    alt="Mohammad Hanif"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+                  <span className="absolute bottom-5 left-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider text-[#2563eb] shadow-sm">
+                    Founder &amp; CEO
+                  </span>
                 </div>
-                <h4 className="text-base font-bold text-neutral-900">Md Hanif Hasan</h4>
-                <p className="text-xs text-[#2563eb] font-semibold mt-0.5">Owner &amp; CEO</p>
+
+                <div className="order-2 flex flex-col justify-center p-8 sm:p-10 lg:p-12">
+                  <span className="text-xs uppercase font-bold text-[#2563eb] tracking-wider">
+                    Leadership
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1">
+                    Mohammad Hanif
+                  </h3>
+                  <p className="text-sm sm:text-base text-[#2563eb] font-semibold mt-1">
+                    Founder &amp; Ceo of Mongzo
+                  </p>
+
+                  <div className="mt-6 pl-5 border-l-2 border-[#2563eb]/30 space-y-3 text-sm sm:text-base text-neutral-600 leading-relaxed">
+                    <p>
+                      Mohammad Hanif is the Founder &amp; CEO of Mongzo.
+                    </p>
+                    <p>
+                      With a clear vision and strong leadership, he built Mongzo
+                      from an idea into a trusted brand.
+                    </p>
+                    <p>
+                      He believes in honest work, quality service, and creating
+                      real value for every customer. Under his guidance, Mongzo
+                      Tours continues to grow with trust, innovation, and a
+                      passion for creating unforgettable travel experiences.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Member B */}
-              <div className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-neutral-200/80 shadow-sm transition-transform hover:-translate-y-1">
-                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-blue-50 text-[#2563eb] flex items-center justify-center text-2xl font-bold shadow-inner mb-4 border-2 border-blue-200">
-                  <TeamAvatar src="/assets/images/head_of_operations.jpeg" name="Kawsar Ahmed" />
+              {/* Member B — content left, image right */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 overflow-hidden rounded-3xl bg-white border border-neutral-200/80 shadow-sm">
+                <div className="relative order-1 lg:order-2 min-h-[320px] sm:min-h-[420px] lg:min-h-[480px]">
+                  <Image
+                    src="/assets/images/head_of_operations.jpeg"
+                    alt="Kawsar Ahmed"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+                  <span className="absolute bottom-5 left-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider text-[#2563eb] shadow-sm">
+                    Head of Operation
+                  </span>
                 </div>
-                <h4 className="text-base font-bold text-neutral-900">Kawsar Ahmed</h4>
-                <p className="text-xs text-[#2563eb] font-semibold mt-0.5">Head of Operations</p>
+
+                <div className="order-2 lg:order-1 flex flex-col justify-center p-8 sm:p-10 lg:p-12">
+                  <span className="text-xs uppercase font-bold text-[#2563eb] tracking-wider">
+                    Operations
+                  </span>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight mt-1">
+                    Kawsar Ahmed
+                  </h3>
+                  <p className="text-sm sm:text-base text-[#2563eb] font-semibold mt-1">
+                    Head of Operation
+                  </p>
+
+                  <div className="mt-6 pl-5 border-l-2 border-[#2563eb]/30 space-y-3 text-sm sm:text-base text-neutral-600 leading-relaxed">
+                    <p>
+                      Kawsar Ahmed is the Owner of Webgen IT and the person
+                      behind the complete maintenance of Mongzo Website.
+                    </p>
+                    <p>
+                      He manages the full structure, planning, and day-to-day
+                      operations.
+                    </p>
+                    <p>
+                      He ensures everything runs smoothly, deciding what is
+                      needed now and what can wait.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
