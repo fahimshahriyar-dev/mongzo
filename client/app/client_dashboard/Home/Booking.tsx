@@ -157,8 +157,10 @@ const Booking = () => {
   });
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const sliderRef = useRef<HTMLDivElement | null>(null);
+  const mobileTabRef = useRef<HTMLDivElement | null>(null);
   const [animateSlider, setAnimateSlider] = useState(false);
   const [sliderReady, setSliderReady] = useState(false);
+  const [isMobileTabOpen, setIsMobileTabOpen] = useState(false);
 
   // Sync activeTab from URL search params, stored tab, or custom events
   useEffect(() => {
@@ -181,6 +183,9 @@ const Booking = () => {
     try {
       sessionStorage.setItem("mongzo-booking-tab", activeTab);
     } catch {}
+    window.dispatchEvent(
+      new CustomEvent("mongzo-set-booking-tab", { detail: { tab: activeTab } }),
+    );
   }, [activeTab]);
 
   // Keep the URL in sync on the dedicated booking page so reloads preserve the tab
@@ -335,6 +340,9 @@ const Booking = () => {
         setIsCarCountryOpen(false);
         setIsCarPickUpTimeOpen(false);
         setIsCarDropOffTimeOpen(false);
+      }
+      if (mobileTabRef.current && !mobileTabRef.current.contains(e.target as Node)) {
+        setIsMobileTabOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -735,12 +743,12 @@ const Booking = () => {
 
 
   return (
-    <section className="relative z-10 w-full bg-white pt-24 pb-8">
+    <section className="relative z-10 w-full bg-white pt-16 pb-8 md:pt-24">
       <div className="container-page py-4 sm:py-6 md:py-8 lg:py-10 text-neutral-900">
             {/* Top Search Widget Header Tabs */}
             <div className={`flex flex-col gap-4 pb-5 ${activeTab === "insurance" ? "" : "border-b border-neutral-200/80"}`}>
-              {/* Category Navigation (Hotels, Flights, Cars, E-Sim, Travel Insurance) with Sliding Active Pill */}
-              <div className="flex justify-center pb-2 w-full overflow-x-auto">
+              {/* Category Navigation - Desktop: Slider with sliding pill */}
+              <div className="hidden sm:flex justify-center pb-2 w-full overflow-x-auto">
                 <div className="relative inline-flex items-center shrink-0 bg-sky-500/10 backdrop-blur-md p-1.5 rounded-full border border-sky-300/30 shadow-inner">
                   {/* Sliding active pill indicator */}
                   <div
@@ -774,6 +782,60 @@ const Booking = () => {
                       </button>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* Category Navigation - Mobile: Custom Dropdown with Animation */}
+              <div className="sm:hidden w-full">
+                <div ref={mobileTabRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileTabOpen(!isMobileTabOpen)}
+                    className="w-full appearance-none bg-sky-500/10 backdrop-blur-md border border-sky-300/30 text-neutral-900 text-sm font-medium py-2.5 px-4 pr-4 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500/50 flex items-center justify-between"
+                  >
+                    <span className="flex items-center gap-2">
+                      {(() => {
+                        const activeTabObj = TABS.find((t) => t.id === activeTab);
+                        if (activeTabObj) {
+                          const Icon = activeTabObj.icon;
+                          return <Icon className="text-base text-blue-600" />;
+                        }
+                        return null;
+                      })()}
+                      {TABS.find((t) => t.id === activeTab)?.label}
+                    </span>
+                    <FiChevronRight
+                      className={`text-neutral-400 text-xs transition-transform duration-200 ${isMobileTabOpen ? "rotate-90" : ""}`}
+                    />
+                  </button>
+                  {isMobileTabOpen && (
+                    <div
+                      className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-sky-300/30 shadow-xl z-50 animate-in slide-in-from-top-2 duration-200 ease-out overflow-hidden"
+                    >
+                      {TABS.map((tab) => {
+                        const Icon = tab.icon;
+                        return (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveTab(tab.id);
+                              setIsMobileTabOpen(false);
+                              setAnimateSlider(true);
+                            }}
+                            className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors flex items-center gap-3 ${
+                              activeTab === tab.id
+                                ? "bg-sky-500/10 text-blue-600 font-semibold"
+                                : "text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                            }`}
+                          >
+                            <Icon className={`text-base ${activeTab === tab.id ? "text-blue-600" : "text-neutral-500"}`} />
+                            <span>{tab.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -920,7 +982,7 @@ const Booking = () => {
 
                       {/* Calendar Dropdown Popup (Image 3) */}
                       {isCalendarOpen && (
-                        <div className="absolute top-full left-0 md:-left-16 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 w-[95vw] max-w-[620px] animate-in fade-in zoom-in-95 duration-150">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 md:-left-16 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-3 sm:p-5 w-[calc(100vw-2rem)] sm:w-[95vw] max-w-[620px] animate-in fade-in zoom-in-95 duration-150">
                           {/* Active Selection Header */}
                           <div className="grid grid-cols-2 border border-[#2563eb] rounded-xl overflow-hidden mb-4">
                             <div className="p-3 border-r border-[#2563eb]/30 bg-neutral-50/50">
@@ -1015,7 +1077,7 @@ const Booking = () => {
 
                       {/* Guests & Rooms Dropdown Popup (Image 4) */}
                       {isGuestsOpen && (
-                        <div className="absolute top-full right-0 mt-2 w-full sm:w-[420px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="absolute top-full right-0 mt-2 w-full max-w-[calc(100vw-2rem)] sm:w-[420px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-3 sm:p-5 animate-in fade-in zoom-in-95 duration-150">
                           {rooms.map((room, roomIdx) => (
                             <div key={roomIdx} className="mb-4">
                               <div className="flex items-center justify-between mb-3">
@@ -1033,17 +1095,17 @@ const Booking = () => {
                                 )}
                               </div>
 
-                              <div className="grid grid-cols-2 gap-4">
+                              <div className="grid grid-cols-2 gap-2 sm:gap-4">
                                 {/* Adults Counter */}
-                                <div className="flex items-center justify-between bg-neutral-50/70 p-2.5 rounded-xl border border-neutral-100">
+                                <div className="flex items-center justify-between bg-neutral-50/70 p-2 sm:p-2.5 rounded-xl border border-neutral-100">
                                   <div className="flex items-center gap-2">
-                                    <LuUser className="text-xl text-neutral-600" />
+                                    <LuUser className="hidden sm:block text-xl text-neutral-600" />
                                     <div>
                                       <div className="text-xs font-bold text-neutral-800">Adults</div>
                                       <div className="text-[10px] text-neutral-400">&gt;12 years</div>
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1 sm:gap-2">
                                     <button
                                       type="button"
                                       disabled={room.adults <= 1}
@@ -1052,11 +1114,11 @@ const Booking = () => {
                                         newRooms[roomIdx].adults = Math.max(1, newRooms[roomIdx].adults - 1);
                                         setRooms(newRooms);
                                       }}
-                                      className="w-6 h-6 rounded-md bg-[#2563eb] text-white flex items-center justify-center disabled:opacity-40 hover:bg-[#1d4ed8] transition-colors"
+                                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#2563eb] text-white flex items-center justify-center disabled:opacity-40 hover:bg-[#1d4ed8] transition-colors"
                                     >
                                       <FaMinus className="text-[10px]" />
                                     </button>
-                                    <span className="w-5 text-center text-xs font-bold text-neutral-800">
+                                    <span className="w-4 sm:w-5 text-center text-xs font-bold text-neutral-800">
                                       {room.adults}
                                     </span>
                                     <button
@@ -1066,7 +1128,7 @@ const Booking = () => {
                                         newRooms[roomIdx].adults += 1;
                                         setRooms(newRooms);
                                       }}
-                                      className="w-6 h-6 rounded-md bg-[#2563eb] text-white flex items-center justify-center hover:bg-[#1d4ed8] transition-colors"
+                                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#2563eb] text-white flex items-center justify-center hover:bg-[#1d4ed8] transition-colors"
                                     >
                                       <FaPlus className="text-[10px]" />
                                     </button>
@@ -1074,15 +1136,15 @@ const Booking = () => {
                                 </div>
 
                                 {/* Children Counter */}
-                                <div className="flex items-center justify-between bg-neutral-50/70 p-2.5 rounded-xl border border-neutral-100">
+                                <div className="flex items-center justify-between bg-neutral-50/70 p-2 sm:p-2.5 rounded-xl border border-neutral-100">
                                   <div className="flex items-center gap-2">
-                                    <LuUser className="text-xl text-neutral-600" />
+                                    <LuUser className="hidden sm:block text-xl text-neutral-600" />
                                     <div>
                                       <div className="text-xs font-bold text-neutral-800">Children</div>
                                       <div className="text-[10px] text-neutral-400">&le;12 years</div>
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1 sm:gap-2">
                                     <button
                                       type="button"
                                       disabled={room.children <= 0}
@@ -1091,11 +1153,11 @@ const Booking = () => {
                                         newRooms[roomIdx].children = Math.max(0, newRooms[roomIdx].children - 1);
                                         setRooms(newRooms);
                                       }}
-                                      className="w-6 h-6 rounded-md bg-[#2563eb] text-white flex items-center justify-center disabled:opacity-40 hover:bg-[#1d4ed8] transition-colors"
+                                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#2563eb] text-white flex items-center justify-center disabled:opacity-40 hover:bg-[#1d4ed8] transition-colors"
                                     >
                                       <FaMinus className="text-[10px]" />
                                     </button>
-                                    <span className="w-5 text-center text-xs font-bold text-neutral-800">
+                                    <span className="w-4 sm:w-5 text-center text-xs font-bold text-neutral-800">
                                       {room.children}
                                     </span>
                                     <button
@@ -1105,7 +1167,7 @@ const Booking = () => {
                                         newRooms[roomIdx].children += 1;
                                         setRooms(newRooms);
                                       }}
-                                      className="w-6 h-6 rounded-md bg-[#2563eb] text-white flex items-center justify-center hover:bg-[#1d4ed8] transition-colors"
+                                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#2563eb] text-white flex items-center justify-center hover:bg-[#1d4ed8] transition-colors"
                                     >
                                       <FaPlus className="text-[10px]" />
                                     </button>
@@ -1834,7 +1896,7 @@ const Booking = () => {
                     <div className="flex flex-wrap items-center gap-4 sm:gap-6 self-stretch sm:self-auto justify-between sm:justify-end">
                       <div className="flex items-center gap-4 text-xs font-semibold text-neutral-700">
                         {/* Passengers Dropdown (Image 4) */}
-                        <div className="relative">
+                        <div className="sm:relative">
                           <div
                             onClick={() => {
                               setIsFlightPassengersOpen(!isFlightPassengersOpen);
@@ -1849,13 +1911,13 @@ const Booking = () => {
                                 isFlightPassengersOpen ? "rotate-180" : ""
                               }`}
                             >
-                              â–¼
+                              <FaChevronDown className="text-[9px]" />
                             </span>
                           </div>
 
                           {/* Passengers Popover (opens at bottom) */}
                           {isFlightPassengersOpen && (
-                            <div className="absolute top-full mt-2 right-0 w-[300px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150">
+                            <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150 sm:left-auto sm:right-0 sm:w-[300px]">
                               <div className="space-y-4">
                                 {/* Adults */}
                                 <div className="flex items-center justify-between">
@@ -1965,7 +2027,7 @@ const Booking = () => {
                         </div>
 
                         {/* Cabin Class Dropdown (Image 5) */}
-                        <div className="relative">
+                        <div className="sm:relative">
                           <div
                             onClick={() => {
                               setIsFlightClassOpen(!isFlightClassOpen);
@@ -1980,13 +2042,13 @@ const Booking = () => {
                                 isFlightClassOpen ? "rotate-180" : ""
                               }`}
                             >
-                              â–¼
+                              <FaChevronDown className="text-[9px]" />
                             </span>
                           </div>
 
                           {/* Cabin Class Popover (opens at bottom) */}
                           {isFlightClassOpen && (
-                            <div className="absolute top-full mt-2 right-0 w-[200px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150">
+                            <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150 sm:left-auto sm:right-0 sm:w-[200px]">
                               {[
                                 "Economy",
                                 "Premium Economy",
@@ -2016,7 +2078,7 @@ const Booking = () => {
                         </div>
 
                         {/* 4 Payment Types dropdown */}
-                        <div className="relative">
+                        <div className="sm:relative">
                           <div
                             onClick={() => {
                               setIsFlightPaymentOpen(!isFlightPaymentOpen);
@@ -2031,13 +2093,13 @@ const Booking = () => {
                                 isFlightPaymentOpen ? "rotate-180" : ""
                               }`}
                             >
-                              â–¼
+                              <FaChevronDown className="text-[9px]" />
                             </span>
                           </div>
 
                           {/* Payment Types Popover (opens at bottom) */}
                           {isFlightPaymentOpen && (
-                            <div className="absolute top-full mt-2 right-0 w-[220px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150">
+                            <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150 sm:left-auto sm:right-0 sm:w-[220px]">
                               {[
                                 "4 Payment Types",
                                 "Credit / Debit Card",
@@ -2281,7 +2343,7 @@ const Booking = () => {
 
                         {/* Country dropdown popover */}
                         {isCarCountryOpen && (
-                          <div className="absolute top-full right-0 mt-2 w-72 bg-white border border-neutral-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                          <div className="absolute top-full left-0 sm:left-auto sm:right-0 mt-2 w-[calc(100vw-2rem)] max-w-72 sm:w-72 bg-white border border-neutral-200 rounded-xl shadow-xl z-50 overflow-hidden">
                             {/* Search input */}
                             <div className="p-3 border-b border-neutral-100">
                               <div className="flex items-center border-2 border-[#2563eb] rounded-lg px-3 py-2 gap-2">

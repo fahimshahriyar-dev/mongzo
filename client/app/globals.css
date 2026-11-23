@@ -16,6 +16,12 @@ html.home-hero-page {
   overscroll-behavior-y: none;
 }
 
+html.home-hero-page,
+html.home-hero-page body {
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
 :root {
   --nav-h: 64px;
 }

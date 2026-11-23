@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useId, useRef, useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { FaPlane, FaHotel, FaCar, FaSimCard, FaShieldAlt } from "react-icons/fa";
+import { FaPlane, FaHotel, FaCar, FaSimCard, FaShieldAlt, FaChevronDown } from "react-icons/fa";
 import type { IconType } from "react-icons";
 
 export type BookingServiceType = "hotels" | "flights" | "cars" | "esim" | "insurance";
@@ -23,6 +23,109 @@ export const BOOKING_SERVICE_TABS: {
   { id: "esim", label: "E-Sim", icon: FaSimCard },
   { id: "insurance", label: "Travel Insurance", icon: FaShieldAlt },
 ];
+
+interface MobileServiceDropdownProps {
+  active: BookingServiceType;
+  onSelect: (serviceId: BookingServiceType) => void;
+  align?: "left" | "right";
+  className?: string;
+}
+
+export function MobileServiceDropdown({
+  active,
+  onSelect,
+  align = "right",
+  className = "",
+}: MobileServiceDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  const currentService = BOOKING_SERVICE_TABS.find(
+    (service) => service.id === active,
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !dropdownRef.current?.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  if (!currentService) return null;
+  const ActiveIcon = currentService.icon;
+
+  return (
+    <div ref={dropdownRef} className={`relative min-w-0 ${className}`}>
+      <button
+        type="button"
+        className="w-full min-h-11 inline-flex items-center justify-center gap-1.5 rounded-xl border border-neutral-300 bg-white px-2.5 text-neutral-700 shadow-sm"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-label={`Current service: ${currentService.label}`}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-controls={menuId}
+      >
+        <ActiveIcon className="shrink-0 text-sm text-[#2563eb]" />
+        <span className="max-w-[82px] truncate text-xs font-semibold">
+          {currentService.label}
+        </span>
+        <FaChevronDown
+          size={13}
+          className={`shrink-0 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {isOpen && (
+        <div
+          id={menuId}
+          role="menu"
+          aria-label="Choose a service"
+          className={`absolute top-full z-[70] mt-2 w-56 rounded-2xl border border-neutral-200 bg-white p-2 shadow-xl ${
+            align === "left" ? "left-0" : "right-0"
+          }`}
+        >
+          {BOOKING_SERVICE_TABS.map((service) => {
+            const ServiceIcon = service.icon;
+            return (
+              <button
+                key={service.id}
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setIsOpen(false);
+                  onSelect(service.id);
+                }}
+                className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm ${
+                  service.id === currentService.id
+                    ? "bg-blue-50 font-semibold text-[#2563eb]"
+                    : "text-neutral-700 hover:bg-neutral-50"
+                }`}
+              >
+                <ServiceIcon className="shrink-0" />
+                <span>{service.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function NavServiceBar({ active, className = "" }: NavServiceBarProps) {
   const router = useRouter();

@@ -228,7 +228,7 @@ export default function HotelPayment({
     <div className="min-h-screen bg-[#FFFFFF] text-neutral-900 flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 pt-[var(--nav-h)] md:pt-24 pb-20">
         <NavServiceBar active="hotels" />
         <div className="container-page max-w-6xl mx-auto space-y-6">
           {/* Top Header Card */}
@@ -282,7 +282,7 @@ export default function HotelPayment({
 
               <button
                 type="button"
-                onClick={() => scrollToSection("room-options")}
+                onClick={() => scrollToSection("hotel-rooms")}
                 className="bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-md shadow-blue-500/20"
               >
                 Choose Room
@@ -396,8 +396,8 @@ export default function HotelPayment({
           </div>
 
           {/* Navigation Sub-Tabs Bar (Matches Image 2) */}
-          <div className="border-b border-neutral-200 sticky top-20 bg-white/95 backdrop-blur z-20 py-2">
-            <div className="flex items-center gap-6 overflow-x-auto text-xs font-bold tracking-wider uppercase text-neutral-600">
+          <div className="-mx-4 sm:-mx-8 md:-mx-8 lg:mx-0 border-b border-neutral-200 sticky top-[var(--nav-h)] bg-white/95 backdrop-blur z-40 md:py-1 lg:py-2">
+            <div className="px-1 sm:container-page sm:px-8 md:px-8 lg:px-0 grid grid-cols-6 items-center gap-0 sm:overflow-x-auto no-scrollbar text-[8.5px] sm:text-xs font-bold tracking-tight sm:tracking-wider uppercase text-neutral-600 py-1 sm:py-2">
               {[
                 { id: "rooms", label: "Rooms" },
                 { id: "location", label: "Location" },
@@ -413,7 +413,7 @@ export default function HotelPayment({
                     setActiveTab(tab.id as any);
                     scrollToSection(`hotel-${tab.id}`);
                   }}
-                  className={`pb-2 whitespace-nowrap transition-colors relative ${
+                  className={`block w-full pb-2 whitespace-nowrap text-center sm:text-left transition-colors relative px-0.5 overflow-hidden text-ellipsis ${
                     activeTab === tab.id
                       ? "text-[#2563eb]"
                       : "text-neutral-500 hover:text-neutral-900"
@@ -429,7 +429,7 @@ export default function HotelPayment({
           </div>
 
           {/* ── Section: Room Options (Matches Images 2 & 3) ─────────────── */}
-          <div id="hotel-rooms" className="scroll-mt-32 space-y-4">
+          <div id="hotel-rooms" className="[scroll-margin-top:calc(var(--nav-h)+48px)] space-y-4">
             <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -553,7 +553,7 @@ export default function HotelPayment({
           </div>
 
           {/* ── Section: Location (Matches Image 4) ───────────────────────── */}
-          <div id="hotel-location" className="scroll-mt-32">
+          <div id="hotel-location" className="[scroll-margin-top:calc(var(--nav-h)+48px)]">
             <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
               <h2 className="text-xl font-bold text-neutral-900">Location</h2>
 
@@ -591,7 +591,7 @@ export default function HotelPayment({
           </div>
 
           {/* ── Section: Guest Reviews (Matches Image 5) ───────────────────── */}
-          <div id="hotel-reviews" className="scroll-mt-32">
+          <div id="hotel-reviews" className="[scroll-margin-top:calc(var(--nav-h)+48px)]">
             <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-neutral-900">Guest Reviews</h2>
@@ -666,7 +666,7 @@ export default function HotelPayment({
           </div>
 
           {/* ── Section: Facilities (Matches Image 6) ──────────────────────── */}
-          <div id="hotel-facilities" className="scroll-mt-32">
+          <div id="hotel-facilities" className="[scroll-margin-top:calc(var(--nav-h)+48px)]">
             <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
               <h2 className="text-xl font-bold text-neutral-900">Facilities</h2>
 
@@ -756,7 +756,7 @@ export default function HotelPayment({
           </div>
 
           {/* ── Section: Property Policies (Matches Image 6) ────────────────── */}
-          <div id="hotel-policy" className="scroll-mt-32">
+          <div id="hotel-policy" className="[scroll-margin-top:calc(var(--nav-h)+48px)]">
             <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
               <h2 className="text-xl font-bold text-neutral-900">Property Policies</h2>
 
@@ -812,7 +812,7 @@ export default function HotelPayment({
           </div>
 
           {/* ── Section: Nearby Similar Hotels (Matches Image 7) ────────────── */}
-          <div id="hotel-nearby" className="scroll-mt-32">
+          <div id="hotel-nearby" className="[scroll-margin-top:calc(var(--nav-h)+48px)]">
             <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
               <h2 className="text-xl font-bold text-neutral-900">
                 Nearby Similar Hotels

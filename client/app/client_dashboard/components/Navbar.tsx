@@ -4,11 +4,15 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { HiOutlineBars3BottomRight, HiOutlineChevronDown } from "react-icons/hi2";
+import {
+  HiOutlineBars3BottomRight,
+  HiOutlineChevronDown,
+} from "react-icons/hi2";
 import { IoMdClose } from "react-icons/io";
 import CurrencyModal, { CurrencyItem } from "./CurrencyModal";
 import {
   BOOKING_SERVICE_TABS,
+  MobileServiceDropdown,
   type BookingServiceType,
 } from "./NavServiceBar";
 import toast from "react-hot-toast";
@@ -54,16 +58,15 @@ const Navbar = () => {
               ? "insurance"
               : null;
   const activeServiceId =
-    routeServiceId ?? (pathname === "/booking" ? bookingTab : null);
+    routeServiceId ??
+    (pathname === "/booking" || isHomePage ? bookingTab ?? "hotels" : null);
   const activeService = BOOKING_SERVICE_TABS.find(
     (service) => service.id === activeServiceId,
   );
   const { user } = useSelector((state: any) => state.auth);
   const [openSidebar, setOpenSidebar] = useState(false);
   const [openTransport, setOpenTransport] = useState(false);
-  const [serviceDropdownOpen, setServiceDropdownOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
-  const serviceDropdownRef = useRef<HTMLDivElement>(null);
   const [signOut, { isSuccess }] = useSignOutMutation();
   const router = useRouter();
 
@@ -141,30 +144,8 @@ const Navbar = () => {
   }, [openSidebar]);
 
   useEffect(() => {
-    if (!serviceDropdownOpen) return;
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        event.target instanceof Node &&
-        !serviceDropdownRef.current?.contains(event.target)
-      ) {
-        setServiceDropdownOpen(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setServiceDropdownOpen(false);
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [serviceDropdownOpen]);
-
-  useEffect(() => {
     setOpenSidebar(false);
     setOpenTransport(false);
-    setServiceDropdownOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -195,7 +176,16 @@ const Navbar = () => {
   useEffect(() => {
     if (!isHomePage) return;
     const handleBookingState = (e: any) => {
-      setBookingOpen(Boolean(e.detail?.open));
+      const isOpen = Boolean(e.detail?.open);
+      setBookingOpen(isOpen);
+      if (isOpen) {
+        try {
+          const tab = BOOKING_SERVICE_TABS.find(
+            (service) => service.id === sessionStorage.getItem("mongzo-booking-tab"),
+          );
+          if (tab) setBookingTab(tab.id);
+        } catch {}
+      }
     };
     window.addEventListener("mongzo-booking-open", handleBookingState);
     return () => {
@@ -216,13 +206,13 @@ const Navbar = () => {
   };
 
   const handleServiceSelect = (tabId: BookingServiceType) => {
-    setServiceDropdownOpen(false);
     try {
       sessionStorage.setItem("mongzo-booking-tab", tabId);
     } catch {}
     window.dispatchEvent(
       new CustomEvent("mongzo-set-booking-tab", { detail: { tab: tabId } }),
     );
+    if (isHomePage && bookingOpen) return;
     router.push(`/booking?tab=${tabId}`);
   };
 
@@ -399,53 +389,11 @@ const Navbar = () => {
 
           <div className="lg:hidden flex items-center gap-1.5">
             {activeService && (
-              <div ref={serviceDropdownRef} className="relative md:hidden">
-                <button
-                  type="button"
-                  className="min-h-11 max-w-[140px] inline-flex items-center gap-1.5 rounded-full border border-sky-300/40 bg-sky-500/10 px-2.5 text-neutral-700"
-                  onClick={() => setServiceDropdownOpen((open) => !open)}
-                  aria-label={`Current service: ${activeService.label}`}
-                  aria-haspopup="menu"
-                  aria-expanded={serviceDropdownOpen}
-                  aria-controls="mobile-service-menu"
-                >
-                  <activeService.icon className="shrink-0 text-sm text-[#2563eb]" />
-                  <span className="max-w-[82px] truncate text-xs font-semibold">
-                    {activeService.label}
-                  </span>
-                  <HiOutlineChevronDown
-                    size={13}
-                    className={`shrink-0 transition-transform ${
-                      serviceDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {serviceDropdownOpen && (
-                  <div
-                    id="mobile-service-menu"
-                    role="menu"
-                    aria-label="Choose a service"
-                    className="absolute right-0 top-full z-[70] mt-2 w-56 rounded-2xl border border-neutral-200 bg-white p-2 shadow-xl"
-                  >
-                    {BOOKING_SERVICE_TABS.map((service) => (
-                      <button
-                        key={service.id}
-                        type="button"
-                        role="menuitem"
-                        onClick={() => handleServiceSelect(service.id)}
-                        className={`flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm ${
-                          service.id === activeService.id
-                            ? "bg-blue-50 font-semibold text-[#2563eb]"
-                            : "text-neutral-700 hover:bg-neutral-50"
-                        }`}
-                      >
-                        <service.icon className="shrink-0" />
-                        <span>{service.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <MobileServiceDropdown
+                active={activeService.id}
+                onSelect={handleServiceSelect}
+                className="relative"
+              />
             )}
 
             {/* Mobile Hamburger Button */}

@@ -14,6 +14,7 @@ import {
   FaPlus,
   FaMinus,
   FaFilter,
+  FaBars,
   FaSortAmountDown,
   FaSlidersH,
   FaExpand,
@@ -24,7 +25,10 @@ import { IoSparklesOutline } from "react-icons/io5";
 import { LuUser } from "react-icons/lu";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import NavServiceBar from "./components/NavServiceBar";
+import NavServiceBar, {
+  MobileServiceDropdown,
+  type BookingServiceType,
+} from "./components/NavServiceBar";
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
 export interface RoomBooking {
@@ -301,6 +305,7 @@ export default function Hotels({
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [facilitiesFilter, setFacilitiesFilter] = useState<string[]>([]);
   const [isFacilitiesOpen, setIsFacilitiesOpen] = useState(false);
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
 
   const [favorites, setFavorites] = useState<number[]>([]);
   const [activeHotelMap, setActiveHotelMap] = useState<HotelItem>(
@@ -449,6 +454,18 @@ export default function Hotels({
     router.push(`/hotels?${params.toString()}`);
   };
 
+  const handleMobileServiceSelect = (serviceId: BookingServiceType) => {
+    try {
+      sessionStorage.setItem("mongzo-booking-tab", serviceId);
+    } catch {}
+    window.dispatchEvent(
+      new CustomEvent("mongzo-set-booking-tab", {
+        detail: { tab: serviceId },
+      }),
+    );
+    router.push(`/booking?tab=${serviceId}`);
+  };
+
   // Filtered & Sorted Hotels
   const filteredHotels = INITIAL_HOTELS.filter((hotel) => {
     if (searchQuery) {
@@ -493,15 +510,70 @@ export default function Hotels({
     <div className="min-h-screen bg-[#FFFFFF] text-neutral-900 flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-12" ref={filterRef}>
-        <Suspense fallback={null}>
-          <NavServiceBar active="hotels" />
-        </Suspense>
+      <main className="flex-1 pt-[var(--nav-h)] md:pt-24 pb-12" ref={filterRef}>
+        <div className="hidden lg:block">
+          <Suspense fallback={null}>
+            <NavServiceBar active="hotels" />
+          </Suspense>
+        </div>
         {/* ── Sticky Top Controls (Search Bar & Filters) ─────────── */}
-        <div className="sticky top-20 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 shadow-sm z-30 py-3 mb-6">
+        <div className="sticky top-[var(--nav-h)] bg-white/95 backdrop-blur-md border-b border-neutral-200/80 shadow-sm z-30 py-2 md:py-3 mb-6">
           <div className="container-page flex flex-col gap-3">
+            <div className="hidden md:flex lg:hidden items-center gap-3">
+              <Suspense fallback={null}>
+                <NavServiceBar
+                  active="hotels"
+                  className="flex-1 min-w-0 !w-auto !justify-start !py-0"
+                />
+              </Suspense>
+              <button
+                type="button"
+                aria-expanded={isMobileControlsOpen}
+                aria-controls="hotel-search-widget hotel-filter-bar"
+                onClick={() => setIsMobileControlsOpen((open) => !open)}
+                className="shrink-0 flex items-center justify-between gap-5 px-3 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm font-semibold text-neutral-800 shadow-sm"
+              >
+                <span className="flex items-center gap-2">
+                  <FaBars className="text-neutral-500" />
+                  <span>Search &amp; filters</span>
+                </span>
+                <FaChevronDown
+                  className={`text-xs text-neutral-500 transition-transform ${
+                    isMobileControlsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+            </div>
+            <div className="md:hidden grid grid-cols-2 items-center gap-2">
+              <MobileServiceDropdown
+                active="hotels"
+                onSelect={handleMobileServiceSelect}
+                align="left"
+                className="w-full"
+              />
+              <button
+                type="button"
+                aria-expanded={isMobileControlsOpen}
+                aria-controls="hotel-search-widget hotel-filter-bar"
+                onClick={() => setIsMobileControlsOpen((open) => !open)}
+                className="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm font-semibold text-neutral-800 shadow-sm"
+              >
+                <span className="flex items-center gap-2">
+                  <FaBars className="text-neutral-500" />
+                  <span>Search &amp; filters</span>
+                </span>
+                <FaChevronDown
+                  className={`text-xs text-neutral-500 transition-transform ${
+                    isMobileControlsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+            </div>
             {/* Top Hotel Search Widget */}
-            <div className="bg-[#F5F5F5] rounded-xl border border-neutral-200 p-2.5 sm:p-3 shadow-sm">
+            <div
+              id="hotel-search-widget"
+              className={`${isMobileControlsOpen ? "block" : "hidden"} lg:block bg-[#F5F5F5] rounded-xl border border-neutral-200 p-2.5 sm:p-3 shadow-sm`}
+            >
               <div className="grid grid-cols-1 md:grid-cols-12 gap-2 relative items-center">
                 {/* Destination */}
                 <div className="md:col-span-4 relative">
@@ -809,11 +881,14 @@ export default function Hotels({
             </div>
 
             {/* Filter Bar */}
-            <div className="flex flex-wrap items-center gap-2 text-xs">
+            <div
+              id="hotel-filter-bar"
+              className={`${isMobileControlsOpen ? "flex" : "hidden"} lg:flex flex-wrap items-center gap-2 text-xs`}
+            >
               {/* All Filters */}
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 font-semibold shadow-sm transition-colors"
+                className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 font-semibold shadow-sm transition-colors"
               >
                 <FaSlidersH className="text-neutral-500 text-[10px]" />
                 <span>All Filters</span>

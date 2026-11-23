@@ -218,6 +218,39 @@ const COVERAGE_DATA: CoverageRow[] = [
   },
 ];
 
+const INSURANCE_PLANS = [
+  {
+    id: "econom" as const,
+    name: "Econom",
+    oldPrice: "$62",
+    price: "$60",
+    description: "Minimum insurance complying with visa requirements",
+    cardClass: "bg-[#f0f9ff] border-[#bae6fd]",
+    textClass: "text-[#0284c7]",
+    buttonClass: "bg-[#0284c7] hover:bg-[#0369a1]",
+  },
+  {
+    id: "standard" as const,
+    name: "Standard",
+    oldPrice: "$116",
+    price: "$113",
+    description: "+ extended limit • + advanced coverage",
+    cardClass: "bg-[#eff6ff] border-[#bfdbfe]",
+    textClass: "text-[#2563eb]",
+    buttonClass: "bg-[#2563eb] hover:bg-[#1d4ed8]",
+  },
+  {
+    id: "million" as const,
+    name: "Million",
+    oldPrice: "$167",
+    price: "$162",
+    description: "+ maximum limit • + civil liability • + luggage",
+    cardClass: "bg-[#eef2ff] border-[#c7d2fe]",
+    textClass: "text-[#4338ca]",
+    buttonClass: "bg-[#4338ca] hover:bg-[#3730a3]",
+  },
+];
+
 export const TravelInsurance = () => {
   const router = useRouter();
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -250,8 +283,196 @@ export const TravelInsurance = () => {
     router.push(`/travelInsurance?plan=${plan}`);
   };
 
+  const renderMobilePlanValue = (
+    row: CoverageRow,
+    plan: (typeof INSURANCE_PLANS)[number]["id"],
+    textClass: string,
+  ) => {
+    if (row.type === "deductible") {
+      const currentValue = {
+        econom: deductibleEconom,
+        standard: deductibleStandard,
+        million: deductibleMillion,
+      }[plan];
+      const setValue = (value: string) => {
+        if (plan === "econom") setDeductibleEconom(value);
+        else if (plan === "standard") setDeductibleStandard(value);
+        else setDeductibleMillion(value);
+      };
+
+      return (
+        <div className="relative inline-block">
+          <button
+            type="button"
+            onClick={() => setOpenDeductible(openDeductible === plan ? null : plan)}
+            className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2 py-1 text-[10px] font-bold text-neutral-800 shadow-sm"
+          >
+            {currentValue}
+            <FaChevronDown className={`text-[8px] text-neutral-400 ${openDeductible === plan ? "rotate-180" : ""}`} />
+          </button>
+          {openDeductible === plan && (
+            <div className="absolute left-1/2 top-full z-30 mt-1 min-w-[72px] -translate-x-1/2 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg">
+              {DEDUCTIBLE_OPTIONS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => {
+                    setValue(option);
+                    setOpenDeductible(null);
+                  }}
+                  className={`w-full px-3 py-2 text-left text-xs font-semibold hover:bg-neutral-50 ${currentValue === option ? textClass : "text-neutral-700"}`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (row.type === "checkbox") {
+      const key = `${plan}_${row.id}`;
+      return (
+        <label className="inline-flex items-center justify-center gap-1 text-[10px] font-semibold text-neutral-800">
+          <input
+            type="checkbox"
+            checked={!!addons[key]}
+            onChange={() => toggleAddon(key)}
+            className="h-3.5 w-3.5 rounded border-neutral-300"
+          />
+          <span>{row[plan]}</span>
+        </label>
+      );
+    }
+
+    return (
+      <span className={`break-words text-[10px] font-bold text-neutral-800 sm:text-xs ${row.type === "boolean" ? textClass : ""}`}>
+        {row[plan] || "—"}
+      </span>
+    );
+  };
+
   return (
-    <div className="w-full mt-4 bg-white rounded-3xl border border-neutral-200/90 shadow-sm p-4 sm:p-6 lg:p-8">
+    <div className="mt-4 w-full rounded-3xl border border-neutral-200/90 bg-white p-3 shadow-sm sm:p-6 lg:p-8">
+      <div className="space-y-4 xl:hidden">
+        <div className="rounded-2xl border border-neutral-200/70 bg-[#fafafa] p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-xs font-bold text-neutral-800">Reviews</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-neutral-800">4,7</span>
+              <div className="flex gap-0.5 text-xs text-amber-400">
+                <FaStar /><FaStar /><FaStar /><FaStar /><FaStarHalfAlt />
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-neutral-200/80 pt-3">
+            <div className="mb-1 flex items-center justify-between text-[10px] text-neutral-400">
+              <span>{REVIEWS[reviewIndex].date}</span>
+              <span className="font-semibold text-neutral-700">{REVIEWS[reviewIndex].name}</span>
+            </div>
+            <div className="mb-2 flex gap-0.5 text-[10px] text-amber-400">
+              {Array.from({ length: REVIEWS[reviewIndex].stars }).map((_, index) => (
+                <FaStar key={index} />
+              ))}
+            </div>
+            <p className="line-clamp-3 text-[11px] leading-relaxed text-neutral-600">
+              {REVIEWS[reviewIndex].text}
+            </p>
+          </div>
+          <div className="mt-3 flex items-center justify-center gap-1.5">
+            {REVIEWS.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setReviewIndex(index)}
+                aria-label={`Show review ${index + 1}`}
+                className={`rounded-full transition-all duration-300 ${index === reviewIndex ? "h-1.5 w-4 bg-[#0284c7]" : "h-1.5 w-1.5 bg-neutral-300 hover:bg-neutral-400"}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {INSURANCE_PLANS.map((plan) => (
+            <div key={plan.id} className={`rounded-2xl border p-4 text-center ${plan.cardClass}`}>
+              <h3 className="text-base font-bold text-neutral-900">{plan.name}</h3>
+              <div className="my-2 flex flex-col items-center">
+                <span className="text-xs font-semibold leading-tight text-neutral-400 line-through">
+                  {plan.oldPrice}
+                </span>
+                <span className={`mt-1 text-2xl font-extrabold leading-none ${plan.textClass}`}>
+                  {plan.price}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleSelectPlan(plan.id)}
+                className={`my-2 w-full rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all active:scale-95 ${plan.buttonClass}`}
+              >
+                Select
+              </button>
+              <p className="text-xs leading-snug text-neutral-500">{plan.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-3">
+          {COVERAGE_DATA.map((row) => {
+            const isExpanded = !!expandedRows[row.id];
+            return (
+              <div key={row.id} className="rounded-xl border border-neutral-200 bg-white p-3">
+                <button
+                  type="button"
+                  onClick={() => toggleRow(row.id)}
+                  aria-expanded={isExpanded}
+                  className="flex w-full items-center justify-between gap-2 text-left"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    {isExpanded ? (
+                      <FaChevronUp className="shrink-0 text-[11px] text-neutral-800" />
+                    ) : (
+                      <FaChevronDown className="shrink-0 text-[11px] text-neutral-500" />
+                    )}
+                    <span className="text-xs font-semibold leading-tight text-neutral-900">
+                      {row.title}
+                    </span>
+                    {row.hasInfo && <FaInfoCircle className="shrink-0 text-xs text-neutral-400" />}
+                  </span>
+                </button>
+
+                <div className="mt-3 grid grid-cols-3 gap-1 border-t border-neutral-100 pt-3">
+                  {INSURANCE_PLANS.map((plan) => (
+                    <div key={plan.id} className="min-w-0 text-center">
+                      <span className={`mb-1 block truncate text-[9px] font-semibold sm:text-[10px] ${plan.textClass}`}>
+                        {plan.name}
+                      </span>
+                      {renderMobilePlanValue(row, plan.id, plan.textClass)}
+                    </div>
+                  ))}
+                </div>
+
+                {isExpanded && (
+                  <div className="mt-3 space-y-2 border-t border-neutral-100 pt-3">
+                    {row.details.map((detail, index) => (
+                      <p key={index} className="flex items-start gap-2 text-[11px] leading-relaxed text-neutral-500">
+                        <span className="mt-0.5 select-none text-neutral-400">•</span>
+                        <span>{detail}</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="text-right text-[10px] leading-relaxed text-neutral-400 sm:text-[11px]">
+          All insurance programs comply with the visa requirements of the Schengen countries, Great Britain, Canada, Australia etc.
+        </p>
+      </div>
+
+      <div className="hidden xl:block">
       <div className="overflow-x-auto">
         <div className="min-w-[900px]">
           {/* Table with separated columns creating independent column cards with white gutters */}
@@ -677,6 +898,7 @@ export const TravelInsurance = () => {
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

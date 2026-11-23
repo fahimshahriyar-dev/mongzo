@@ -29,10 +29,10 @@ const legalLinks = [
 ];
 
 const socialLinks = [
-  { icon: FaFacebookF, href: "https://facebook.com", label: "Facebook" },
+  { icon: FaFacebookF, href: "https://www.facebook.com/61596988642996/posts/122094395961566288/?app=fbl", label: "Facebook" },
   { icon: FaInstagram, href: "https://instagram.com", label: "Instagram" },
   { icon: FaXTwitter, href: "https://twitter.com", label: "X" },
-  { icon: FaYoutube, href: "https://youtube.com", label: "YouTube" },
+  { icon: FaYoutube, href: "https://youtube.com/@mongzo_1?si=ThN67fVRXX-KI-Qc", label: "YouTube" },
   { icon: FaLinkedinIn, href: "https://linkedin.com", label: "LinkedIn" },
 ];
 

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   FaChevronDown, FaCar, FaMapMarkerAlt, FaCheck, FaUser,
   FaDoorOpen, FaSuitcase, FaCog, FaGasPump, FaTag, FaInfoCircle,
-  FaFilter, FaSort, FaExchangeAlt
+  FaFilter, FaSearch, FaSort, FaExchangeAlt
 } from "react-icons/fa";
 import { FiCheck } from "react-icons/fi";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
@@ -357,19 +357,33 @@ export default function Cars({
   // ── Sort state ───────────────────────────────────────────────────────────
   const [sortBy, setSortBy] = useState<"recommended" | "price_low" | "price_high">("recommended");
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [isCarFilterPanelOpen, setIsCarFilterPanelOpen] = useState(false);
+  const [isCarSearchOpen, setIsCarSearchOpen] = useState(false);
 
   // ── Close dropdowns on outside click ────────────────────────────────────
   const wrapperRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+      const clickedCarSearchToggle =
+        e.target instanceof Element && e.target.closest("[data-car-search-toggle]");
+      const clickedCarFilterDropdown =
+        e.target instanceof Element && e.target.closest("[data-car-filter-dropdown]");
+      const clickedSortDropdown =
+        e.target instanceof Element && e.target.closest("[data-car-sort-dropdown]");
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node) &&
+        !clickedCarSearchToggle
+      ) {
         setIsCarCountryOpen(false);
         setIsCarPickUpTimeOpen(false);
         setIsCarDropOffTimeOpen(false);
         setIsCarPickUpDateOpen(false);
         setIsCarDropOffDateOpen(false);
-        setIsSortOpen(false);
+        setIsCarSearchOpen(false);
       }
+      if (!clickedSortDropdown) setIsSortOpen(false);
+      if (!clickedCarFilterDropdown) setIsCarFilterPanelOpen(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -611,15 +625,215 @@ export default function Cars({
 
   const sortLabels = { recommended: "Recommended", price_low: "Price (low to high)", price_high: "Price (high to low)" };
 
+  const renderCarFilters = () => (
+    <div className="space-y-5">
+      <h2 className="text-base font-bold text-neutral-900">Filters</h2>
+
+      <div className="relative h-36 overflow-hidden rounded-xl border border-neutral-200 bg-white">
+        <iframe
+          title="Pick-up location map"
+          src={`https://www.google.com/maps?q=${encodeURIComponent(carLocation || "Hamburg, Germany")}&z=12&output=embed`}
+          className="h-full w-full border-0"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(carLocation || "Hamburg, Germany")}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-3 left-3 z-10 rounded-full bg-[#2563eb] px-3 py-1.5 text-xs font-bold text-white shadow transition-colors hover:bg-[#1d4ed8]"
+        >
+          Show on map
+        </a>
+      </div>
+
+      <FilterSection title="Pick-up location">
+        {allLocations.map(loc => (
+          <CheckboxItem key={loc} label={loc}
+            checked={pickupLocations.includes(loc)}
+            onChange={() => setPickupLocations(toggleArr(pickupLocations, loc))}
+          />
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Car category">
+        {CAR_CATEGORIES.map(cat => (
+          <CheckboxItem key={cat} label={cat}
+            checked={selCategories.includes(cat)}
+            onChange={() => setSelCategories(toggleArr(selCategories, cat))}
+          />
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Car type">
+        {CAR_TYPES.map(t => (
+          <CheckboxItem key={t} label={t}
+            checked={selCarTypes.includes(t)}
+            onChange={() => setSelCarTypes(toggleArr(selCarTypes, t))}
+          />
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Price range">
+        <div className="mb-2 text-xs text-neutral-700">
+          ${priceMin} - ${priceMax.toLocaleString()}
+        </div>
+        <input type="range" min={200} max={1500} step={10}
+          value={priceMax}
+          onChange={e => setPriceMax(Number(e.target.value))}
+          className="w-full accent-[#2563eb]"
+        />
+      </FilterSection>
+
+      <FilterSection title="Seats">
+        <div className="flex flex-wrap gap-2">
+          {SEAT_OPTIONS.map(s => (
+            <button key={s} type="button"
+              onClick={() => setSelSeats(toggleArr(selSeats, s))}
+              className={`w-9 h-9 rounded-lg border text-sm font-bold transition-colors ${
+                selSeats.includes(s)
+                  ? "bg-[#2563eb] border-[#2563eb] text-white"
+                  : "border-neutral-200 text-neutral-700 hover:border-[#2563eb]"
+              }`}
+            >{s}</button>
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Supplier">
+        {SUPPLIERS.map(s => (
+          <CheckboxItem key={s} label={s}
+            checked={selSuppliers.includes(s)}
+            onChange={() => setSelSuppliers(toggleArr(selSuppliers, s))}
+          />
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Fuel type">
+        {FUEL_TYPES.map(f => (
+          <CheckboxItem key={f} label={f}
+            checked={selFuels.includes(f)}
+            onChange={() => setSelFuels(toggleArr(selFuels, f))}
+          />
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Transmission">
+        {TRANSMISSIONS.map(t => (
+          <CheckboxItem key={t} label={t}
+            checked={selTransmissions.includes(t)}
+            onChange={() => setSelTransmissions(toggleArr(selTransmissions, t))}
+          />
+        ))}
+      </FilterSection>
+
+      <FilterSection title="Mileage">
+        {MILEAGE_OPTIONS.map(m => (
+          <CheckboxItem key={m} label={m}
+            checked={selMileage.includes(m)}
+            onChange={() => setSelMileage(toggleArr(selMileage, m))}
+          />
+        ))}
+      </FilterSection>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-neutral-800 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 pt-[var(--nav-h)] pb-20 md:pt-24">
         <NavServiceBar active="cars" />
         {/* ── Search Bar ────────────────────────────────────────────────── */}
-        <div className="container-page mb-8" ref={wrapperRef}>
-          <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-5">
+        <div className="container-page">
+          <div className="relative">
+            <div className="sticky top-[var(--nav-h)] z-30 -mx-4 border-b border-neutral-200/80 bg-white/95 px-4 py-2 shadow-sm backdrop-blur-md md:-mx-8 md:px-8 md:py-3 lg:hidden">
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  data-car-search-toggle
+                  onClick={() => {
+                    setIsCarSearchOpen((open) => !open);
+                    setIsCarFilterPanelOpen(false);
+                    setIsSortOpen(false);
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-800 transition-colors hover:border-neutral-300"
+                >
+                  <FaSearch className="text-sm text-neutral-500" />
+                  <span>Search</span>
+                  <FaChevronDown
+                    className={`text-xs text-neutral-500 transition-transform duration-200 ${isCarSearchOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                <div className="relative" data-car-filter-dropdown>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCarFilterPanelOpen((open) => !open);
+                      setIsCarSearchOpen(false);
+                      setIsSortOpen(false);
+                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-800 transition-colors hover:border-neutral-300"
+                  >
+                    <FaFilter className="text-sm text-neutral-500" />
+                    <span>Filters</span>
+                    <FaChevronDown
+                      className={`text-xs text-neutral-500 transition-transform duration-200 ${isCarFilterPanelOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {isCarFilterPanelOpen && (
+                    <div className="absolute right-0 top-full z-[100] mt-2 w-[calc(100vw-2rem)] max-w-md rounded-xl border border-neutral-200 bg-white p-3 shadow-xl">
+                      <div className="max-h-[calc(100vh-12rem)] overflow-y-auto rounded-lg bg-[#F5F5F5] p-4">
+                        {renderCarFilters()}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="relative col-span-2" data-car-sort-dropdown>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSortOpen((open) => !open);
+                      setIsCarSearchOpen(false);
+                      setIsCarFilterPanelOpen(false);
+                    }}
+                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm font-medium text-neutral-800 transition-colors hover:border-neutral-300"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <FaSort className="shrink-0 text-xs text-neutral-400" />
+                      <span className="shrink-0">Sort by</span>
+                      <span className="truncate font-semibold text-[#2563eb]">{sortLabels[sortBy]}</span>
+                    </span>
+                    <FaChevronDown
+                      className={`shrink-0 text-[9px] text-neutral-400 transition-transform duration-200 ${isSortOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {isSortOpen && (
+                    <div className="absolute left-0 right-0 top-full z-[100] mt-1 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl">
+                      {(["recommended", "price_low", "price_high"] as const).map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => {
+                            setSortBy(opt);
+                            setIsSortOpen(false);
+                          }}
+                          className={`w-full px-4 py-3 text-left text-sm transition-colors hover:bg-neutral-100 ${sortBy === opt ? "bg-[#eff6ff] font-semibold text-[#2563eb]" : "text-neutral-700"}`}
+                        >
+                          {sortLabels[opt]}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div ref={wrapperRef} className={`${isCarSearchOpen ? "block" : "hidden"} lg:block`}>
+              <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-5">
             {/* Main inputs strip */}
             <div className="flex flex-col lg:flex-row border border-neutral-200 rounded-xl overflow-visible mb-4">
               {/* Pick up & Drop off locations (From/To style) */}
@@ -819,134 +1033,15 @@ export default function Cars({
               </div>
             </div>
           </div>
-        </div>
+            </div>
 
         {/* ── Main Content: Sidebar + Car List ──────────────────────────── */}
-        <div className="container-page">
-          <div className="flex gap-6">
+          <div className="flex flex-col gap-6 lg:flex-row">
 
             {/* ── Left Sidebar ──────────────────────────────────────────── */}
-            <aside className="hidden lg:block w-56 flex-shrink-0">
-              <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 p-4 sticky top-24">
-                <h2 className="text-base font-bold text-neutral-900 mb-4">Filters</h2>
-
-                {/* Map */}
-                <div className="rounded-xl overflow-hidden mb-4 h-36 relative border border-neutral-200 bg-white">
-                  <iframe
-                    title="Pick-up location map"
-                    src={`https://www.google.com/maps?q=${encodeURIComponent(carLocation || "Hamburg, Germany")}&z=12&output=embed`}
-                    className="w-full h-full border-0"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    allowFullScreen
-                  />
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(carLocation || "Hamburg, Germany")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute z-10 bottom-3 left-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors shadow"
-                  >
-                    Show on map
-                  </a>
-                </div>
-
-                {/* Pick-up location */}
-                <FilterSection title="Pick-up location">
-                  {allLocations.map(loc => (
-                    <CheckboxItem key={loc} label={loc}
-                      checked={pickupLocations.includes(loc)}
-                      onChange={() => setPickupLocations(toggleArr(pickupLocations, loc))}
-                    />
-                  ))}
-                </FilterSection>
-
-                {/* Car category */}
-                <FilterSection title="Car category">
-                  {CAR_CATEGORIES.map(cat => (
-                    <CheckboxItem key={cat} label={cat}
-                      checked={selCategories.includes(cat)}
-                      onChange={() => setSelCategories(toggleArr(selCategories, cat))}
-                    />
-                  ))}
-                </FilterSection>
-
-                {/* Car type */}
-                <FilterSection title="Car type">
-                  {CAR_TYPES.map(t => (
-                    <CheckboxItem key={t} label={t}
-                      checked={selCarTypes.includes(t)}
-                      onChange={() => setSelCarTypes(toggleArr(selCarTypes, t))}
-                    />
-                  ))}
-                </FilterSection>
-
-                {/* Price range */}
-                <FilterSection title="Price range">
-                  <div className="text-xs text-neutral-700 mb-2">
-                    ${priceMin} - ${priceMax.toLocaleString()}
-                  </div>
-                  <input type="range" min={200} max={1500} step={10}
-                    value={priceMax}
-                    onChange={e => setPriceMax(Number(e.target.value))}
-                    className="w-full accent-[#2563eb]"
-                  />
-                </FilterSection>
-
-                {/* Seats */}
-                <FilterSection title="Seats">
-                  <div className="flex flex-wrap gap-2">
-                    {SEAT_OPTIONS.map(s => (
-                      <button key={s} type="button"
-                        onClick={() => setSelSeats(toggleArr(selSeats, s))}
-                        className={`w-9 h-9 rounded-lg border text-sm font-bold transition-colors ${
-                          selSeats.includes(s)
-                            ? "bg-[#2563eb] border-[#2563eb] text-white"
-                            : "border-neutral-200 text-neutral-700 hover:border-[#2563eb]"
-                        }`}
-                      >{s}</button>
-                    ))}
-                  </div>
-                </FilterSection>
-
-                {/* Supplier */}
-                <FilterSection title="Supplier">
-                  {SUPPLIERS.map(s => (
-                    <CheckboxItem key={s} label={s}
-                      checked={selSuppliers.includes(s)}
-                      onChange={() => setSelSuppliers(toggleArr(selSuppliers, s))}
-                    />
-                  ))}
-                </FilterSection>
-
-                {/* Fuel type */}
-                <FilterSection title="Fuel type">
-                  {FUEL_TYPES.map(f => (
-                    <CheckboxItem key={f} label={f}
-                      checked={selFuels.includes(f)}
-                      onChange={() => setSelFuels(toggleArr(selFuels, f))}
-                    />
-                  ))}
-                </FilterSection>
-
-                {/* Transmission */}
-                <FilterSection title="Transmission">
-                  {TRANSMISSIONS.map(t => (
-                    <CheckboxItem key={t} label={t}
-                      checked={selTransmissions.includes(t)}
-                      onChange={() => setSelTransmissions(toggleArr(selTransmissions, t))}
-                    />
-                  ))}
-                </FilterSection>
-
-                {/* Mileage */}
-                <FilterSection title="Mileage">
-                  {MILEAGE_OPTIONS.map(m => (
-                    <CheckboxItem key={m} label={m}
-                      checked={selMileage.includes(m)}
-                      onChange={() => setSelMileage(toggleArr(selMileage, m))}
-                    />
-                  ))}
-                </FilterSection>
+            <aside className="hidden w-56 flex-shrink-0 lg:block">
+              <div className="sticky top-24 rounded-2xl border border-neutral-200 bg-[#F5F5F5] p-4">
+                {renderCarFilters()}
               </div>
             </aside>
 
@@ -954,12 +1049,12 @@ export default function Cars({
             <div className="flex-1 min-w-0">
               {/* Header row */}
               <div className="flex items-center justify-between mb-4">
-                <div>
+                <div className="hidden lg:block">
                   <h1 className="text-xl font-bold text-neutral-900">Choose your car</h1>
                   <p className="text-sm text-neutral-400 mt-0.5">{filteredCars.length} results</p>
                 </div>
                 {/* Sort */}
-                <div className="relative" ref={undefined}>
+                <div className="relative ml-auto hidden lg:block" data-car-sort-dropdown>
                   <button
                     type="button"
                     onClick={() => setIsSortOpen(!isSortOpen)}
@@ -980,6 +1075,7 @@ export default function Cars({
                       ))}
                     </div>
                   )}
+                </div>
                 </div>
               </div>
 
@@ -1076,8 +1172,8 @@ export default function Cars({
                       </div>
 
                       {/* Footer: supplier + view deal */}
-                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-neutral-200">
-                        <div className="flex items-center gap-3">
+                      <div className="mt-4 flex flex-col gap-3 border-t border-neutral-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex flex-wrap items-center gap-3">
                           <SupplierBadge supplier={car.supplier} color={car.supplierColor} />
                           <span className="text-xs text-neutral-400">Supplied by {car.supplier}</span>
                           <button className="flex items-center gap-1 text-xs text-[#2563eb] hover:text-[#1d4ed8] transition-colors">
@@ -1096,7 +1192,7 @@ export default function Cars({
                             params.set("dropoffTime", carDropOffTime);
                             router.push(`/cars/payment?${params.toString()}`);
                           }}
-                          className="bg-[#2563eb] hover:bg-[#1d4ed8] active:scale-95 text-white font-bold text-sm px-6 py-2.5 rounded-full transition-all shadow-md"
+                          className="w-full whitespace-nowrap rounded-full bg-[#2563eb] px-4 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-[#1d4ed8] active:scale-95 sm:w-auto sm:px-6"
                         >
                           View deal
                         </button>

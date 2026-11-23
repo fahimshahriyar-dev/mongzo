@@ -13,6 +13,8 @@ import {
   FaPlus,
   FaMinus,
   FaBaby,
+  FaSearch,
+  FaSlidersH,
 } from "react-icons/fa";
 import { FiCheck, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
@@ -519,6 +521,10 @@ const FlightPageContent = () => {
   const [checkedBagFilter, setCheckedBagFilter] = useState(false);
   const [noOvernightFilter, setNoOvernightFilter] = useState(false);
 
+  // Mobile/tablet dropdowns for the search + filter panels
+  const [isFlightSearchOpen, setIsFlightSearchOpen] = useState(false);
+  const [isFlightFilterPanelOpen, setIsFlightFilterPanelOpen] = useState(false);
+
   // Click outside listener for flight popovers
   const filterWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -838,17 +844,55 @@ const FlightPageContent = () => {
       <Navbar />
 
       {/* Main Container */}
-      <div className="pt-24 pb-16 container-page">
+      <div className="pt-[var(--nav-h)] md:pt-24 pb-16 container-page">
         <NavServiceBar active="flights" />
-        {/* ========================================================= */}
-        {/* TOP SEARCH BAR WIDGET                                     */}
-        {/* ========================================================= */}
-        <div
-          ref={filterWrapperRef}
-          className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-6 mb-5 transition-all"
-        >
+
+        {/* Responsive filters + results grid */}
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 lg:gap-6 items-stretch lg:items-start">
+          {/* Mobile/tablet dropdowns (popups) + desktop inline panels */}
+          <div className="sticky top-[var(--nav-h)] z-30 -mx-4 md:-mx-8 px-4 md:px-8 py-2 md:py-3 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 shadow-sm lg:contents">
+            {/* Dropdown toggle row */}
+            <div className="grid grid-cols-2 gap-4 lg:hidden">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFlightSearchOpen((v) => !v);
+                  setIsFlightFilterPanelOpen(false);
+                }}
+                className="flex items-center justify-center gap-2 w-full bg-white rounded-xl border border-neutral-200 px-4 py-3 text-sm font-semibold text-neutral-800 hover:border-neutral-300 transition-colors"
+              >
+                <FaSearch className="text-neutral-500 text-sm" />
+                <span>Search</span>
+                <FaChevronDown
+                  className={`text-neutral-500 text-xs transition-transform duration-200 ${isFlightSearchOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFlightFilterPanelOpen((v) => !v);
+                  setIsFlightSearchOpen(false);
+                }}
+                className="flex items-center justify-center gap-2 w-full bg-white rounded-xl border border-neutral-200 px-4 py-3 text-sm font-semibold text-neutral-800 hover:border-neutral-300 transition-colors"
+              >
+                <FaSlidersH className="text-neutral-500 text-sm" />
+                <span>Filters</span>
+                <FaChevronDown
+                  className={`text-neutral-500 text-xs transition-transform duration-200 ${isFlightFilterPanelOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+            </div>
+
+            {/* ========================================================= */}
+            {/* TOP SEARCH BAR WIDGET                                     */}
+            {/* ========================================================= */}
+            <div
+              ref={filterWrapperRef}
+              className={`mt-4 lg:mt-0 lg:col-start-1 lg:col-span-12 lg:row-start-1 bg-[#F5F5F5] rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-6 transition-all ${isFlightSearchOpen ? "" : "hidden lg:block"}`}
+            >
           {/* Top Row: Trip Types & "Search with AI" */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
             <div className="inline-flex items-center gap-1.5 bg-neutral-100/80 p-1 rounded-xl">
               <button
                 type="button"
@@ -1096,7 +1140,7 @@ const FlightPageContent = () => {
                               </button>
                             </div>
 
-                            <div className="flex flex-col sm:flex-row gap-6">
+                            <div className="flex flex-col lg:flex-row gap-6">
                               {renderMonthCalendar(0)}
                               {renderMonthCalendar(1)}
                             </div>
@@ -1420,7 +1464,7 @@ const FlightPageContent = () => {
                         </button>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row gap-6">
+                      <div className="flex flex-col lg:flex-row gap-6">
                         {renderMonthCalendar(0)}
                         {renderMonthCalendar(1)}
                       </div>
@@ -1443,7 +1487,7 @@ const FlightPageContent = () => {
           )}
 
           {/* Bottom Row: Direct Only (hidden in multi-city), Passengers, Class, Payments & Search */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 relative">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-2 relative">
             {/* Direct Only Checkbox (shown only for One-way / Round-trip) */}
             {flightTripType !== "multicity" ? (
               <label className="flex items-center gap-2.5 cursor-pointer select-none text-xs sm:text-sm font-medium text-neutral-700">
@@ -1466,7 +1510,7 @@ const FlightPageContent = () => {
             )}
 
             {/* Dropdown Filters & Search Button */}
-            <div className="flex flex-wrap items-center gap-4 sm:gap-6 self-stretch sm:self-auto justify-between sm:justify-end">
+            <div className="flex flex-wrap items-center gap-4 lg:gap-6 self-stretch lg:self-auto justify-between lg:justify-end">
               <div className="flex items-center gap-4 text-xs font-semibold text-neutral-700">
                 {/* Passengers Dropdown */}
                 <div className="relative">
@@ -1488,7 +1532,7 @@ const FlightPageContent = () => {
 
                   {/* Passengers Popover (opens at bottom) */}
                   {isFlightPassengersOpen && (
-                    <div className="absolute top-full mt-2 right-0 w-[300px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150 lg:left-auto lg:right-0 lg:w-[300px]">
                       <div className="space-y-4">
                         {/* Adults */}
                         <div className="flex items-center justify-between">
@@ -1617,7 +1661,7 @@ const FlightPageContent = () => {
 
                   {/* Cabin Class Popover (opens at bottom) */}
                   {isFlightClassOpen && (
-                    <div className="absolute top-full mt-2 right-0 w-[200px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150 lg:left-auto lg:right-0 lg:w-[200px]">
                       {[
                         "Economy",
                         "Premium Economy",
@@ -1666,7 +1710,7 @@ const FlightPageContent = () => {
 
                   {/* Payment Types Popover (opens at bottom) */}
                   {isFlightPaymentOpen && (
-                    <div className="absolute top-full mt-2 right-0 w-[220px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-2 animate-in fade-in zoom-in-95 duration-150 lg:left-auto lg:right-0 lg:w-[220px]">
                       {[
                         "4 Payment Types",
                         "Credit / Debit Card",
@@ -1707,31 +1751,8 @@ const FlightPageContent = () => {
           </div>
         </div>
 
-        {/* ========================================================= */}
-        {/* LOWER SECTION: FILTER SIDEBAR + FLIGHT CARDS RESULTS      */}
-        {/* ========================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* ========================================= */}
-          {/* LEFT COLUMN: FILTERS SIDEBAR (Image 1, 2, 3) */}
-          {/* ========================================= */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* Notify Me If Price Drops Banner */}
-            <div className="bg-[#F5F5F5] backdrop-blur-lg rounded-2xl border border-neutral-200/90 p-3.5 flex items-center justify-between shadow-sm cursor-pointer hover:border-[#2563eb] hover:bg-white transition-all">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center">
-                  <FaBell className="text-sm" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-neutral-900 leading-tight">
-                    Notify me if price drops
-                  </p>
-                </div>
-              </div>
-              <IoIosArrowForward className="text-neutral-400 text-sm" />
-            </div>
-
             {/* Filter Card Container */}
-            <div className="bg-[#F5F5F5] backdrop-blur-xl rounded-2xl border border-neutral-200/90 p-4 sm:p-5 shadow-sm space-y-5">
+            <div className={`mt-4 max-h-[calc(100vh-8rem)] overflow-y-auto lg:mt-0 lg:max-h-none lg:overflow-visible lg:col-span-3 lg:col-start-1 lg:row-start-3 bg-[#F5F5F5] backdrop-blur-xl rounded-2xl border border-neutral-200/90 p-4 sm:p-5 shadow-sm space-y-5 ${isFlightFilterPanelOpen ? "" : "hidden lg:block"}`}>
               <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
                 <span className="text-xs font-semibold text-neutral-600">
                   {filteredFlights.length} results
@@ -1957,13 +1978,28 @@ const FlightPageContent = () => {
                   ))}
                 </div>
               </div>
+          </div>
+          </div>
+
+          {/* Notify Me If Price Drops Banner */}
+          <div className="lg:col-span-3 lg:col-start-1 lg:row-start-2 bg-[#F5F5F5] backdrop-blur-lg rounded-2xl border border-neutral-200/90 p-3.5 flex items-center justify-between shadow-sm cursor-pointer hover:border-[#2563eb] hover:bg-white transition-all">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#2563eb] text-white flex items-center justify-center">
+                <FaBell className="text-sm" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-neutral-900 leading-tight">
+                  Notify me if price drops
+                </p>
+              </div>
             </div>
+            <IoIosArrowForward className="text-neutral-400 text-sm" />
           </div>
 
           {/* ========================================= */}
           {/* RIGHT COLUMN: FLIGHT LISTINGS RESULTS     */}
           {/* ========================================= */}
-          <div className="lg:col-span-9 space-y-4">
+          <div className="lg:col-span-9 lg:col-start-4 lg:row-start-2 lg:row-span-2 space-y-4">
             {/* Top Sort Bar (Recommended, Cheapest, Fastest, Sort By Dropdown) */}
             <div className="bg-[#F5F5F5] backdrop-blur-xl rounded-2xl border border-neutral-200/90 p-2 shadow-sm flex items-center justify-between overflow-x-auto">
               <div className="flex items-center divide-x divide-neutral-200">

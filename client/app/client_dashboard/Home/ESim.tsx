@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   FaHeart,
@@ -8,6 +8,7 @@ import {
   FaChevronDown,
   FaCalendarAlt,
   FaMapMarkerAlt,
+  FaFilter,
 } from "react-icons/fa";
 import { FiCheck } from "react-icons/fi";
 import { MdClose } from "react-icons/md";
@@ -49,6 +50,22 @@ export default function ESim({ initialDestination = "Global" }: ESimProps) {
   const [travelerRating, setTravelerRating] = useState<number | null>(null);
   const [instantConfirmation, setInstantConfirmation] = useState(false);
   const [freeCancellation, setFreeCancellation] = useState(false);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const filtersDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        filtersDropdownRef.current &&
+        !filtersDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsFiltersOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Favorites wishlist state
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
@@ -119,14 +136,150 @@ export default function ESim({ initialDestination = "Global" }: ESimProps) {
     freeCancellation,
   ]);
 
+  const renderFilters = () => (
+    <>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-bold text-neutral-900">Filters</h3>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={clearAllFilters}
+            className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      <div className="space-y-2.5 text-xs text-neutral-700">
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={bookToday}
+            onChange={(e) => setBookToday(e.target.checked)}
+            className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 rounded-sm"
+          />
+          <span>Book now for today</span>
+        </label>
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={bookTomorrow}
+            onChange={(e) => setBookTomorrow(e.target.checked)}
+            className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 rounded-sm"
+          />
+          <span>Book now for tomorrow</span>
+        </label>
+      </div>
+
+      <hr className="border-neutral-100" />
+
+      <div>
+        <h4 className="text-xs font-bold text-neutral-900 mb-3">Travel date</h4>
+        <div className="space-y-2.5 text-xs text-neutral-700 mb-3">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="travelDate"
+              checked={travelDate === "today"}
+              onChange={() => setTravelDate("today")}
+              className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-neutral-300"
+            />
+            <span>Today</span>
+          </label>
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="travelDate"
+              checked={travelDate === "tomorrow"}
+              onChange={() => setTravelDate("tomorrow")}
+              className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-neutral-300"
+            />
+            <span>Tomorrow</span>
+          </label>
+        </div>
+
+        <div className="relative">
+          <div className="flex items-center gap-2 px-3 py-2 border border-neutral-200 hover:border-neutral-300 rounded-xl bg-white text-xs text-neutral-600 cursor-pointer">
+            <FaCalendarAlt className="text-neutral-400 text-xs shrink-0" />
+            <input
+              type="date"
+              value={customDate}
+              onChange={(e) => {
+                setCustomDate(e.target.value);
+                setTravelDate("custom");
+              }}
+              className="w-full bg-transparent outline-none text-xs text-neutral-800 cursor-pointer"
+              placeholder="Select date"
+            />
+          </div>
+        </div>
+      </div>
+
+      <hr className="border-neutral-100" />
+
+      <div>
+        <h4 className="text-xs font-bold text-neutral-900 mb-3">Traveler rating</h4>
+        <div className="space-y-2.5 text-xs text-neutral-700">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="travelerRating"
+              checked={travelerRating === 4.0}
+              onChange={() => setTravelerRating(travelerRating === 4.0 ? null : 4.0)}
+              className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-neutral-300"
+            />
+            <span>4.0+</span>
+          </label>
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="radio"
+              name="travelerRating"
+              checked={travelerRating === 4.5}
+              onChange={() => setTravelerRating(travelerRating === 4.5 ? null : 4.5)}
+              className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-neutral-300"
+            />
+            <span>4.5+</span>
+          </label>
+        </div>
+      </div>
+
+      <hr className="border-neutral-100" />
+
+      <div>
+        <h4 className="text-xs font-bold text-neutral-900 mb-3">Service guarantee</h4>
+        <div className="space-y-2.5 text-xs text-neutral-700">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={instantConfirmation}
+              onChange={(e) => setInstantConfirmation(e.target.checked)}
+              className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 rounded-sm"
+            />
+            <span>Instant confirmation</span>
+          </label>
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={freeCancellation}
+              onChange={(e) => setFreeCancellation(e.target.checked)}
+              className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 rounded-sm"
+            />
+            <span>Free cancellation</span>
+          </label>
+        </div>
+      </div>
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-[#FFFFFF] pt-24 pb-20">
-      <div className="container-page space-y-6">
+    <div className="min-h-screen bg-[#FFFFFF]">
+      <div className="container-page space-y-4 pt-[var(--nav-h)] pb-20 md:pt-24">
         <NavServiceBar active="esim" />
         {/* Top Destination Filter Search Box - Exact replica of Booking.tsx */}
-        <div className="bg-[#F5F5F5] rounded-2xl border border-neutral-200 shadow-sm p-4 sm:p-6 transition-all">
+        <div className="sticky top-[var(--nav-h)] z-30 -mx-4 border-b border-neutral-200/80 bg-white/95 px-4 py-2 shadow-sm backdrop-blur-md transition-all md:-mx-8 md:px-8 md:py-3 lg:static lg:mx-0 lg:rounded-2xl lg:border lg:border-neutral-200 lg:bg-[#F5F5F5] lg:p-6 lg:shadow-sm">
           {/* Header Row: Title */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="hidden flex-col justify-between gap-3 mb-5 sm:flex-row sm:items-center lg:flex">
             <h2 className="text-base sm:text-lg font-medium text-neutral-800">
               Where do you need data connectivity?
             </h2>
@@ -148,20 +301,24 @@ export default function ESim({ initialDestination = "Global" }: ESimProps) {
 
           {/* Main Inputs Bar */}
           <div className="relative">
-            {/* Destination Input Box */}
-            <div className="w-full relative">
+            <div className="grid grid-cols-2 gap-3 lg:block">
+              {/* Destination Input Box */}
+              <div className="relative w-full">
               <div
-                onClick={() => setIsDestDropdownOpen(!isDestDropdownOpen)}
+                onClick={() => {
+                  setIsDestDropdownOpen((open) => !open);
+                  setIsFiltersOpen(false);
+                }}
                 className={`border rounded-xl px-4 py-2.5 cursor-pointer bg-white transition-all ${
                   isDestDropdownOpen
                     ? "border-[#2563eb] ring-1 ring-[#2563eb]"
                     : "border-neutral-200 hover:border-neutral-300"
                 }`}
               >
-                <span className="block text-[11px] text-neutral-400 font-medium leading-tight">
+                <span className="hidden text-[11px] font-medium leading-tight text-neutral-400 lg:block">
                   Destination
                 </span>
-                <div className="flex items-center justify-between mt-0.5">
+                <div className="mt-0 flex items-center justify-between lg:mt-0.5">
                   <span className="text-sm font-semibold text-neutral-900 truncate">
                     {selectedDestination || "Global"}
                   </span>
@@ -175,7 +332,7 @@ export default function ESim({ initialDestination = "Global" }: ESimProps) {
 
               {/* Destination Dropdown Popup matching Booking.tsx */}
               {isDestDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-full sm:w-[480px] z-50 bg-white rounded-2xl shadow-2xl border border-neutral-200/80 p-5 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute top-full left-0 z-50 mt-2 w-[calc(100vw-4rem)] max-w-[480px] rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-2xl animate-in fade-in zoom-in-95 duration-150 sm:w-[480px]">
                   {/* Search Input inside popover */}
                   <div className="relative mb-4">
                     <div className="border border-[#2563eb] rounded-xl px-3.5 py-2.5 flex items-center justify-between bg-white ring-1 ring-[#2563eb]">
@@ -246,151 +403,37 @@ export default function ESim({ initialDestination = "Global" }: ESimProps) {
                 </div>
               )}
             </div>
+
+            <div className="relative lg:hidden" ref={filtersDropdownRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFiltersOpen((open) => !open);
+                  setIsDestDropdownOpen(false);
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-800 transition-colors hover:border-neutral-300"
+              >
+                <FaFilter className="text-sm text-neutral-500" />
+                <span>Filters</span>
+                <FaChevronDown
+                  className={`text-xs text-neutral-500 transition-transform duration-200 ${isFiltersOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {isFiltersOpen && (
+                <div className="absolute right-0 top-full z-[100] mt-2 max-h-[calc(100vh-12rem)] w-[calc(100vw-4rem)] max-w-md overflow-y-auto rounded-xl border border-neutral-200 bg-[#F5F5F5] p-5 shadow-xl">
+                  <div className="space-y-6">{renderFilters()}</div>
+                </div>
+              )}
+            </div>
           </div>
+        </div>
         </div>
 
         {/* Main Layout: Left Filter Sidebar + Right SIM Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* ============ LEFT FILTER SIDEBAR ============ */}
-          <aside className="lg:col-span-3 bg-[#F5F5F5] rounded-2xl border border-neutral-200/90 p-5 shadow-sm space-y-6">
-            {/* 1. Filters Header & Checkboxes */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-neutral-900">Filters</h3>
-                {hasActiveFilters && (
-                  <button
-                    type="button"
-                    onClick={clearAllFilters}
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-
-              <div className="space-y-2.5 text-xs text-neutral-700">
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={bookToday}
-                    onChange={(e) => setBookToday(e.target.checked)}
-                    className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 rounded-sm"
-                  />
-                  <span>Book now for today</span>
-                </label>
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={bookTomorrow}
-                    onChange={(e) => setBookTomorrow(e.target.checked)}
-                    className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 rounded-sm"
-                  />
-                  <span>Book now for tomorrow</span>
-                </label>
-              </div>
-            </div>
-
-            <hr className="border-neutral-100" />
-
-            {/* 2. Travel date */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 mb-3">Travel date</h4>
-              <div className="space-y-2.5 text-xs text-neutral-700 mb-3">
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="radio"
-                    name="travelDate"
-                    checked={travelDate === "today"}
-                    onChange={() => setTravelDate("today")}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-neutral-300"
-                  />
-                  <span>Today</span>
-                </label>
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="radio"
-                    name="travelDate"
-                    checked={travelDate === "tomorrow"}
-                    onChange={() => setTravelDate("tomorrow")}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-neutral-300"
-                  />
-                  <span>Tomorrow</span>
-                </label>
-              </div>
-
-              {/* Select Date input */}
-              <div className="relative">
-                <div className="flex items-center gap-2 px-3 py-2 border border-neutral-200 hover:border-neutral-300 rounded-xl bg-white text-xs text-neutral-600 cursor-pointer">
-                  <FaCalendarAlt className="text-neutral-400 text-xs shrink-0" />
-                  <input
-                    type="date"
-                    value={customDate}
-                    onChange={(e) => {
-                      setCustomDate(e.target.value);
-                      setTravelDate("custom");
-                    }}
-                    className="w-full bg-transparent outline-none text-xs text-neutral-800 cursor-pointer"
-                    placeholder="Select date"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <hr className="border-neutral-100" />
-
-            {/* 3. Traveler rating */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 mb-3">Traveler rating</h4>
-              <div className="space-y-2.5 text-xs text-neutral-700">
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="radio"
-                    name="travelerRating"
-                    checked={travelerRating === 4.0}
-                    onChange={() => setTravelerRating(travelerRating === 4.0 ? null : 4.0)}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-neutral-300"
-                  />
-                  <span>4.0+</span>
-                </label>
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="radio"
-                    name="travelerRating"
-                    checked={travelerRating === 4.5}
-                    onChange={() => setTravelerRating(travelerRating === 4.5 ? null : 4.5)}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-neutral-300"
-                  />
-                  <span>4.5+</span>
-                </label>
-              </div>
-            </div>
-
-            <hr className="border-neutral-100" />
-
-            {/* 4. Service guarantee */}
-            <div>
-              <h4 className="text-xs font-bold text-neutral-900 mb-3">Service guarantee</h4>
-              <div className="space-y-2.5 text-xs text-neutral-700">
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={instantConfirmation}
-                    onChange={(e) => setInstantConfirmation(e.target.checked)}
-                    className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 rounded-sm"
-                  />
-                  <span>Instant confirmation</span>
-                </label>
-                <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={freeCancellation}
-                    onChange={(e) => setFreeCancellation(e.target.checked)}
-                    className="w-4 h-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 rounded-sm"
-                  />
-                  <span>Free cancellation</span>
-                </label>
-              </div>
-            </div>
+          <aside className="hidden space-y-6 rounded-2xl border border-neutral-200/90 bg-[#F5F5F5] p-5 shadow-sm lg:col-span-3 lg:block">
+            {renderFilters()}
           </aside>
 
           {/* ============ RIGHT SIM CARDS GRID ============ */}

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -27,6 +27,7 @@ const RevealLines = ({ lines }: { lines: string[] }) => (
 );
 
 const Hero = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const sectionRef = useRef<HTMLElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const topLeftRef = useRef<HTMLDivElement | null>(null);
@@ -57,6 +58,21 @@ const Hero = () => {
     if (!ctx) return;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
+
+    // Force canvas redraw - exposed for external triggers
+    const forceRedraw = () => {
+      draw(currentFrame);
+    };
+
+    // Listen for booking panel open/close to redraw canvas
+    const handleBookingToggle = () => {
+      // Small delay to ensure panel animation completes
+      setTimeout(() => {
+        forceRedraw();
+      }, 50);
+    };
+
+    window.addEventListener("mongzo-booking-open", handleBookingToggle);
 
     // ==========================================
     // INTRO: Cloudy word-by-word blur reveal
@@ -103,12 +119,33 @@ const Hero = () => {
     });
 
     let currentFrame = 0;
-    const mobileViewport = window.matchMedia("(max-width: 767px)");
+    let isMobile = window.innerWidth < 768;
     let mobileScrollFrame = 0;
 
+    const checkMobile = () => {
+      isMobile = window.innerWidth < 768;
+    };
+
     const draw = (index: number) => {
-      const image = frames[index];
-      if (!image?.complete || image.naturalWidth === 0) return;
+      const requestedFrame = Math.max(0, Math.min(FRAME_COUNT - 1, index));
+      let image = frames[requestedFrame];
+
+      if (!image?.complete || image.naturalWidth === 0) {
+        for (let distance = 1; distance < FRAME_COUNT; distance += 1) {
+          const nextFrame = frames[requestedFrame + distance];
+          const previousFrame = frames[requestedFrame - distance];
+          if (nextFrame?.complete && nextFrame.naturalWidth > 0) {
+            image = nextFrame;
+            break;
+          }
+          if (previousFrame?.complete && previousFrame.naturalWidth > 0) {
+            image = previousFrame;
+            break;
+          }
+        }
+      }
+
+      if (!image) return;
 
       const canvasWidth = canvas.width;
       const canvasHeight = canvas.height;
@@ -140,7 +177,7 @@ const Hero = () => {
 
     const updateMobileFrame = () => {
       mobileScrollFrame = 0;
-      if (!mobileViewport.matches) return;
+      if (!isMobile) return;
 
       const scrollDistance = section.offsetHeight - window.innerHeight;
       const progress =
@@ -161,31 +198,62 @@ const Hero = () => {
     };
 
     const handleMobileScroll = () => {
-      if (!mobileViewport.matches || mobileScrollFrame) return;
+      if (!isMobile || mobileScrollFrame) return;
       mobileScrollFrame = window.requestAnimationFrame(updateMobileFrame);
     };
 
     const resize = () => {
+      checkMobile();
       const dpr = window.devicePixelRatio || 1;
       canvas.width = Math.round(window.innerWidth * dpr);
       canvas.height = Math.round(window.innerHeight * dpr);
       draw(currentFrame);
-      handleMobileScroll();
+      if (isMobile) handleMobileScroll();
     };
 
     frames.forEach((image, index) => {
       image.addEventListener(
         "load",
         () => {
-          if (index === currentFrame) draw(index);
+          const currentImage = frames[currentFrame];
+          if (
+            index === currentFrame ||
+            !currentImage?.complete ||
+            currentImage.naturalWidth === 0
+          ) {
+            draw(currentFrame);
+          }
+          if (index === 0) {
+            setIsLoading(false);
+          }
         },
         { once: true }
       );
     });
 
+    if (frames[0]?.complete && frames[0].naturalWidth > 0) {
+      setIsLoading(false);
+    }
+
     resize();
     window.addEventListener("resize", resize);
     window.addEventListener("scroll", handleMobileScroll, { passive: true });
+    window.addEventListener("touchmove", handleMobileScroll, { passive: true });
+    window.addEventListener("touchend", updateMobileFrame, { passive: true });
+
+    // Fallback: periodically check scroll position on mobile to prevent black frames
+    let mobileSyncInterval: number;
+    if (isMobile) {
+      mobileSyncInterval = window.setInterval(() => {
+        updateMobileFrame();
+      }, 100);
+    }
+
+    // Also sync on scrollend (when available) to ensure final frame
+    const handleScrollEnd = () => {
+      if (isMobile) updateMobileFrame();
+    };
+    window.addEventListener("scrollend", handleScrollEnd, { passive: true });
 
     const playhead = { frame: 0 };
 
@@ -210,7 +278,7 @@ const Hero = () => {
         ease: "none",
         duration: 1,
         onUpdate: () => {
-          if (mobileViewport.matches) return;
+          if (isMobile) return;
           const frame = Math.round(playhead.frame);
           if (frame !== currentFrame) {
             currentFrame = frame;
@@ -335,16 +403,36 @@ const Hero = () => {
       masterTl.scrollTrigger?.kill();
       masterTl.kill();
       window.cancelAnimationFrame(mobileScrollFrame);
+      if (mobileSyncInterval) clearInterval(mobileSyncInterval);
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", handleMobileScroll);
+      window.removeEventListener("touchmove", handleMobileScroll);
+      window.removeEventListener("touchend", updateMobileFrame);
+      window.removeEventListener("scrollend", handleScrollEnd);
+      window.removeEventListener("mongzo-booking-open", handleBookingToggle);
     };
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-[500vh] bg-[#1a1410]">
+    <section ref={sectionRef} className="relative h-[500vh] bg-[#050b12]">
       {/* Sticky container that stays in viewport while scrolling the 500vh track.
           After the last frame, Home.tsx slides the Booking panel up over it. */}
-      <div className="sticky top-0 z-0 h-dvh w-full overflow-hidden bg-[#18130f] select-none">
+      <div className="sticky top-0 z-0 h-dvh w-full overflow-hidden bg-[#050b12] select-none">
+        {/* Loader shown while first frame loads */}
+        <div
+          className={`absolute inset-0 z-30 flex flex-col items-center justify-center bg-[#050b12] transition-opacity duration-500 pointer-events-none ${
+            isLoading ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <div className="relative flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
+            <div className="absolute w-6 h-6 rounded-full border-2 border-sky-400/30 border-b-sky-400 animate-spin [animation-direction:reverse]" />
+          </div>
+          <span className="mt-4 text-xs font-medium tracking-widest uppercase text-white/50">
+            Loading
+          </span>
+        </div>
+
         {/* Background Canvas for Airplane Window Scroll Animation */}
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full object-cover" />
 
